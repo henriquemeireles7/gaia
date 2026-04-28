@@ -1,0 +1,25 @@
+id: ai-tool-loop-bounded
+language: TypeScript
+files:
+  - 'apps/api/features/**/*.ts'
+  - 'packages/adapters/**/*.ts'
+ignores:
+  - '**/*.test.ts'
+rule:
+  pattern: |
+    while ($COND) { $$$ }
+  has:
+    stopBy: end
+    pattern: complete($$$)
+  not:
+    inside:
+      stopBy: end
+      any:
+        - pattern: withMaxDepth($$$)
+        - pattern: boundedToolLoop($$$)
+message: |
+  Tool-use loops must be bounded — wrap the loop in `withMaxDepth(10, ...)`
+  or `boundedToolLoop(...)` from @gaia/adapters/anthropic
+  (rule ai/tool-loop-bounded). Unbounded loops are a runaway-cost vector.
+  See .gaia/reference/ai.md.
+severity: error

@@ -122,6 +122,8 @@ After saving, auto-commit and push (non-code content).
 
 ## Output
 
+Mode: **fix** — the skill writes the content file (blog post, handbook entry, social post, clip outline) to disk after voice review. Returns the canonical structured report below.
+
 ```
 === CONTENT CREATED ===
 Type: {type}

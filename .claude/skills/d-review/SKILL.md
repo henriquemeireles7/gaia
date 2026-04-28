@@ -316,6 +316,8 @@ Evidence format per finding:
 
 ## Output
 
+Mode: **fix** — d-review is fix-first: applies mechanical fixes immediately and surfaces remaining findings sorted by confidence. Reports issues with numeric confidence scores per finding.
+
 ### Finding-First Report
 
 When issues ARE found, lead with findings (sorted by confidence, highest first):

@@ -195,6 +195,12 @@ Next steps:
 
 ---
 
+## Output
+
+Mode: **report** — produces an initiative document with project suggestions. No code mutations. The founder's answers ARE the strategy; the skill captures them as a reviewable artifact.
+
+---
+
 ## Rules
 
 - NEVER write code — this is strategy only

@@ -1,0 +1,23 @@
+id: security-csrf-on-mutations
+language: TypeScript
+files:
+  - 'apps/api/features/**/routes.ts'
+  - 'apps/api/features/**/*.routes.ts'
+rule:
+  any:
+    - pattern: $APP.post($$$)
+    - pattern: $APP.put($$$)
+    - pattern: $APP.patch($$$)
+    - pattern: $APP.delete($$$)
+  not:
+    inside:
+      stopBy: end
+      any:
+        - pattern: protectedRoute($$$)
+        - pattern: csrfProtect($$$)
+message: |
+  POST/PUT/PATCH/DELETE handlers must compose `protectedRoute()` (which
+  applies CSRF) or `csrfProtect()` explicitly (rule
+  security/csrf-on-mutations). Public mutating endpoints are an attack
+  surface. See .gaia/reference/security.md.
+severity: error

@@ -239,7 +239,7 @@ The new principles appear in the pending list. That's expected — they're track
 
 ## Output
 
-Two artifacts, posted to the PR body:
+Mode: **fix** — the skill writes a new (or rewritten) `.gaia/reference/*.md` file plus matching `rules.ts` entries, then verifies the check pipeline. Two artifacts, posted to the PR body:
 
 1. **The adversarial review** (Phase 3) for every principle — visible to reviewers.
 2. **The diff summary** — one line per principle, naming the rules.ts id created.

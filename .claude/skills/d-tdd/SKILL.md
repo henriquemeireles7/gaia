@@ -208,6 +208,12 @@ The ONLY reasons to stop:
 
 ---
 
+## Output
+
+Mode: **fix** — the skill mutates source code to satisfy the project roadmap, writing tests first then implementations. Returns when `bun run check` is green and all acceptance criteria pass.
+
+---
+
 ## Rules
 
 - NEVER skip the Build Order — even if the deliverable only mentions one file

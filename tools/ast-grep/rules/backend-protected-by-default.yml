@@ -1,0 +1,16 @@
+id: backend-protected-by-default
+language: TypeScript
+files:
+  - 'apps/api/features/**/routes.ts'
+  - 'apps/api/features/**/*.routes.ts'
+rule:
+  pattern: 'export const $PLUGIN = new Elysia($$$)'
+  not:
+    follows:
+      stopBy: end
+      regex: 'protectedRoute|publicRoute'
+message: |
+  Every Elysia plugin in features/ composes either `protectedRoute()` or
+  `publicRoute()` (rule backend/protected-by-default). Auth is opt-out,
+  not opt-in. See .gaia/reference/backend.md.
+severity: warning

@@ -1,0 +1,17 @@
+id: security-rate-limit-on-public
+language: TypeScript
+files:
+  - 'apps/api/features/**/routes.ts'
+  - 'apps/api/features/**/*.routes.ts'
+rule:
+  pattern: publicRoute($OBJ)
+  not:
+    has:
+      stopBy: end
+      regex: 'rateLimit|rate_limit'
+message: |
+  Public routes apply `rateLimit({...})` (rule
+  security/rate-limit-on-public). Default `publicRoute()` should compose
+  it; if you've stripped that, add it explicitly. See
+  .gaia/reference/security.md.
+severity: warning

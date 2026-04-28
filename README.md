@@ -14,7 +14,7 @@ The template is the product. The course, the orchestrator, and the deployment pl
 
 ## Who it's for
 
-The one-person unicorn — a solo founder who wants to build and scale a software company without a team, using AI agents as collaborators. Not indie hackers chasing $5K MRR. Operators shipping serious software alone with agent leverage.
+The one-person unicorn — a solo founder who wants to build and scale a software company without a team, using AI agents as collaborators. Not indie hackers chasing $5K MRR. Operators shipping serious software alone, with agents writing most of the code.
 
 ## Stack (locked, v6)
 

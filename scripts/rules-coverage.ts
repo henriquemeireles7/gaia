@@ -17,6 +17,8 @@ const KINDS: readonly Kind[] = [
   'script',
   'tsc',
   'ci',
+  'review',
+  'advisory',
   'pending',
 ] as const
 
@@ -28,6 +30,8 @@ const totals: Record<Kind, number> = {
   'ast-grep': 0,
   tsc: 0,
   ci: 0,
+  review: 0,
+  advisory: 0,
 }
 
 for (const rule of rules) {
@@ -37,26 +41,26 @@ for (const rule of rules) {
 const enforced = rules.length - totals.pending
 const coverage = ((enforced / rules.length) * 100).toFixed(1)
 
-console.log('Gaia rules.ts coverage')
-console.log('═══════════════════════')
-console.log(`Total rules:     ${rules.length}`)
-console.log(`Enforced:        ${enforced} (${coverage}%)`)
-console.log(`Pending:         ${totals.pending}`)
-console.log('')
-console.log('By mechanism:')
+console.error('Gaia rules.ts coverage')
+console.error('═══════════════════════')
+console.error(`Total rules:     ${rules.length}`)
+console.error(`Enforced:        ${enforced} (${coverage}%)`)
+console.error(`Pending:         ${totals.pending}`)
+console.error('')
+console.error('By mechanism:')
 for (const kind of KINDS) {
   const n = totals[kind]
   if (n === 0) continue
   const bar = '█'.repeat(Math.round((n / rules.length) * 30))
-  console.log(`  ${kind.padEnd(10)} ${String(n).padStart(2)}  ${bar}`)
+  console.error(`  ${kind.padEnd(10)} ${String(n).padStart(2)}  ${bar}`)
 }
 
 // Pending rules: surface them so they're visible in CI logs.
 if (totals.pending > 0) {
-  console.log('')
-  console.log('Pending rules (not yet enforced):')
+  console.error('')
+  console.error('Pending rules (not yet enforced):')
   for (const rule of rules) {
     if (rule.mechanism.kind !== 'pending') continue
-    console.log(`  ${rule.id} — ${rule.mechanism.note}`)
+    console.error(`  ${rule.id} — ${rule.mechanism.note}`)
   }
 }

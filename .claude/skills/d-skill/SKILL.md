@@ -220,7 +220,7 @@ If `check-skills.ts` rejects the SKILL.md, fix the frontmatter and re-run.
 
 ## Output
 
-Posted to the PR body:
+Mode: **fix** — the skill writes a new (or rewritten) `.claude/skills/<name>/SKILL.md` plus optional sibling files, validates frontmatter, and verifies the check pipeline. Posted to the PR body:
 
 ```
 === D-SKILL: .claude/skills/<name>/SKILL.md ===

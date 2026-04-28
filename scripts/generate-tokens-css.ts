@@ -227,5 +227,5 @@ if (import.meta.main) {
   const out = buildFormattedCSS()
   const target = join(process.cwd(), 'packages/ui/styles.css')
   writeFileSync(target, out)
-  console.log(`tokens → CSS: wrote ${target}`)
+  console.error(`tokens → CSS: wrote ${target}`)
 }

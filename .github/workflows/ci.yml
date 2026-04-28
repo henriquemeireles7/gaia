@@ -3,6 +3,9 @@ name: CI
 on:
   pull_request:
     branches: [main, master]
+  schedule:
+    # Weekly memory decay run.
+    - cron: '0 7 * * 1'
 
 jobs:
   check:
@@ -77,6 +80,103 @@ jobs:
           bun-version: latest
       - run: bun install --frozen-lockfile
       - run: bun run rules:coverage
+
+  digest-deploy:
+    name: deploy uses image digest, not floating tag
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: 'Verify deploy refs use @sha256: digests'
+        run: |
+          set -euo pipefail
+          violations=$(grep -rEn 'image:\s*[^@\s]+:(latest|main|master)' \
+            .github/workflows fly.toml railway.toml 2>/dev/null || true)
+          if [ -n "$violations" ]; then
+            echo "Floating image tags found — deploys must reference @sha256: digests:"
+            echo "$violations"
+            exit 1
+          fi
+
+  preview-env:
+    name: PR has preview env + Neon branch
+    runs-on: ubuntu-latest
+    if: github.event_name == 'pull_request'
+    steps:
+      - uses: actions/checkout@v4
+      - name: Assert preview-env URL annotated on PR
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          set -euo pipefail
+          body=$(gh pr view ${{ github.event.pull_request.number }} --json body -q .body || echo "")
+          if ! echo "$body" | grep -qE 'https://[a-zA-Z0-9.-]+\.up\.railway\.app|https://[a-zA-Z0-9.-]+\.neon\.tech'; then
+            echo "Preview environment URL (Railway preview or Neon branch) missing from PR description."
+            echo "Add 'Preview: <url>' before merging."
+            exit 1
+          fi
+
+  health-routes:
+    name: app declares /health and /health/ready
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: latest
+      - run: bun install --frozen-lockfile
+      - name: Verify /health and /health/ready in apps/api/server/app.ts
+        run: |
+          set -euo pipefail
+          file=apps/api/server/app.ts
+          if ! grep -q "'/health'" "$file" && ! grep -q '"/health"' "$file"; then
+            echo "$file: /health route not found"
+            exit 1
+          fi
+          if ! grep -q "'/health/ready'" "$file" && ! grep -q '"/health/ready"' "$file"; then
+            echo "$file: /health/ready route not found"
+            exit 1
+          fi
+
+  rollback-runbook:
+    name: rollback runbook present
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Assert docs/runbooks/rollback.md exists
+        run: |
+          set -euo pipefail
+          if [ ! -f docs/runbooks/rollback.md ]; then
+            echo "docs/runbooks/rollback.md missing — required for ≤5min rollback MTTR."
+            exit 1
+          fi
+          if ! grep -qE 'railway\s+(redeploy|rollback)|fly\s+deploy.*--image' docs/runbooks/rollback.md; then
+            echo "docs/runbooks/rollback.md present but does not reference a concrete rollback command."
+            exit 1
+          fi
+
+  memory-decay:
+    name: archive episodic memory >90d
+    runs-on: ubuntu-latest
+    if: github.event_name == 'schedule'
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+      - uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: latest
+      - run: bun install --frozen-lockfile
+      - run: bun scripts/memory-decay.ts
+      - name: Commit archived memory
+        run: |
+          set -euo pipefail
+          if [ -n "$(git status --porcelain .gaia/memory)" ]; then
+            git config user.name "gaia-bot"
+            git config user.email "bot@gaia.dev"
+            git add .gaia/memory
+            git commit -m "chore(memory): archive entries past TTL"
+            git push
+          fi
 
   dead-code:
     name: knip (production)

@@ -122,6 +122,12 @@ Start execution: read any project/roadmap.md → d-tdd or d-content
 
 ---
 
+## Output
+
+Mode: **report** — extracts project roadmaps from a strategy document into individual `.md` files. No code mutations. Each roadmap is self-contained and ready for `/d-tdd` to execute.
+
+---
+
 ## Rules
 
 - NEVER add new ideas — extract only what the document says
