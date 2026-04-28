@@ -1,0 +1,18 @@
+id: ai-model-pinned
+language: TypeScript
+files:
+  - 'apps/api/features/**/*.ts'
+  - 'apps/api/server/**/*.ts'
+ignores:
+  - '**/*.test.ts'
+  - '**/models.ts'
+rule:
+  pattern: 'model: "$LITERAL"'
+  inside:
+    stopBy: end
+    pattern: complete($$$)
+message: |
+  Model identity is a named constant in MODELS.<feature>
+  (rule ai/model-pinned). String literals scattered across feature code
+  break model migrations and cost reporting. See .gaia/reference/ai.md.
+severity: error

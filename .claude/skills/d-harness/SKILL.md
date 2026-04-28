@@ -185,6 +185,10 @@ Append to `decisions/health.md` under "## Incident Log":
 - Biome rule too strict/lenient
 - tsconfig path alias broken
 
+## Output
+
+Mode: **fix** — the skill mutates harness configuration (CLAUDE.md, hooks, configs, scripts) to encode prevention rules learned from a failure. Returns the canonical structured report below.
+
 ## Mandatory Output
 
 ```

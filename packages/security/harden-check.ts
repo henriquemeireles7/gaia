@@ -79,9 +79,12 @@ const tsFiles = walk(ROOT, ['.ts', '.tsx']).filter(
 const codeFiles = tsFiles.filter((f) => !f.endsWith('.test.ts') && !f.endsWith('.test.tsx'))
 const envFile = `${ROOT}/packages/config/env.ts`
 
-// 1. process.env outside packages/config/env.ts
+// 1. process.env outside packages/config/env.ts. Tooling under scripts/
+//    (build-time / CI-time helpers) may read process.env — they aren't
+//    shipped runtime code.
 for (const f of codeFiles) {
   if (f === envFile) continue
+  if (f.includes(`${ROOT}/scripts/`) || f.includes('/.claude/')) continue
   scan(f, [
     {
       pattern: /\bprocess\.env\b/,
@@ -291,7 +294,23 @@ for (const f of codeFiles) {
   ])
 }
 
-// 16. commands/use-bun-not-npm — Bun is the package manager.
+// 16. onboarding/no-tour-modals — empty states are the onboarding surface, not modal tours.
+const TOUR_LIB_BAN =
+  /from\s+['"](shepherd\.js|intro\.js|react-joyride|driver\.js|@reactour\/tour|intro-js)(\/[^'"]*)?['"]/
+for (const f of codeFiles) {
+  if (!f.includes('/apps/web/')) continue
+  scan(f, [
+    {
+      pattern: TOUR_LIB_BAN,
+      rule: 'onboarding/no-tour-modals',
+      message:
+        'No modal-tour libraries — onboarding lives in empty states and progressive disclosure. See .gaia/reference/product/onboarding.md.',
+      severity: 'error',
+    },
+  ])
+}
+
+// 17. commands/use-bun-not-npm — Bun is the package manager.
 for (const f of tsFiles) {
   scan(f, [
     {

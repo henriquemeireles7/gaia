@@ -90,6 +90,10 @@ Confirm the deploy succeeds and the app is healthy.
 If this failure could recur, invoke /d-harness to encode a prevention rule.
 Skip this for true one-offs (typo, missing comma, etc.).
 
+## Output
+
+Mode: **fix** — the skill mutates code to recover the deploy and merges the resulting PR. Reports the root cause + the fix applied. Returns once production is green.
+
 ## Rules
 
 - NEVER guess at the fix without reading the logs first

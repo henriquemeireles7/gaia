@@ -1,0 +1,17 @@
+id: frontend-routes-call-pass-render-only
+language: TypeScript
+files:
+  - 'apps/web/src/routes/**/*.tsx'
+rule:
+  any:
+    - kind: try_statement
+    - kind: switch_statement
+  inside:
+    stopBy: end
+    pattern: 'export default function $NAME($$$) { $$$ }'
+message: |
+  Route components do three things: call (service/resource/signal), pass
+  (props), render (JSX). No business logic in routes
+  (rule frontend/routes-call-pass-render-only). Move try/catch and
+  switches into a hook or service. See .gaia/reference/frontend.md.
+severity: warning

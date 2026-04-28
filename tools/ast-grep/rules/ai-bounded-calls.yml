@@ -1,0 +1,18 @@
+id: ai-bounded-calls
+language: TypeScript
+files:
+  - 'apps/api/features/**/*.ts'
+  - 'apps/api/server/**/*.ts'
+ignores:
+  - '**/*.test.ts'
+rule:
+  pattern: complete($OBJ)
+  not:
+    has:
+      stopBy: end
+      regex: 'maxTokens'
+message: |
+  Every complete() call must pass `maxTokens` (rule ai/bounded-calls).
+  Unbounded generations leak cost and latency. See
+  .gaia/reference/ai.md.
+severity: error

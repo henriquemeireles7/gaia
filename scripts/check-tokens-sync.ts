@@ -22,4 +22,4 @@ if (onDisk !== expected) {
   process.exit(1)
 }
 
-console.log('tokens → CSS: in sync.')
+console.error('tokens → CSS: in sync.')

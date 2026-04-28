@@ -323,6 +323,8 @@ If `decisions/health.md` exists, compare to last run:
 
 ## Output
 
+Mode: **report** — d-health is read-only by contract; it never mutates code. Produces a scored report (decisions/health.md) plus the chat summary below. Trends across runs are tracked.
+
 ### Chat summary (always print)
 
 ```

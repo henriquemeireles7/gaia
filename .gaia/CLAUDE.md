@@ -66,4 +66,4 @@ The Gaia methodology — the substrate that makes principles discoverable and en
 | rules.ts     | ReferenceDomain, RuleTier, Mechanism, Rule, rules, RuleId, findRule, rulesForReference, rulesByMechanism, blockedFor, enforcedReferences |
 | vision.md    | Gaia                                                                                                                                     |
 
-<!-- Generated: 2026-04-28T06:43:38.474Z -->
+<!-- Generated: 2026-04-28T10:09:15.301Z -->

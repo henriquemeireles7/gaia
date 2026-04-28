@@ -1,0 +1,19 @@
+id: code-one-schema-many-consumers
+language: TypeScript
+files:
+  - 'apps/**/*.ts'
+  - 'apps/**/*.tsx'
+  - 'packages/**/*.ts'
+ignores:
+  - 'packages/db/**'
+  - '**/*.test.ts'
+  - '**/*.test.tsx'
+  - '**/*.d.ts'
+rule:
+  pattern: 'type $NAME = { id: string, createdAt: $$$ }'
+message: |
+  Hand-rolled type with id + createdAt parallels a Drizzle table. Derive
+  it instead with `createSelectSchema(table)` from drizzle-typebox
+  (rule code/one-schema-many-consumers). One source, many consumers.
+  See .gaia/reference/code.md.
+severity: warning

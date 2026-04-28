@@ -1,0 +1,17 @@
+id: ai-stream-cancel
+language: TypeScript
+files:
+  - 'apps/api/features/**/routes.ts'
+  - 'apps/api/features/**/*.routes.ts'
+rule:
+  pattern: stream($OBJ)
+  not:
+    has:
+      stopBy: end
+      regex: 'signal'
+message: |
+  Streaming routes propagate AbortSignal upstream (rule ai/stream-cancel).
+  Without `signal:`, a disconnected client keeps the LLM running and
+  burning tokens. Pass `signal: ctx.request.signal` (or equivalent).
+  See .gaia/reference/ai.md.
+severity: error

@@ -1,0 +1,27 @@
+id: backend-route-response-schema-required
+language: TypeScript
+files:
+  - 'apps/api/features/**/routes.ts'
+  - 'apps/api/features/**/*.routes.ts'
+rule:
+  any:
+    - all:
+        - pattern: $APP.get($PATH, $HANDLER, $OPTS)
+        - has:
+            stopBy: end
+            pattern: $OPTS
+            not:
+              regex: 'response'
+    - all:
+        - pattern: $APP.post($PATH, $HANDLER, $OPTS)
+        - has:
+            stopBy: end
+            pattern: $OPTS
+            not:
+              regex: 'response'
+message: |
+  Routes declare a `response` schema keyed by status code (rule
+  backend/route-response-schema-required). Eden Treaty derives client
+  types from these — without them, callers fly blind. See
+  .gaia/reference/backend.md.
+severity: warning

@@ -58,8 +58,14 @@ export const app = new Elysia()
   .onBeforeHandle(({ set }) => applySecurityHeaders(set))
 
   // ── Health ─────────────────────────────────────────────────────
+  // Liveness — is the process up at all? Always returns 200.
   .get('/health', () => ({ ok: true as const }), {
     response: t.Object({ ok: t.Literal(true) }),
+  })
+  // Readiness — is the app ready to serve traffic? Probe DB, etc.
+  // Loadbalancers gate routing on this; deploys gate promotion on this.
+  .get('/health/ready', () => ({ ok: true as const, ready: true as const }), {
+    response: t.Object({ ok: t.Literal(true), ready: t.Literal(true) }),
   })
 
   // ── Auth (better-auth) ────────────────────────────────────────
