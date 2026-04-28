@@ -177,7 +177,7 @@ function parseJsonSafe<T>(stdout: string, fallback: T): T {
 }
 
 function runHarden(): OrchestratorResult['checks']['harden'] {
-  const hardenScript = resolve(REPO_ROOT, 'platform/scripts/harden-check.ts')
+  const hardenScript = resolve(REPO_ROOT, 'packages/security/harden-check.ts')
   const { status, stdout } = runTool('harden', 'bun', [hardenScript, '--json'], TOOL_TIMEOUT_MS)
 
   if (status === 'pass' || status === 'fail') {

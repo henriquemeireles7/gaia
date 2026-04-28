@@ -66,6 +66,19 @@ If any check has `status: "error"` or `status: "skipped"`, note the warning:
 
 ---
 
+## Phase 0.5: Rules coverage snapshot (advisory)
+
+```sh
+bun run rules:coverage
+```
+
+Reads `.gaia/rules.ts` (the single policy source) and prints what's
+enforced vs pending. Surface this in the review so the reviewer sees
+where the harness has gaps. It's never a fail — pending rules are
+visible debt, not bugs.
+
+---
+
 ## Phase 1: Mechanical Fix (AI)
 
 Read the Phase 0 JSON. For each check with `status: "fail"`:
@@ -149,92 +162,86 @@ rg 'from.*changed-module-name' --glob '*.test.{ts,tsx}'
 
 ---
 
-## Phase 5: Coherence (AI — Seven Files cross-check)
+## Phase 5: Coherence (AI — Six Files cross-check)
 
-Read all seven files:
+Gaia's "load-bearing" files. Read all six:
 
-1. `platform/env.ts`
-2. `platform/errors.ts`
-3. `platform/db/schema.ts`
-4. `platform/server/routes.ts`
-5. `platform/server/responses.ts`
-6. `platform/auth/permissions.ts`
-7. `providers/analytics.ts`
+1. `packages/config/env.ts`
+2. `packages/errors/index.ts`
+3. `packages/db/schema.ts`
+4. `apps/api/server/app.ts` (entry + route mounting)
+5. `packages/auth/index.ts`
+6. `packages/adapters/analytics.ts`
 
 Then check coherence **only for entities touched by the diff**:
 
 ### 5a. Schema → Routes
 
-If a **new table** was added to schema.ts:
+If a **new table** was added to `packages/db/schema.ts`:
 
-- [ ] At least one route reads/writes it (or it's a join table)
-- [ ] Route is registered in routes.ts
+- [ ] At least one route reads/writes it (apps/api/server/app.ts or apps/api/server/<feature>.ts)
+- [ ] Or the table is explicitly a join/relation table
 
 ### 5b. Schema → Errors
 
 If a **new table or lookup** was added:
 
-- [ ] Corresponding NOT_FOUND error exists in errors.ts
+- [ ] Corresponding NOT_FOUND error exists in `packages/errors/index.ts`
 - [ ] Validation errors exist if the table has constrained fields
 
 ### 5c. Routes → Errors
 
 If a **new route** was added:
 
-- [ ] Uses `throwError()` for all error paths
-- [ ] Error codes it throws actually exist in errors.ts
+- [ ] Throws `new AppError('CODE')` from @gaia/errors for error paths
+- [ ] Error codes it throws actually exist in `packages/errors/index.ts`
 
 ### 5d. Routes → Responses
 
-If a **new route** was added:
+If a **new Elysia route** was added:
 
-- [ ] Returns via `success()`, `created()`, `paginated()`, `accepted()`, `noContent()`, or `partial()`
-- [ ] Never returns raw `c.json()`
+- [ ] Declares a TypeBox `response` schema (or returns a primitive that Elysia serializes)
+- [ ] Never returns raw `Response` constructors when a typed shape is possible
 
 ### 5e. Routes → Auth
 
-If a **new route** was added under `/api/*`:
+If a **new authenticated route** was added:
 
-- [ ] Has `requireAuth` middleware (unless auth/webhook endpoint)
-- [ ] If role-specific, uses `requirePermission()`
+- [ ] Uses `auth.api.getSession({ headers })` via `protectedRoute` plugin OR inline `.derive`
+- [ ] Webhook/auth/health routes are explicitly exempt and documented
 
-### 5f. Routes → Permissions
+### 5f. Env → Usage
 
-If a **new permission-gated feature** was added:
+If a **new env var** was added to `packages/config/env.ts`:
 
-- [ ] Permission exists in permissions.ts
-- [ ] At least one role has the permission
-
-### 5g. Env → Usage
-
-If a **new env var** was added:
-
-- [ ] Actually referenced in at least one file outside env.ts
-- [ ] Has correct Zod type
+- [ ] Actually referenced in at least one file outside `env.ts`
+- [ ] Has correct TypeBox type and `Type.Optional()` if non-required
+- [ ] Listed in `.github/workflows/ci.yml` placeholder envs if reading at boot
 
 If code **references a new external service**:
 
-- [ ] Env var exists in env.ts for its API key/config
+- [ ] Env var exists in `env.ts` for its API key/config
 
-### 5h. Errors → Usage
+### 5g. Errors → Usage
 
-If a **new error code** was added:
+If a **new error code** was added to `packages/errors/index.ts`:
 
-- [ ] Actually thrown somewhere via `throwError()`
+- [ ] Actually thrown somewhere via `new AppError('CODE')`
 
-### 5i. Permissions → Completeness
+### 5h. Adapters → Vendor isolation
 
-If a **new feature route** was added that serves paying users:
+If a **new vendor SDK** is being used:
 
-- [ ] `pro` role has a permission that gates it
+- [ ] Wrapped in `packages/adapters/<capability>.ts`
+- [ ] Feature code imports the adapter, not the SDK
 
-### 5j. Analytics gaps
+### 5i. Analytics gaps
 
 If a **new user-facing action** was added:
 
-- [ ] `track()` call exists for the action
+- [ ] `track()` call exists for the action via `@gaia/adapters/analytics`
 
-**Fix every coherence gap found. If a fix requires adding to a Seven File, do it.**
+**Fix every coherence gap found. If a fix requires adding to a Six File, do it.**
 
 ---
 

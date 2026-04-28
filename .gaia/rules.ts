@@ -151,13 +151,8 @@ export const rules: readonly Rule[] = [
     tier: 'architecture',
     mechanism: { kind: 'script', script: 'scripts/check-tests-exist.ts' },
   },
-  {
-    id: 'testing/integration-uses-eden-treaty',
-    reference: 'testing',
-    description: '*.integration.test.ts must use Eden Treaty against the Elysia app instance.',
-    tier: 'lint',
-    mechanism: { kind: 'pending', note: 'GritQL rule (planned)' },
-  },
+  // testing/integration-uses-eden-treaty defined further below in
+  // the additions section (single source of truth for this id).
 
   // ─── errors.md ────────────────────────────────────────────────
   {
@@ -245,7 +240,7 @@ export const rules: readonly Rule[] = [
     reference: 'observability',
     description: 'apps/api/server/app.ts must call initObservability(env) before listen().',
     tier: 'lint',
-    mechanism: { kind: 'pending', note: 'GritQL rule (planned)' },
+    mechanism: { kind: 'script', script: 'scripts/check-observability-init.ts' },
   },
 
   // ─── harness.md ──────────────────────────────────────────────
@@ -426,7 +421,7 @@ export const rules: readonly Rule[] = [
     description:
       '*.integration.test.ts uses Eden Treaty (treaty(app)) against the live app instance.',
     tier: 'lint',
-    mechanism: { kind: 'pending', note: 'GritQL rule integration-via-treaty' },
+    mechanism: { kind: 'script', script: 'scripts/check-integration-treaty.ts' },
   },
 
   // ─── errors.md (additions) ───────────────────────────────────
@@ -514,7 +509,7 @@ export const rules: readonly Rule[] = [
     description:
       'Avoid marketing buzzwords (revolutionize, seamless, leverage, unlock, cutting-edge) in content/ and root README.md.',
     tier: 'lint',
-    mechanism: { kind: 'pending', note: 'soft regex with allowlist; advisory only' },
+    mechanism: { kind: 'script', script: 'scripts/check-marketing-vocab.ts' },
   },
 
   // ─── workflow.md ─────────────────────────────────────────────
@@ -541,7 +536,7 @@ export const rules: readonly Rule[] = [
     description:
       'CLI scripts print data to stdout and narration to stderr — enables piping without corruption.',
     tier: 'lint',
-    mechanism: { kind: 'pending', note: 'GritQL rule scoped to scripts/ and apps/api/scripts/' },
+    mechanism: { kind: 'script', script: 'scripts/check-cli-stdout.ts' },
   },
 ] as const
 

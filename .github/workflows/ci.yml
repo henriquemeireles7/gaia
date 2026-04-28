@@ -67,6 +67,17 @@ jobs:
             --skip-git
             ./
 
+  rules-coverage:
+    name: rules.ts coverage report
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: latest
+      - run: bun install --frozen-lockfile
+      - run: bun run rules:coverage
+
   dead-code:
     name: knip (production)
     runs-on: ubuntu-latest
