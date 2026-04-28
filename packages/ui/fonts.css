@@ -1,0 +1,14 @@
+/* fonts.css — @font-face loaders for the Gaia type stack.
+ *
+ * Per design.md §"Typography → Loading", we use Google Fonts via CDN
+ * with `font-display: swap` (FOUT over FOIT). Add this to <head> alongside
+ * styles.css; or, for self-hosting, replace these with local @font-face
+ * declarations pointing to woff2 files in packages/ui/fonts/.
+ *
+ * Import order in app entry (entry-server.tsx, entry-client.tsx):
+ *   import '@gaia/ui/fonts.css'   // first — fonts must be discovered early
+ *   import '@gaia/ui/styles.css'  // tokens + base styles
+ */
+
+@import url('https://fonts.googleapis.com/css2?family=Instrument+Sans:wght@400;500;600;700&family=Instrument+Serif:ital@0;1&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Geist+Mono:wght@400;500&display=swap');

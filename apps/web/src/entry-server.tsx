@@ -1,4 +1,5 @@
 import { createHandler, StartServer } from '@solidjs/start/server'
+import '@gaia/ui/fonts.css'
 import '@gaia/ui/styles.css'
 
 export default createHandler(() => (
@@ -9,6 +10,8 @@ export default createHandler(() => (
           <meta charset="utf-8" />
           <meta name="viewport" content="width=device-width, initial-scale=1" />
           <link rel="icon" href="/favicon.ico" />
+          <link rel="preconnect" href="https://fonts.googleapis.com" />
+          <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="anonymous" />
           {assets}
         </head>
         <body>

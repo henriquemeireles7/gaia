@@ -493,9 +493,9 @@ export const rules: readonly Rule[] = [
     id: 'tokens/single-source',
     reference: 'tokens',
     description:
-      'CSS variables and Tailwind tokens are generated from packages/ui/tokens.ts; never hand-edit generated outputs.',
+      'CSS variables are generated from packages/ui/tokens.ts. packages/ui/styles.css must equal what scripts/generate-tokens-css.ts emits.',
     tier: 'architecture',
-    mechanism: { kind: 'pending', note: 'token-gen script + CI sync check' },
+    mechanism: { kind: 'script', script: 'scripts/check-tokens-sync.ts' },
   },
 
   // ─── ax.md ───────────────────────────────────────────────────
