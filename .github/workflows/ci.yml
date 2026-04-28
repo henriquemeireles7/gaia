@@ -1,0 +1,46 @@
+name: CI
+
+on:
+  pull_request:
+    branches: [main, master]
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_USER: test
+          POSTGRES_PASSWORD: test
+          POSTGRES_DB: test
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
+    steps:
+      - uses: actions/checkout@v4
+      - uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: latest
+
+      - run: bun install --frozen-lockfile
+
+      - name: Lint + Typecheck + Harden + Test
+        env:
+          DATABASE_URL: postgresql://test:test@localhost:5432/test
+          NODE_ENV: test
+          BETTER_AUTH_SECRET: test-secret-min-32-chars-for-ci-validation
+          STRIPE_SECRET_KEY: sk_test_ci_placeholder
+          STRIPE_WEBHOOK_SECRET: whsec_test_ci_placeholder
+          STRIPE_PRICE_ID: price_test_yearly
+          STRIPE_MONTHLY_PRICE_ID: price_test_monthly
+          PUBLIC_STRIPE_KEY: pk_test_ci_placeholder
+          RESEND_API_KEY: re_test_ci_placeholder
+          ANTHROPIC_API_KEY: sk-ant-test_ci_placeholder
+          PUBLIC_APP_URL: http://localhost:3000
+        run: bun run check

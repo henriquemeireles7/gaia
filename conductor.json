@@ -1,0 +1,8 @@
+{
+  "scripts": {
+    "setup": "bun install --frozen-lockfile && ([ -s .env ] || (cp .env.example .env && sed -i '' \"s/PORT=3000/PORT=$CONDUCTOR_PORT/\" .env && sed -i '' \"s|localhost:3000|localhost:$CONDUCTOR_PORT|\" .env))",
+    "run": "PORT=$CONDUCTOR_PORT bun run dev",
+    "archive": "PID=$(lsof -t -i :$CONDUCTOR_PORT 2>/dev/null) && kill $PID 2>/dev/null; true"
+  },
+  "runScriptMode": "concurrent"
+}
