@@ -48,3 +48,18 @@ The Gaia methodology — the substrate that makes principles discoverable and en
 - NEVER auto-promote `memory/episodic/` patterns into `reference/`. v1 promotion is manual via `d-harness`.
 - ALWAYS load `reference/<domain>.md` when working in that domain. Don't reason from memory.
 - ALWAYS append to `audit/` for any state-changing action. The trail is the product, not a side-effect.
+
+---
+
+<!-- AUTO-GENERATED BELOW — do not edit manually -->
+
+## Files
+
+| File         | Exports                                                                                                                                  |
+| ------------ | ---------------------------------------------------------------------------------------------------------------------------------------- |
+| conductor.ts | LoopInput, LoopOutput, tick                                                                                                              |
+| MANIFEST.md  | MANIFEST                                                                                                                                 |
+| rules.ts     | ReferenceDomain, RuleTier, Mechanism, Rule, rules, RuleId, findRule, rulesForReference, rulesByMechanism, blockedFor, enforcedReferences |
+| vision.md    | Gaia                                                                                                                                     |
+
+<!-- Generated: 2026-04-28T06:02:53.656Z -->

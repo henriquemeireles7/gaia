@@ -1,5 +1,5 @@
 import { action, useSubmission } from '@solidjs/router'
-import { api } from '~/lib/api'
+import { api } from '../lib/api'
 
 const signup = action(async (formData: FormData) => {
   'use server'

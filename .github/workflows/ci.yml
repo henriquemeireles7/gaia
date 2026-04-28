@@ -68,12 +68,22 @@ jobs:
             ./
 
   dead-code:
-    name: knip
+    name: knip (production)
     runs-on: ubuntu-latest
+    env:
+      # Knip loads drizzle.config.ts and packages/config/env.ts which throw
+      # on missing required env. Provide CI placeholders so knip can run.
+      DATABASE_URL: postgresql://test:test@localhost:5432/test
+      BETTER_AUTH_SECRET: test-secret-min-32-chars-for-ci-validation
+      POLAR_ACCESS_TOKEN: polar_test_ci_placeholder
+      POLAR_WEBHOOK_SECRET: polar_whsec_test_ci_placeholder
+      POLAR_PRODUCT_ID: prod_test_ci_placeholder
+      RESEND_API_KEY: re_test_ci_placeholder
+      ANTHROPIC_API_KEY: sk-ant-test_ci_placeholder
     steps:
       - uses: actions/checkout@v4
       - uses: oven-sh/setup-bun@v2
         with:
           bun-version: latest
       - run: bun install --frozen-lockfile
-      - run: bunx knip --no-exit-code --reporter compact
+      - run: bunx knip --reporter compact

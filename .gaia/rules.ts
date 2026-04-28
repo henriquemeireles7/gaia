@@ -150,7 +150,7 @@ export const rules: readonly Rule[] = [
     reference: 'testing',
     description: 'Tests live next to source: foo.ts → foo.test.ts in same folder.',
     tier: 'architecture',
-    mechanism: { kind: 'pending', note: 'check-tests-exist.ts script (planned)' },
+    mechanism: { kind: 'script', script: 'scripts/check-tests-exist.ts' },
   },
   {
     id: 'testing/integration-uses-eden-treaty',
@@ -279,7 +279,15 @@ export const rules: readonly Rule[] = [
     reference: 'harness',
     description: '.gaia/MANIFEST.md lists every folder with a CLAUDE.md and vice versa.',
     tier: 'lint',
-    mechanism: { kind: 'pending', note: 'scripts/check-manifest.ts' },
+    mechanism: { kind: 'script', script: 'scripts/check-manifest.ts' },
+  },
+  {
+    id: 'code/knip-gate-production',
+    reference: 'code',
+    description:
+      'Dead code / unused dependencies fail CI. Knip runs as a gate (not advisory) on every PR.',
+    tier: 'hook',
+    mechanism: { kind: 'ci', job: 'dead-code' },
   },
 
   // ─── commands.md ─────────────────────────────────────────────
@@ -492,7 +500,7 @@ export const rules: readonly Rule[] = [
     reference: 'ax',
     description: 'Every SKILL.md ships with YAML frontmatter declaring `name:` and `description:`.',
     tier: 'lint',
-    mechanism: { kind: 'pending', note: 'scripts/check-skills.ts' },
+    mechanism: { kind: 'script', script: 'scripts/check-skills.ts' },
   },
 
   // ─── voice.md ────────────────────────────────────────────────
@@ -512,14 +520,14 @@ export const rules: readonly Rule[] = [
     description:
       'Initiative .md files in .gaia/initiatives/*/ declare parent, hypothesis, and measurement fields.',
     tier: 'lint',
-    mechanism: { kind: 'pending', note: 'scripts/validate-artifacts.ts' },
+    mechanism: { kind: 'script', script: 'scripts/validate-artifacts.ts' },
   },
   {
     id: 'workflow/project-touches-required',
     reference: 'workflow',
     description: 'Project .md files declare `touches:` (files/modules) and `depends_on:` arrays.',
     tier: 'lint',
-    mechanism: { kind: 'pending', note: 'scripts/validate-artifacts.ts' },
+    mechanism: { kind: 'script', script: 'scripts/validate-artifacts.ts' },
   },
 
   // ─── dx.md ───────────────────────────────────────────────────

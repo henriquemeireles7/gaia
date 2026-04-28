@@ -1,6 +1,6 @@
 import { createAsync, query } from '@solidjs/router'
 import { Show } from 'solid-js'
-import { api } from '~/lib/api'
+import { api } from '../lib/api'
 
 const getMe = query(async () => {
   'use server'

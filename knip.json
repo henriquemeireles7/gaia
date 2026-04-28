@@ -1,25 +1,28 @@
 {
   "$schema": "https://unpkg.com/knip@5/schema.json",
+  "ignore": [".claude/**", ".gaia/**", "decisions/**", "tools/gritql/**"],
   "workspaces": {
     ".": {
-      "entry": [
-        "apps/api/server/app.ts",
-        "apps/api/server/elysia-app.ts",
-        "apps/api/scripts/*.ts",
-        "packages/security/harden-check.ts",
-        "drizzle.config.ts"
-      ],
-      "project": [
-        "apps/api/**/*.{ts,tsx}",
-        "packages/**/*.{ts,tsx}",
-        "!**/*.test.{ts,tsx}",
-        "!packages/ui/**"
-      ]
+      "entry": ["drizzle.config.ts", "scripts/*.ts"]
+    },
+    "apps/api": {
+      "entry": ["scripts/*.ts", "test/setup.ts"]
     },
     "apps/web": {
-      "entry": ["src/entry-server.tsx", "src/entry-client.tsx", "app.config.ts"],
-      "project": ["src/**/*.{ts,tsx}"]
+      "entry": [
+        "src/entry-server.tsx",
+        "src/entry-client.tsx",
+        "src/app.tsx",
+        "src/routes/**/*.{ts,tsx}",
+        "app.config.ts"
+      ]
     }
   },
-  "ignoreDependencies": ["@types/bun"]
+  "ignoreDependencies": [
+    "@types/bun",
+    "@biomejs/biome",
+    "@gaia/api-server",
+    "@gaia/security",
+    "@gaia/web"
+  ]
 }

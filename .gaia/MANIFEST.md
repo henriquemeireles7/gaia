@@ -18,18 +18,16 @@ Index of folders that have a `CLAUDE.md` and why. Vision §H6: every CLAUDE.md e
 
 ## Application
 
-| Folder                                                                                                         | Why a CLAUDE.md                                                                                     |
-| -------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------- |
-| `apps/api/`                                                                                                    | Elysia HTTP API. Single entry, TypeBox routes, Eden Treaty types.                                   |
-| `apps/web/`                                                                                                    | SolidStart frontend (file-based routing, Bun runtime).                                              |
-| `packages/adapters/`                                                                                           | Vendor wrappers. One file per capability (payments, email, ai, storage, analytics, error-tracking). |
-| `packages/auth/`                                                                                               | Better Auth wired to Drizzle. Mounted into Elysia.                                                  |
-| `packages/api/`                                                                                                | Eden Treaty client (server→client type bridge).                                                     |
-| `packages/workflows/`                                                                                          | Inngest client.                                                                                     |
-| `packages/config/`, `packages/errors/`, `packages/db/`, `packages/core/`, `packages/ui/`, `packages/security/` | Foundation packages.                                                                                |
+| Folder                | Why a CLAUDE.md                                                                     |
+| --------------------- | ----------------------------------------------------------------------------------- |
+| `apps/api/`           | Elysia HTTP API. Single entry, TypeBox routes, Eden Treaty types.                   |
+| `apps/web/`           | SolidStart frontend (file-based routing, Bun runtime).                              |
+| `packages/adapters/`  | Vendor wrappers. One file per capability (payments, email, ai, storage, analytics). |
+| `packages/auth/`      | Better Auth wired to Drizzle. Mounted into Elysia.                                  |
+| `packages/workflows/` | Inngest client.                                                                     |
 
 ## Out of scope for the manifest
 
-- `decisions/` — being phased out; surviving files (health, maturity, deploy) are leaf docs, not folders that need a CLAUDE.md.
-- `content/`, `styles/` — leaf folders, no local rules beyond root.
-- `node_modules/`, `dist/`, `.git/` — generated or external.
+- `packages/{config,errors,db,core,security}/` — leaf packages; rules in root + `code.md`.
+- `decisions/` — phased out; surviving files (health, maturity, deploy) are leaf docs.
+- `content/`, `node_modules/`, `dist/`, `.git/` — generated, external, or content-only.
