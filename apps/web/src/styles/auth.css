@@ -1,0 +1,19 @@
+/* auth.css — shared layout for /login, /signup, /forgot-password. */
+
+.auth-page {
+  max-width: 480px;
+  margin: var(--space-2xl) auto;
+  padding: 0 var(--space-md);
+}
+
+.auth-form {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-md);
+}
+
+.auth-footer {
+  font-size: var(--font-size-sm);
+  color: var(--text-secondary);
+  margin: 0;
+}

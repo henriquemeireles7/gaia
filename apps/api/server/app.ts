@@ -15,6 +15,7 @@ import { applySecurityHeaders } from '@gaia/security/security-headers'
 import { functions, inngest } from '@gaia/workflows'
 import { Elysia, t } from 'elysia'
 import { serve as inngestServe } from 'inngest/bun'
+import { billingRoutes, processPolarEvent } from './billing'
 
 initObservability(env)
 const log = getLogger()
@@ -86,9 +87,13 @@ export const app = new Elysia()
   .post('/webhooks/polar', async ({ request }) => {
     const body = await request.text()
     const event = await verifyWebhook(request.headers, body)
-    log.info('polar.webhook', { event })
+    await processPolarEvent(event as Parameters<typeof processPolarEvent>[0])
+    log.info('polar.webhook', { type: (event as { type?: string }).type })
     return { ok: true as const }
   })
+
+  // ── Billing routes ─────────────────────────────────────────────
+  .use(billingRoutes)
 
 export type App = typeof app
 

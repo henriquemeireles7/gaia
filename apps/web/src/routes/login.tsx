@@ -1,5 +1,8 @@
-import { action, useSubmission } from '@solidjs/router'
+import { A, action, useSubmission } from '@solidjs/router'
+import { Show } from 'solid-js'
+import { Alert, Button, Card, Input } from '../components'
 import { api } from '../lib/api'
+import '../styles/auth.css'
 
 const login = action(async (formData: FormData) => {
   'use server'
@@ -15,24 +18,32 @@ const login = action(async (formData: FormData) => {
 
 export default function Login() {
   const result = useSubmission(login)
+  const errorMessage = () => (result.result && !result.result.ok ? result.result.message : null)
 
   return (
-    <main>
-      <h1>Log in</h1>
-      <form action={login} method="post">
-        <label>
-          Email
-          <input type="email" name="email" required autocomplete="email" />
-        </label>
-        <label>
-          Password
-          <input type="password" name="password" required autocomplete="current-password" />
-        </label>
-        <button type="submit" disabled={result.pending}>
-          {result.pending ? 'Logging in…' : 'Log in'}
-        </button>
-        {result.result && !result.result.ok && <p role="alert">{result.result.message}</p>}
-      </form>
+    <main class="auth-page">
+      <Card header="Log in">
+        <form action={login} method="post" class="auth-form">
+          <Input label="Email" name="email" type="email" required autocomplete="email" />
+          <Input
+            label="Password"
+            name="password"
+            type="password"
+            required
+            autocomplete="current-password"
+          />
+          <Show when={errorMessage()}>{(msg) => <Alert type="error">{msg()}</Alert>}</Show>
+          <Button type="submit" state={result.pending ? 'loading' : 'default'} variant="primary">
+            Log in
+          </Button>
+          <p class="auth-footer">
+            <A href="/forgot-password">Forgot your password?</A>
+          </p>
+          <p class="auth-footer">
+            New here? <A href="/signup">Create an account</A>.
+          </p>
+        </form>
+      </Card>
     </main>
   )
 }
