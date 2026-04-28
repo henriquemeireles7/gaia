@@ -1,22 +1,26 @@
 {
-  "name": "douala",
+  "name": "gaia",
   "version": "0.1.0",
   "type": "module",
-  "main": "platform/server/app.ts",
+  "main": "apps/api/server/app.ts",
+  "workspaces": [
+    "apps/*",
+    "packages/*"
+  ],
   "scripts": {
-    "dev": "bun --hot platform/server/app.ts",
-    "build": "bun build platform/server/app.ts --outdir dist --target bun --minify --external=isomorphic-dompurify",
+    "dev": "bun --hot apps/api/server/app.ts",
+    "build": "bun build apps/api/server/app.ts --outdir dist --target bun --minify --external=isomorphic-dompurify",
     "start": "bun run dist/app.js",
     "check": "bun run check:lint && bun run check:types && bun run harden && bun run check:test",
     "check:lint": "bunx biome ci .",
     "check:types": "bunx tsc --noEmit",
     "check:test": "bun test --pass-with-no-tests",
-    "harden": "bun platform/scripts/harden-check.ts",
+    "harden": "bun packages/security/harden-check.ts",
     "test": "bun test",
     "lint": "bunx biome check --write --unsafe .",
     "db:generate": "bunx drizzle-kit generate",
-    "db:migrate": "bun platform/scripts/migrate.ts",
-    "db:seed": "bun platform/scripts/seed.ts",
+    "db:migrate": "bun apps/api/scripts/migrate.ts",
+    "db:seed": "bun apps/api/scripts/seed.ts",
     "db:studio": "bunx drizzle-kit studio"
   },
   "dependencies": {
