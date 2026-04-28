@@ -67,7 +67,6 @@ jobs:
         with:
           scan-args: |-
             --recursive
-            --skip-git
             ./
 
   rules-coverage:
@@ -109,18 +108,13 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           set -euo pipefail
-          # Activate only once preview-env infra is wired (railway.toml,
-          # fly.toml, or a deploy workflow). Until then, the rule is
-          # documented but not gating — analogous to the product scripts
-          # that skip until their target features exist.
-          has_infra=0
-          [ -f railway.toml ] && has_infra=1
-          [ -f fly.toml ] && has_infra=1
-          if compgen -G ".github/workflows/*deploy*" > /dev/null; then
-            has_infra=1
-          fi
-          if [ "$has_infra" -eq 0 ]; then
-            echo "preview-env: no preview infra configured (railway.toml / fly.toml / deploy workflow); skipping."
+          # Activate only once an automated preview-deploy workflow
+          # exists. railway.toml / fly.toml alone aren't enough — the
+          # template ships those for manual deploys. The gate requires
+          # a workflow that actually triggers previews per PR.
+          if ! compgen -G ".github/workflows/*deploy*.yml" > /dev/null \
+            && ! compgen -G ".github/workflows/*preview*.yml" > /dev/null; then
+            echo "preview-env: no preview-deploy workflow yet; skipping."
             exit 0
           fi
           body=$(gh pr view ${{ github.event.pull_request.number }} --json body -q .body || echo "")
