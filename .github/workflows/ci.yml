@@ -6,6 +6,7 @@ on:
 
 jobs:
   check:
+    name: lint + typecheck + harden + test
     runs-on: ubuntu-latest
     services:
       postgres:
@@ -44,3 +45,37 @@ jobs:
           ANTHROPIC_API_KEY: sk-ant-test_ci_placeholder
           PUBLIC_APP_URL: http://localhost:3000
         run: bun run check
+
+  secrets:
+    name: gitleaks
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: gitleaks/gitleaks-action@v2
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+  deps:
+    name: osv-scanner
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: google/osv-scanner-action/osv-scanner-action@v1
+        with:
+          scan-args: |
+            --recursive
+            --skip-git
+            ./
+
+  dead-code:
+    name: knip
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: latest
+      - run: bun install --frozen-lockfile
+      - run: bunx knip --no-exit-code --reporter compact

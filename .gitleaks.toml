@@ -1,0 +1,25 @@
+# gitleaks config — vision §Security
+# https://github.com/gitleaks/gitleaks
+
+title = "Gaia gitleaks config"
+
+[extend]
+useDefault = true
+
+[allowlist]
+description = "Files where placeholder secrets are intentional"
+paths = [
+  '''\.env\.example$''',
+  '''\.github/workflows/ci\.yml$''',
+  '''packages/security/.+\.test\.ts$''',
+]
+
+# Permit obviously-fake test secrets used in unit tests.
+regexes = [
+  '''sk_test_ci_placeholder''',
+  '''sk-ant-test_ci_placeholder''',
+  '''re_test_ci_placeholder''',
+  '''whsec_test_ci_placeholder''',
+  '''pk_test_ci_placeholder''',
+  '''test-secret-min-32-chars-for-ci-validation''',
+]

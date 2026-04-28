@@ -1,0 +1,25 @@
+{
+  "$schema": "https://unpkg.com/knip@5/schema.json",
+  "workspaces": {
+    ".": {
+      "entry": [
+        "apps/api/server/app.ts",
+        "apps/api/server/elysia-app.ts",
+        "apps/api/scripts/*.ts",
+        "packages/security/harden-check.ts",
+        "drizzle.config.ts"
+      ],
+      "project": [
+        "apps/api/**/*.{ts,tsx}",
+        "packages/**/*.{ts,tsx}",
+        "!**/*.test.{ts,tsx}",
+        "!packages/ui/**"
+      ]
+    },
+    "apps/web": {
+      "entry": ["src/entry-server.tsx", "src/entry-client.tsx", "app.config.ts"],
+      "project": ["src/**/*.{ts,tsx}"]
+    }
+  },
+  "ignoreDependencies": ["@types/bun"]
+}
