@@ -11,18 +11,18 @@ Thin vendor wrappers. One file per capability, named by WHAT not WHO. Features n
 
 ## Imports (use from other modules)
 ```ts
-import { payments, plans } from '@/packages/adapters/payments'
-import { sendEmail } from '@/packages/adapters/email'
-import { track, identify } from '@/packages/adapters/analytics'
-import { upload, download, getSignedUrl, remove } from '@/packages/adapters/storage'
-import { complete } from '@/packages/adapters/ai'
-import { renderMarkdown, listContentFiles, getContentFile } from '@/packages/adapters/markdown'
+import { payments, plans } from '@gaia/adapters/payments'
+import { sendEmail } from '@gaia/adapters/email'
+import { track, identify } from '@gaia/adapters/analytics'
+import { upload, download, getSignedUrl, remove } from '@gaia/adapters/storage'
+import { complete } from '@gaia/adapters/ai'
+import { renderMarkdown, listContentFiles, getContentFile } from '@gaia/adapters/markdown'
 ```
 
 ## Recipe: New Provider
 ```ts
-import { env } from '@/packages/config/env'
-import { ProviderError } from '@/packages/adapters/errors'
+import { env } from '@gaia/config'
+import { ProviderError } from '@gaia/adapters/errors'
 
 // Initialize client at module level
 const client = new VendorSDK(env.VENDOR_API_KEY)

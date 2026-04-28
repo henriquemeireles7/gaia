@@ -1,18 +1,14 @@
 import { action, useSubmission } from '@solidjs/router'
+import { api } from '~/lib/api'
 
 const login = action(async (formData: FormData) => {
   'use server'
   const email = formData.get('email') as string
   const password = formData.get('password') as string
-  const res = await fetch(`${import.meta.env.VITE_API_URL ?? ''}/auth/sign-in/email`, {
-    method: 'POST',
-    headers: { 'content-type': 'application/json' },
-    body: JSON.stringify({ email, password }),
-    credentials: 'include',
-  })
-  if (!res.ok) {
-    const body = await res.json().catch(() => ({}))
-    return { ok: false, message: (body as { message?: string }).message ?? 'Login failed' }
+  const { error } = await api.auth['sign-in'].email.post({ email, password })
+  if (error) {
+    const body = error.value as { message?: string } | null
+    return { ok: false, message: body?.message ?? 'Login failed' }
   }
   return { ok: true as const }
 }, 'login')

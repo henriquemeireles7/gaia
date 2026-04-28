@@ -1,0 +1,9 @@
+{
+  "name": "@gaia/security",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "exports": {
+    "./harden-check": "./harden-check.ts"
+  }
+}

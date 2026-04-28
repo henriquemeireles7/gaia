@@ -4,22 +4,47 @@
 // /auth/* routes; everything else is typed Elysia routes with TypeBox
 // schemas so Eden Treaty can derive end-to-end client types.
 
+import { ProviderError } from '@gaia/adapters/errors'
+import { verifyWebhook } from '@gaia/adapters/payments'
+import { auth } from '@gaia/auth'
+import { env } from '@gaia/config'
+import { getLogger } from '@gaia/core/logger'
+import { initObservability } from '@gaia/core/observability'
+import { AppError } from '@gaia/errors'
+import { functions, inngest } from '@gaia/workflows'
 import { Elysia, t } from 'elysia'
-import { verifyWebhook } from '@/packages/adapters/payments'
-import { auth } from '@/packages/auth'
-import { env } from '@/packages/config/env'
-import { getLogger } from '@/packages/core/logger'
-import { AppError } from '@/packages/errors'
+import { serve as inngestServe } from 'inngest/bun'
 
+initObservability(env)
 const log = getLogger()
 
+const inngestHandler = inngestServe({ client: inngest, functions })
+
 export const app = new Elysia()
-  .onError(({ error, set }) => {
+  .onError(({ code, error, set }) => {
     if (error instanceof AppError) {
       set.status = error.status
       return error.toJSON()
     }
-    log.error('unhandled error', { error: String(error) })
+    if (error instanceof ProviderError) {
+      set.status = error.statusCode
+      return {
+        ok: false,
+        code: 'PROVIDER_ERROR',
+        message: error.message,
+        provider: error.provider,
+        operation: error.operation,
+      }
+    }
+    if (code === 'NOT_FOUND') {
+      set.status = 404
+      return { ok: false, code: 'NOT_FOUND', message: 'Route not found' }
+    }
+    if (code === 'VALIDATION') {
+      set.status = 400
+      return { ok: false, code: 'VALIDATION_ERROR', message: 'Invalid input' }
+    }
+    log.error('unhandled error', { error: String(error), code })
     set.status = 500
     return { ok: false, code: 'INTERNAL_ERROR', message: 'Internal server error' }
   })
@@ -31,6 +56,9 @@ export const app = new Elysia()
 
   // ── Auth (better-auth) ────────────────────────────────────────
   .all('/auth/*', ({ request }) => auth.handler(request))
+
+  // ── Inngest serve route ───────────────────────────────────────
+  .all('/api/inngest', ({ request }) => inngestHandler(request))
 
   // ── Authenticated session probe ───────────────────────────────
   .derive(async ({ request }) => {

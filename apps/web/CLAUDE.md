@@ -21,7 +21,7 @@ Pages port one at a time; each port deletes its Preact counterpart in `packages/
 
 ## Imports (use from other modules)
 ```tsx
-import { createApiClient } from '@/packages/api'
+import { createApiClient } from '@gaia/api'
 const api = createApiClient(import.meta.env.VITE_API_URL)
 ```
 

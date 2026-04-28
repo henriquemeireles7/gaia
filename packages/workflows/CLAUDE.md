@@ -11,7 +11,7 @@ Inngest client. Multi-step workflows (durable, retryable, time-aware) use this p
 
 ## Imports (use from other modules)
 ```ts
-import { inngest } from '@/packages/workflows'
+import { inngest } from '@gaia/workflows'
 
 export const sendWelcome = inngest.createFunction(
   { id: 'send-welcome' },

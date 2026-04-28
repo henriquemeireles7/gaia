@@ -15,7 +15,7 @@
         ]
       },
       {
-        "matcher": "Edit|Write",
+        "matcher": "Edit|Write|MultiEdit",
         "hooks": [
           {
             "type": "command",
@@ -24,6 +24,10 @@
           {
             "type": "command",
             "command": "bun run .claude/hooks/protect-config.ts"
+          },
+          {
+            "type": "command",
+            "command": "bun run .claude/hooks/domain-context.ts"
           }
         ]
       },

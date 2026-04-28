@@ -1,5 +1,5 @@
+import { env } from '@gaia/config'
 import { PostHog } from 'posthog-node'
-import { env } from '@/packages/config/env'
 
 const client = env.POSTHOG_API_KEY
   ? new PostHog(env.POSTHOG_API_KEY, { host: env.POSTHOG_HOST })

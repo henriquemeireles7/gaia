@@ -3,10 +3,10 @@
 // Usage: bun run db:seed
 // Prerequisites: DATABASE_URL set, migrations applied.
 
+import { env } from '@gaia/config'
+import * as schema from '@gaia/db/schema'
 import { drizzle } from 'drizzle-orm/postgres-js'
 import postgres from 'postgres'
-import { env } from '@/packages/config/env'
-import * as schema from '@/packages/db/schema'
 
 const client = postgres(env.DATABASE_URL, { max: 1 })
 const db = drizzle(client, { schema })

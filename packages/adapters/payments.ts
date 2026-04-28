@@ -10,9 +10,9 @@
 // customer portals — call its methods using the SDK's documented shape
 // for the version pinned in package.json.
 
+import { ProviderError } from '@gaia/adapters/errors'
+import { env } from '@gaia/config'
 import { Polar } from '@polar-sh/sdk'
-import { ProviderError } from '@/packages/adapters/errors'
-import { env } from '@/packages/config/env'
 
 export const polar = new Polar({ accessToken: env.POLAR_ACCESS_TOKEN })
 

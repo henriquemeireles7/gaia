@@ -1,0 +1,14 @@
+{
+  "name": "@gaia/adapters",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "exports": {
+    "./payments": "./payments.ts",
+    "./email": "./email.ts",
+    "./ai": "./ai.ts",
+    "./storage": "./storage.ts",
+    "./analytics": "./analytics.ts",
+    "./errors": "./errors.ts"
+  }
+}

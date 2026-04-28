@@ -12,7 +12,7 @@ The Elysia HTTP API. Single entry at `server/app.ts`. Better Auth handles `/auth
 
 ## Imports (use from other modules)
 ```ts
-import { app } from '@/apps/api/server/app'
+import { app } from '@gaia/api-server'
 ```
 
 ## Recipe: New endpoint

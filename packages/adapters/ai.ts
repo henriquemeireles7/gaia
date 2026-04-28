@@ -1,5 +1,5 @@
 import Anthropic from '@anthropic-ai/sdk'
-import { env } from '@/packages/config/env'
+import { env } from '@gaia/config'
 
 export const ai = new Anthropic({ apiKey: env.ANTHROPIC_API_KEY })
 

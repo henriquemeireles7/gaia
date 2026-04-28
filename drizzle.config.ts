@@ -1,5 +1,5 @@
+import { env } from '@gaia/config'
 import { defineConfig } from 'drizzle-kit'
-import { env } from '@/packages/config/env'
 
 export default defineConfig({
   schema: './packages/db/schema.ts',

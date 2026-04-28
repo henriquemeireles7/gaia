@@ -11,7 +11,7 @@ Better Auth wired to Drizzle. The single source of truth for who the user is. Mo
 
 ## Imports (use from other modules)
 ```ts
-import { auth } from '@/packages/auth'
+import { auth } from '@gaia/auth'
 
 // In an Elysia route:
 const session = await auth.api.getSession({ headers: request.headers })
@@ -20,8 +20,8 @@ const session = await auth.api.getSession({ headers: request.headers })
 ## Recipe: Protect a route in Elysia
 ```ts
 import { Elysia } from 'elysia'
-import { auth } from '@/packages/auth'
-import { AppError } from '@/packages/errors'
+import { auth } from '@gaia/auth'
+import { AppError } from '@gaia/errors'
 
 export const protectedRoutes = new Elysia()
   .derive(async ({ request }) => {

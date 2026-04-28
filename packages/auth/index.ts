@@ -4,11 +4,11 @@
 // the catch-all `/auth/*` route. The same `auth` object exposes a typed
 // `getSession({ headers })` for server-side authorization checks.
 
+import { env } from '@gaia/config'
+import { db } from '@gaia/db'
+import * as schema from '@gaia/db/schema'
 import { betterAuth } from 'better-auth'
 import { drizzleAdapter } from 'better-auth/adapters/drizzle'
-import { env } from '@/packages/config/env'
-import { db } from '@/packages/db/client'
-import * as schema from '@/packages/db/schema'
 
 export const auth = betterAuth({
   secret: env.BETTER_AUTH_SECRET,
@@ -24,6 +24,10 @@ export const auth = betterAuth({
   }),
   emailAndPassword: {
     enabled: true,
+    password: {
+      hash: (password) => Bun.password.hash(password, 'argon2id'),
+      verify: ({ password, hash }) => Bun.password.verify(password, hash),
+    },
   },
   socialProviders:
     env.GOOGLE_CLIENT_ID && env.GOOGLE_CLIENT_SECRET

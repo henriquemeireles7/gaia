@@ -83,7 +83,7 @@ let _logger: Logger | null = null
 export function getLogger(): Logger {
   if (!_logger) {
     try {
-      const { env } = require('@/packages/config/env')
+      const { env } = require('@gaia/config')
       _logger = createLogger({
         level: env.NODE_ENV === 'production' ? 'info' : 'debug',
         pretty: env.NODE_ENV !== 'production',
