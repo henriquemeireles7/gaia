@@ -1,40 +1,13 @@
 {
   "$schema": "https://biomejs.dev/schemas/2.4.11/schema.json",
-  "assist": {
-    "actions": {
-      "source": {
-        "organizeImports": "on"
-      }
-    }
-  },
   "linter": {
-    "enabled": true,
-    "rules": {
-      "recommended": true,
-      "style": {
-        "noNonNullAssertion": "off",
-        "noDescendingSpecificity": "off"
-      }
-    }
+    "enabled": false
   },
   "formatter": {
-    "enabled": true,
-    "indentStyle": "space",
-    "indentWidth": 2,
-    "lineWidth": 100
+    "enabled": false
   },
-  "javascript": {
-    "formatter": {
-      "quoteStyle": "single",
-      "semicolons": "asNeeded",
-      "trailingCommas": "all"
-    }
-  },
-  "css": {
-    "parser": {
-      "cssModules": false,
-      "tailwindDirectives": true
-    }
+  "assist": {
+    "enabled": false
   },
   "files": {
     "includes": [
@@ -46,7 +19,9 @@
       "!.claude/skills/gstack",
       "!.beads/.br_history",
       "!mcp_agent_mail",
-      "!public/styles.css"
+      "!public/styles.css",
+      "!.gaia/audit/**",
+      "!.gaia/memory/working/**"
     ]
   }
 }

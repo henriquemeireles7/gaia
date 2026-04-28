@@ -89,6 +89,7 @@ These are load-bearing. Every decision in Gaia ties back to one of these. If a f
 Locked decisions as of v6. Each choice traces back to one or more of the 15 principles.
 
 ### Runtime & framework
+
 - **Runtime:** Bun
 - **Backend framework:** Elysia
 - **Frontend framework:** SolidStart
@@ -97,6 +98,7 @@ Locked decisions as of v6. Each choice traces back to one or more of the 15 prin
 - **Validation:** TypeBox (native to Elysia, via Standard Schema everywhere else)
 
 ### Data
+
 - **Database:** Neon (serverless Postgres with branching)
 - **ORM:** Drizzle (with TypeBox schema emission, zero translation)
 - **Cache / KV:** Dragonfly (Redis-compatible, multi-threaded)
@@ -104,6 +106,7 @@ Locked decisions as of v6. Each choice traces back to one or more of the 15 prin
 - **Search:** Postgres FTS by default; Typesense/Orama when needed
 
 ### Application features
+
 - **Auth:** Better Auth
 - **Password hashing:** Bun.password (argon2id native)
 - **Crypto primitives:** Web Crypto API (native to Bun)
@@ -114,6 +117,7 @@ Locked decisions as of v6. Each choice traces back to one or more of the 15 prin
 - **Email format / disposable check:** zod.email() + disposable-email-domains
 
 ### Observability
+
 - **Product analytics:** PostHog
 - **Error tracking:** Sentry
 - **Logs / traces / metrics:** Axiom
@@ -121,11 +125,13 @@ Locked decisions as of v6. Each choice traces back to one or more of the 15 prin
 - **Uptime:** Better Stack (free tier)
 
 ### Documentation
+
 - **API reference:** Scalar (self-hosted, MIT)
 - **llms.txt:** auto-generated from OpenAPI + docs
 - **Product docs:** custom inside the app (no separate stack)
 
 ### DevOps
+
 - **Monorepo orchestration:** Moon
 - **Toolchain manager:** proto
 - **Version pinning:** .prototools checked into git
@@ -133,6 +139,7 @@ Locked decisions as of v6. Each choice traces back to one or more of the 15 prin
 - **Monorepo dep sync:** syncpack
 
 ### Code quality (runs in CI, every PR)
+
 - **Typecheck:** tsgo --noEmit
 - **Linter:** Oxlint + custom Biome GritQL rules for agent anti-patterns
 - **Formatter:** oxfmt
@@ -144,6 +151,7 @@ Locked decisions as of v6. Each choice traces back to one or more of the 15 prin
 - **Accessibility:** pa11y
 
 ### Security (runs in CI, every PR, parallel)
+
 - **Secrets in git:** gitleaks
 - **Dependency CVEs:** osv-scanner
 - **SAST:** semgrep + CodeQL (CodeQL is free because Gaia is OSS)
@@ -152,6 +160,7 @@ Locked decisions as of v6. Each choice traces back to one or more of the 15 prin
 - **WAF / DDoS:** Cloudflare free tier, fronting production
 
 ### Agent harness
+
 - **Primary IDE:** Claude Code
 - **Skill foundation:** gstack (`plan`, `review`, `qa` — vendored under `.claude/skills/gstack/`)
 - **Gaia skills:** d-strategy, d-roadmap, d-tdd, d-content, d-review, d-harness, d-health, d-fail
@@ -165,11 +174,13 @@ Locked decisions as of v6. Each choice traces back to one or more of the 15 prin
 - **Orchestrator (future):** conductor.build (see Orchestration section)
 
 ### AI / LLM features (opt-in, not required)
+
 - **SDK:** Claude Agent SDK (simple cases)
 - **Framework:** Mastra (complex agent workflows)
 - **Observability:** Langfuse (OSS, self-hostable)
 
 ### Infrastructure
+
 - **Template deploys to:** Railway (default, best DX for stateful containers)
 - **Scale tier documented:** Cloudflare Workers + Neon + R2 (best free-tier economics at scale)
 - **Secrets:** Railway env vars default; Infisical as documented upgrade path
@@ -190,13 +201,13 @@ Architecture is inward-facing. It is one of four parallel peers: **Architecture*
 
 1. **Data lives where its lifecycle lives.** Five stores, each chosen by the data's lifecycle, not by convenience:
 
-| Store | Lifecycle | Examples |
-|-------|-----------|----------|
-| Filesystem (git-tracked) | Human-reviewed, version-controlled | Course content, skills, rules, reference files |
-| Postgres (Neon) | Transactional, queryable, long-lived | User data, billing state, workflow state |
-| KV / Cache (Dragonfly) | Ephemeral, fast, lossy-OK | Sessions, rate-limit counters, computed views |
-| Object storage (Railway Buckets) | Binary, immutable-after-write | Uploads, exports, generated files |
-| Event log (Axiom) | Append-only, time-indexed, queryable | Logs, traces, metrics, audit trail |
+| Store                            | Lifecycle                            | Examples                                       |
+| -------------------------------- | ------------------------------------ | ---------------------------------------------- |
+| Filesystem (git-tracked)         | Human-reviewed, version-controlled   | Course content, skills, rules, reference files |
+| Postgres (Neon)                  | Transactional, queryable, long-lived | User data, billing state, workflow state       |
+| KV / Cache (Dragonfly)           | Ephemeral, fast, lossy-OK            | Sessions, rate-limit counters, computed views  |
+| Object storage (Railway Buckets) | Binary, immutable-after-write        | Uploads, exports, generated files              |
+| Event log (Axiom)                | Append-only, time-indexed, queryable | Logs, traces, metrics, audit trail             |
 
 Test: "If this data vanished, what would it take to recreate?" determines the store.
 
@@ -347,17 +358,17 @@ Architecture is inward. Experience is outward: the craft of every interface. Bot
 
 ### The five experience axes
 
-| Axis | Stands for | Audience | Primary artifacts |
-|------|-----------|----------|-------------------|
-| UI | User interface — visual language | humans (eyes) | Design system, tokens, components |
-| UX | User experience — flows & interactions | humans (hands) | Onboarding, empty/error/loading states, a11y |
-| DX | Developer experience — tooling | developers | CLI, error messages, setup, docs-close-to-code |
-| AX | Agent experience — agent-native interfaces | agents | Skills (primary), MCP (capability only), schemas, context discipline |
-| VX | Voice experience — brand voice + AI humanization | readers | Microcopy, marketing, docs prose, generated content |
+| Axis | Stands for                                       | Audience       | Primary artifacts                                                    |
+| ---- | ------------------------------------------------ | -------------- | -------------------------------------------------------------------- |
+| UI   | User interface — visual language                 | humans (eyes)  | Design system, tokens, components                                    |
+| UX   | User experience — flows & interactions           | humans (hands) | Onboarding, empty/error/loading states, a11y                         |
+| DX   | Developer experience — tooling                   | developers     | CLI, error messages, setup, docs-close-to-code                       |
+| AX   | Agent experience — agent-native interfaces       | agents         | Skills (primary), MCP (capability only), schemas, context discipline |
+| VX   | Voice experience — brand voice + AI humanization | readers        | Microcopy, marketing, docs prose, generated content                  |
 
 ### The 12 experience principles
 
-*(Unchanged from v4. Summary below; full text in `.gaia/reference/`.)*
+_(Unchanged from v4. Summary below; full text in `.gaia/reference/`.)_
 
 **Value & flow:** Time-to-first-value is the leading metric; progressive disclosure; feedback loops close fast.
 
@@ -394,11 +405,11 @@ Every workflow principle derives from that sentence. If a principle would still 
 
 Work flows through three loops at three cadences:
 
-| Loop | Asks | Cadence | Produces |
-|------|------|---------|----------|
-| Strategy | WHY / WHAT | Weekly + on signal | `roadmap.md` (informed by `vision.md` + `context.md`) |
-| Tactical | HOW | Daily | `initiative.md` → `projects/*.md` |
-| Execution | DO | Continuous | Merged PR + measurement window |
+| Loop      | Asks       | Cadence            | Produces                                              |
+| --------- | ---------- | ------------------ | ----------------------------------------------------- |
+| Strategy  | WHY / WHAT | Weekly + on signal | `roadmap.md` (informed by `vision.md` + `context.md`) |
+| Tactical  | HOW        | Daily              | `initiative.md` → `projects/*.md`                     |
+| Execution | DO         | Continuous         | Merged PR + measurement window                        |
 
 Loops run in parallel, not in sequence. The default daily session touches all three: a strategic decision is confirmed, a tactical plan is produced, and one or more execution slices are merged. The user holds the steering wheel; the agent holds the keyboard. The execution sub-loop is governed by the four engineering disciplines (think before, simplify, surgical, goal-driven) encoded in root `CLAUDE.md`.
 
@@ -492,11 +503,11 @@ If the harness starts thinking — loading context intelligently, matching skill
 
 10. **Three memory surfaces, three retention policies.**
 
-| Surface | Path | Lifecycle | Retrieval |
-|---------|------|-----------|-----------|
-| Working | `.gaia/memory/working/` | Volatile, cleared per task | Always loaded |
-| Episodic | `.gaia/memory/episodic/*.jsonl` | Append-only, kept indefinitely in v1 | Top-k by recency in v1 |
-| Personal | `.gaia/memory/personal/*.md` | Stable per-developer (folder of files) | Always loaded |
+| Surface  | Path                            | Lifecycle                              | Retrieval              |
+| -------- | ------------------------------- | -------------------------------------- | ---------------------- |
+| Working  | `.gaia/memory/working/`         | Volatile, cleared per task             | Always loaded          |
+| Episodic | `.gaia/memory/episodic/*.jsonl` | Append-only, kept indefinitely in v1   | Top-k by recency in v1 |
+| Personal | `.gaia/memory/personal/*.md`    | Stable per-developer (folder of files) | Always loaded          |
 
 Reference files (`.gaia/reference/*.md`) are also memory in the broad sense — they're the curated long-term knowledge. But they are human-authored and version-controlled, not agent-written; they carry a different name (constitution) to keep the writer/reader contract clear. **In v1, episodic memory accumulates raw — no automatic promotion to references.** Auto-promotion (the dream cycle) is v2 work.
 
@@ -516,7 +527,7 @@ Reference files (`.gaia/reference/*.md`) are also memory in the broad sense — 
 
 Gstack has no `code` skill. Neither does Gaia. **Coding is not a skill; it is the surface every other skill operates on.** The guideline lives in `.gaia/reference/code.md` as context (destinations and fences), not procedure.
 
-Agents code by loading the relevant CLAUDE.mds, the architecture references, the feature's local context, and the current task — then writing. No skill wraps the act of writing code itself. Skills wrap the acts *around* writing code: planning (`plan`), reviewing (`review`, `d-review`), testing (`qa`), TDD orchestration (`d-tdd`), refactoring, documenting.
+Agents code by loading the relevant CLAUDE.mds, the architecture references, the feature's local context, and the current task — then writing. No skill wraps the act of writing code itself. Skills wrap the acts _around_ writing code: planning (`plan`), reviewing (`review`, `d-review`), testing (`qa`), TDD orchestration (`d-tdd`), refactoring, documenting.
 
 The four engineering disciplines (think before, simplify, surgical, goal-driven) are operating instructions in the root `CLAUDE.md`, not principles in this document. Their place is at the point of work, not in vision.
 
@@ -557,7 +568,7 @@ In v1, episodic memory accumulates raw. The user (or `d-harness` invoked manuall
 
 ## Orchestration
 
-*(Deferred to a later spec; included here for directional clarity.)*
+_(Deferred to a later spec; included here for directional clarity.)_
 
 The harness runs inside an IDE — Claude Code, by default. The orchestrator is the layer that coordinates the IDE, the harness, the tooling, and the deployment lifecycle from a single opinionated interface.
 
@@ -638,7 +649,7 @@ Wasp is the closest thing to "Rails for TypeScript." It uses a custom DSL, ships
 
 ### Other adjacent products
 
-*(Unchanged from v4: create-t3-app, Encore.dev, Convex, SST, Shuttle, Supabase/Appwrite/Pocketbase, Rails/Laravel/Django.)*
+_(Unchanged from v4: create-t3-app, Encore.dev, Convex, SST, Shuttle, Supabase/Appwrite/Pocketbase, Rails/Laravel/Django.)_
 
 Gaia is the first product combining (1) modern agent-native TypeScript stack + (2) opinionated architecture + (3) **a daily workflow loop with measurement debt** + (4) **a harness whose explicit job is to enforce reference principles** + (5) solo-scale target + (6) structural ejectability.
 
@@ -680,7 +691,7 @@ Ordered by blocking priority:
 
 11. **Conductor worktree-assignment algorithm** — how Conductor reads `touches:` declarations and resolves conflicts (deferred to Orchestration but specified here).
 
-12. **Positioning statement (one sentence)** — current draft: *"Gaia is Rails for TypeScript in the agent era — for solo operators building production SaaS, with a daily workflow loop and a harness that enforces every principle in your reference files."*
+12. **Positioning statement (one sentence)** — current draft: _"Gaia is Rails for TypeScript in the agent era — for solo operators building production SaaS, with a daily workflow loop and a harness that enforces every principle in your reference files."_
 
 13. **Template-as-manual verification** — can someone read the template top-to-bottom and understand how to build on it? Tests general principle #9.
 
@@ -690,4 +701,4 @@ Ordered by blocking priority:
 
 ⸻
 
-*Vision v6. Decisions are locked; implementation is not. Architecture, Experience, Workflow, and Harness are parallel peers — none dominates. Self-evolving behavior is deferred to v2 by design. Orchestration is deferred to its own spec. Open specs above will be drafted in subsequent docs, one per open spec. The harness is what turns "idea to deployment in weeks" into "idea to deployment in minutes" — by making every principle in the reference files discoverable and enforceable for the AI coding agent.*
+_Vision v6. Decisions are locked; implementation is not. Architecture, Experience, Workflow, and Harness are parallel peers — none dominates. Self-evolving behavior is deferred to v2 by design. Orchestration is deferred to its own spec. Open specs above will be drafted in subsequent docs, one per open spec. The harness is what turns "idea to deployment in weeks" into "idea to deployment in minutes" — by making every principle in the reference files discoverable and enforceable for the AI coding agent._

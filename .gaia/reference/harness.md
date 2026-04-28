@@ -35,11 +35,11 @@ This is general principle #6 ("Every rule has a document AND an enforcement") ap
 
 Every principle exists in three forms:
 
-| Form | Lives in | Authored by | Purpose |
-|------|----------|-------------|---------|
-| Document | `vision.md` or `docs/reference/*.md` | Human | Judgment, intent, examples |
-| Mechanism | `.claude/hooks/`, oxlint config, GritQL rules, `scripts/`, CI workflow, `/review` skill | Mostly machine-enforced; some `/review`-based | What catches the violation |
-| Policy | `.claude/rules.ts` | Generated from mechanisms | Single source of truth, machine-readable |
+| Form      | Lives in                                                                                | Authored by                                   | Purpose                                  |
+| --------- | --------------------------------------------------------------------------------------- | --------------------------------------------- | ---------------------------------------- |
+| Document  | `vision.md` or `docs/reference/*.md`                                                    | Human                                         | Judgment, intent, examples               |
+| Mechanism | `.claude/hooks/`, oxlint config, GritQL rules, `scripts/`, CI workflow, `/review` skill | Mostly machine-enforced; some `/review`-based | What catches the violation               |
+| Policy    | `.claude/rules.ts`                                                                      | Generated from mechanisms                     | Single source of truth, machine-readable |
 
 If a principle has only a document, it's aspirational. If it has only a mechanism, it's mystery. If it has only a policy, it's untestable. **All three or none.** A principle without an enforceable mechanism fails the test of general principle #6 and gets demoted to a memo (intent only) until enforcement is designed.
 
@@ -74,30 +74,30 @@ Every reference file is read and every principle is counted. For each, a mechani
 
 ### From `docs/reference/code.md` (10 principles)
 
-| # | Principle | Proposed mechanism |
-|---|-----------|-------------------|
-| 1 | One schema, many consumers | `tsgo --noEmit` + GritQL `schema-source-required` |
-| 2 | Validate at edges, trust the interior | Oxlint `no-unknown-or-any-in-interior` + GritQL `require-route-schema` |
-| 3 | Named errors, no swallowing | Oxlint `no-bare-catch` + typed error code enum |
-| 4 | Routes do three things: call, pass, render | GritQL `route-operations-allowlist` |
-| 5 | Code goes in a predictable place | Moon workspace boundaries + path-import lint rule |
-| 6 | Agents duplicate; humans extract | `/review` skill heuristic (no mechanical rule) |
-| 7 | Test behavior at boundaries; mutation-test the interior | `scripts/check-tests-exist.ts` + Bun test coverage + Stryker mutation |
-| 8 | Every boundary emits observability | Auto-instrumenting middleware + Oxlint `no-console-in-prod` |
-| 9 | Security is opinionated, not optional | GritQL `require-route-wrapper` + default middleware composition |
-| 10 | Code Health is a gate, not a guideline | CI required checks + `/review` skill |
+| #   | Principle                                               | Proposed mechanism                                                     |
+| --- | ------------------------------------------------------- | ---------------------------------------------------------------------- |
+| 1   | One schema, many consumers                              | `tsgo --noEmit` + GritQL `schema-source-required`                      |
+| 2   | Validate at edges, trust the interior                   | Oxlint `no-unknown-or-any-in-interior` + GritQL `require-route-schema` |
+| 3   | Named errors, no swallowing                             | Oxlint `no-bare-catch` + typed error code enum                         |
+| 4   | Routes do three things: call, pass, render              | GritQL `route-operations-allowlist`                                    |
+| 5   | Code goes in a predictable place                        | Moon workspace boundaries + path-import lint rule                      |
+| 6   | Agents duplicate; humans extract                        | `/review` skill heuristic (no mechanical rule)                         |
+| 7   | Test behavior at boundaries; mutation-test the interior | `scripts/check-tests-exist.ts` + Bun test coverage + Stryker mutation  |
+| 8   | Every boundary emits observability                      | Auto-instrumenting middleware + Oxlint `no-console-in-prod`            |
+| 9   | Security is opinionated, not optional                   | GritQL `require-route-wrapper` + default middleware composition        |
+| 10  | Code Health is a gate, not a guideline                  | CI required checks + `/review` skill                                   |
 
 ### From `docs/reference/backend.md` (~10 patterns)
 
 Selected for harness inventory (full list TBD when full file is parsed):
 
-| Pattern | Proposed mechanism |
-|---------|-------------------|
-| One Elysia plugin per feature, ≤10 routes per file | GritQL `feature-plugin-shape` |
-| TypeBox models in `schema.ts` with dotted naming | GritQL `schema-naming-convention` |
-| Services are pure; routes are thin | GritQL `service-purity` (no Elysia imports) |
+| Pattern                                              | Proposed mechanism                                                     |
+| ---------------------------------------------------- | ---------------------------------------------------------------------- |
+| One Elysia plugin per feature, ≤10 routes per file   | GritQL `feature-plugin-shape`                                          |
+| TypeBox models in `schema.ts` with dotted naming     | GritQL `schema-naming-convention`                                      |
+| Services are pure; routes are thin                   | GritQL `service-purity` (no Elysia imports)                            |
 | Adapters wrap external systems with capability names | Path-lint: `packages/adapters/*.ts` exports must match capability list |
-| Auth context provided by middleware, not per route | GritQL `auth-context-provider` |
+| Auth context provided by middleware, not per route   | GritQL `auth-context-provider`                                         |
 
 ### From `docs/reference/frontend.md` (~10 patterns)
 
@@ -107,22 +107,22 @@ To inventory: Solid signal patterns, route-component shape, component-state matr
 
 Selected (full list TBD):
 
-| Pattern | Proposed mechanism |
-|---------|-------------------|
-| Pyramid ratio (~80/15/5) | `scripts/test-ratio-check.ts` |
-| Unit tests are pure (no I/O) | Custom Bun test reporter flagging I/O in unit suite |
+| Pattern                                        | Proposed mechanism                                  |
+| ---------------------------------------------- | --------------------------------------------------- |
+| Pyramid ratio (~80/15/5)                       | `scripts/test-ratio-check.ts`                       |
+| Unit tests are pure (no I/O)                   | Custom Bun test reporter flagging I/O in unit suite |
 | Integration via Eden Treaty (no HTTP loopback) | GritQL on `*.integration.test.ts` rejecting `fetch` |
-| Mutation score ≥80% on `packages/*/src/` | Stryker run in CI |
-| Tests colocated with source | `scripts/check-tests-colocated.ts` |
+| Mutation score ≥80% on `packages/*/src/`       | Stryker run in CI                                   |
+| Tests colocated with source                    | `scripts/check-tests-colocated.ts`                  |
 
 ### From `docs/reference/errors.md` (10 patterns)
 
-| Pattern | Proposed mechanism |
-|---------|-------------------|
-| Throw default; Result for specific seams | GritQL `result-only-at-allowed-seams` |
-| Every error code in `packages/errors/src/codes.ts` | TypeBox enum import + `tsgo` |
-| No `throw new Error('…')` in services | Oxlint `no-ad-hoc-error` |
-| Error context required for non-trivial errors | GritQL `throwError-requires-context` |
+| Pattern                                            | Proposed mechanism                    |
+| -------------------------------------------------- | ------------------------------------- |
+| Throw default; Result for specific seams           | GritQL `result-only-at-allowed-seams` |
+| Every error code in `packages/errors/src/codes.ts` | TypeBox enum import + `tsgo`          |
+| No `throw new Error('…')` in services              | Oxlint `no-ad-hoc-error`              |
+| Error context required for non-trivial errors      | GritQL `throwError-requires-context`  |
 
 ### From the remaining reference files (`security.md`, `observability.md`, `database.md`, `commands.md`, `design.md`, `tokens.md`, `ux.md`, `dx.md`, `ax.md`, `voice.md`)
 
@@ -256,6 +256,7 @@ Three sections, all thin:
 
 ```markdown
 ## This folder follows
+
 - `docs/reference/code.md` (all 10 principles)
 - `docs/reference/backend.md` (patterns 1, 2, 3)
 - Plus local overrides below
@@ -265,6 +266,7 @@ Three sections, all thin:
 
 ```markdown
 ## Local overrides
+
 - This feature uses `Result<T, E>` even outside the seams listed in `errors.md`,
   because it integrates with an LLM API where partial success matters.
 ```
@@ -276,12 +278,14 @@ Three sections, all thin:
 <!-- Last regenerated: 2026-04-27T18:42:00Z -->
 
 ## Files in this folder
+
 - `routes.ts` — exports `userRoutes` Elysia plugin (5 routes)
 - `service.ts` — exports `userService` (4 functions)
 - `schema.ts` — exports `UserSchemas` (3 TypeBox models)
 - `service.test.ts` — 12 tests covering service.ts
 
 ## External dependencies
+
 - `@gaia/security` (auth wrappers)
 - `@gaia/errors` (named errors)
 - `drizzle-orm` (DB types)
@@ -496,4 +500,4 @@ Then build sequence step 1 begins.
 
 ---
 
-*Next move after this plan is read: lock the open questions, then start step 1 (rules.ts schema).*
+_Next move after this plan is read: lock the open questions, then start step 1 (rules.ts schema)._

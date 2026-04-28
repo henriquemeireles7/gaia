@@ -1,6 +1,7 @@
 # Blog Post Rules
 
 ## Structure
+
 1. **Hook** (1-3 sentences) — A specific moment, story, or question that stops the scroll
 2. **Problem** — The universal problem it illustrates (ICP: women 30-50, stuck despite "doing the work")
 3. **Agitation** — Why obvious solutions don't work (anti-self-help positioning)
@@ -10,6 +11,7 @@
 7. **CTA** — Natural link to /life (never salesy)
 
 ## SEO Guidelines
+
 - Primary keyword in title, H1, first paragraph, meta description
 - 3-5 secondary keywords woven naturally (never forced)
 - Internal links to concept pages when relevant
@@ -18,21 +20,23 @@
 - Target: 1,500-3,000 words (long-form ranks better for decision-making queries)
 
 ## Frontmatter
+
 ```yaml
 ---
-title: "Title Here"
-slug: "url-slug-here"
-type: "blog"
-status: "draft"
-locale: "en"
-publishDate: ""
-author: "Henry Meireles"
-excerpt: "150-160 char meta description"
-keywords: ["primary", "secondary1", "secondary2"]
+title: 'Title Here'
+slug: 'url-slug-here'
+type: 'blog'
+status: 'draft'
+locale: 'en'
+publishDate: ''
+author: 'Henry Meireles'
+excerpt: '150-160 char meta description'
+keywords: ['primary', 'secondary1', 'secondary2']
 ---
 ```
 
 ## Quality Checklist
+
 - [ ] Opens with story or specific moment (not a principle)
 - [ ] No AI-sounding words (delve, crucial, landscape, leverage, robust, tapestry)
 - [ ] Sentence length varies (2 words to 30 words)

@@ -15,15 +15,15 @@ The patterns for how Gaia sees itself in production. These implement principles 
 - **Axiom** — structured logs (JSON events, SQL query)
 - **PostHog** — product analytics + LLM observability + session replay
 
-Read `code.md` first. This file is the concrete *how*.
+Read `code.md` first. This file is the concrete _how_.
 
 **Key terms used precisely:**
 
-| Term | Meaning | Primary tool |
-|---|---|---|
-| **Observability** | Understanding *why* something happened — traces, structured events, correlation | OTel → Sentry + Axiom |
-| **Monitoring** | Watching *what is happening* — metrics, alerts, SLOs, uptime | Sentry + Better Stack + PostHog |
-| **Logging** | Recording *events* — structured log lines | Axiom |
+| Term              | Meaning                                                                         | Primary tool                    |
+| ----------------- | ------------------------------------------------------------------------------- | ------------------------------- |
+| **Observability** | Understanding _why_ something happened — traces, structured events, correlation | OTel → Sentry + Axiom           |
+| **Monitoring**    | Watching _what is happening_ — metrics, alerts, SLOs, uptime                    | Sentry + Better Stack + PostHog |
+| **Logging**       | Recording _events_ — structured log lines                                       | Axiom                           |
 
 The distinction matters because each has different cost, retention, and audience. A log is not a metric is not a trace.
 
@@ -94,6 +94,7 @@ posthog.capture('user_login', { sessionId: crypto.randomUUID() })
 ```
 
 **Enforcement:**
+
 - Axiom adapter sets `trace_id` automatically from OTel context
 - Sentry uses the active span's trace ID via the OTel integration
 - PostHog super properties include `$trace_id` set on request start
@@ -139,8 +140,9 @@ logger.info(`User login: ${JSON.stringify({ userId, method })}`)
 ```
 
 **Enforcement:**
+
 - Oxlint rule — `console.log/.warn/.error` fails lint outside `scripts/` and `tools/`
-- Logger's first argument must be a string literal `event` name (snake_case) matching `/^[a-z][a-z0-9_.]+$/`
+- Logger's first argument must be a string literal `event` name (snake*case) matching `/^[a-z]a-z0-9*.]+$/`
 - Second argument must be a plain object (no strings, no arrays at top level)
 
 ---
@@ -154,10 +156,26 @@ Sensitive data never leaves the process unredacted. The logger, span processor, 
 ```ts
 // packages/observability/src/redact.ts
 const SENSITIVE_KEYS = [
-  'password', 'passwd', 'token', 'api_key', 'apikey', 'secret',
-  'authorization', 'cookie', 'set-cookie', 'bearer', 'refresh_token',
-  'access_token', 'private_key', 'credit_card', 'card_number', 'cvv',
-  'ssn', 'social_security', 'dob', 'date_of_birth',
+  'password',
+  'passwd',
+  'token',
+  'api_key',
+  'apikey',
+  'secret',
+  'authorization',
+  'cookie',
+  'set-cookie',
+  'bearer',
+  'refresh_token',
+  'access_token',
+  'private_key',
+  'credit_card',
+  'card_number',
+  'cvv',
+  'ssn',
+  'social_security',
+  'dob',
+  'date_of_birth',
 ]
 
 export function redact(input: unknown, depth = 0): unknown {
@@ -170,11 +188,11 @@ export function redact(input: unknown, depth = 0): unknown {
     }
     return input
   }
-  if (Array.isArray(input)) return input.map(v => redact(v, depth + 1))
+  if (Array.isArray(input)) return input.map((v) => redact(v, depth + 1))
   if (typeof input === 'object') {
     const out: Record<string, unknown> = {}
     for (const [k, v] of Object.entries(input)) {
-      if (SENSITIVE_KEYS.some(s => k.toLowerCase().includes(s))) {
+      if (SENSITIVE_KEYS.some((s) => k.toLowerCase().includes(s))) {
         out[k] = '[REDACTED]'
       } else {
         out[k] = redact(v, depth + 1)
@@ -221,6 +239,7 @@ logger.info('auth', { token: token.substring(0, 4) + '***' }) // enough for some
 ```
 
 **Enforcement:**
+
 - Test: create request with header `Authorization: Bearer test-secret-xyz`, trigger an error path, assert `test-secret-xyz` does not appear in Axiom log, Sentry event, or PostHog event
 - New keys added to `SENSITIVE_KEYS` require PR review (list is intentionally growing)
 
@@ -264,7 +283,9 @@ export async function createUser(input: CreateUserInput) {
 // ❌ Vendor-specific
 import * as Sentry from '@sentry/node'
 
-Sentry.startSpan({ name: 'users.create' }, async () => { /* ... */ })
+Sentry.startSpan({ name: 'users.create' }, async () => {
+  /* ... */
+})
 Sentry.addBreadcrumb({ message: 'creating user' })
 ```
 
@@ -273,6 +294,7 @@ Sentry-specific code locks Gaia to Sentry. OTel code works with any OTLP-compati
 **Sentry's role:** Sentry receives OTLP traces and also adds its own error-grouping, release health, and session replay features on top. Gaia uses Sentry-specific features through the Sentry SDK only for those features — not for instrumentation.
 
 **Enforcement:**
+
 - Lint rule: `import * as Sentry from '@sentry/...'` is allowed only in `packages/observability/src/sentry/`
 - Application code imports `@opentelemetry/api` and `@gaia/observability` wrappers
 
@@ -284,15 +306,15 @@ The boundaries are where latency hides and errors happen. Every cross-boundary c
 
 **Boundaries that must be spanned:**
 
-| Boundary | Span name | Key attributes |
-|---|---|---|
-| HTTP route | `{METHOD} {route}` | `http.method`, `http.status_code`, `http.route` |
-| DB query | `db.{operation} {table}` | `db.system`, `db.statement`, `db.rows_affected` |
-| Adapter call | `adapter.{service}.{operation}` | `adapter.name`, `adapter.timeout_ms` |
-| LLM call | `llm.{provider}.{model}` | `llm.model`, `llm.tokens.input`, `llm.tokens.output`, `llm.cost_usd` |
-| Queue job | `inngest.{function_id}.{step_id}` | `inngest.event`, `inngest.attempt` |
-| Outbound HTTP | `http.client {host}` | `http.url`, `http.status_code`, `http.response_size` |
-| Cache hit/miss | `cache.{operation}` | `cache.hit`, `cache.key_pattern` |
+| Boundary       | Span name                         | Key attributes                                                       |
+| -------------- | --------------------------------- | -------------------------------------------------------------------- |
+| HTTP route     | `{METHOD} {route}`                | `http.method`, `http.status_code`, `http.route`                      |
+| DB query       | `db.{operation} {table}`          | `db.system`, `db.statement`, `db.rows_affected`                      |
+| Adapter call   | `adapter.{service}.{operation}`   | `adapter.name`, `adapter.timeout_ms`                                 |
+| LLM call       | `llm.{provider}.{model}`          | `llm.model`, `llm.tokens.input`, `llm.tokens.output`, `llm.cost_usd` |
+| Queue job      | `inngest.{function_id}.{step_id}` | `inngest.event`, `inngest.attempt`                                   |
+| Outbound HTTP  | `http.client {host}`              | `http.url`, `http.status_code`, `http.response_size`                 |
+| Cache hit/miss | `cache.{operation}`               | `cache.hit`, `cache.key_pattern`                                     |
 
 **Pattern (Drizzle wrapper with spans):**
 
@@ -301,7 +323,7 @@ The boundaries are where latency hides and errors happen. Every cross-boundary c
 export function observeQuery<T>(
   queryName: string,
   query: () => Promise<T>,
-  attrs: Record<string, string | number> = {}
+  attrs: Record<string, string | number> = {},
 ): Promise<T> {
   return tracer.startActiveSpan(`db.${queryName}`, async (span) => {
     span.setAttribute('db.system', 'postgresql')
@@ -319,9 +341,10 @@ export function observeQuery<T>(
 }
 
 // Usage
-const user = await observeQuery('users.findById', () =>
-  db.query.users.findFirst({ where: eq(users.id, id) }),
-  { 'db.query.id': id }
+const user = await observeQuery(
+  'users.findById',
+  () => db.query.users.findFirst({ where: eq(users.id, id) }),
+  { 'db.query.id': id },
 )
 ```
 
@@ -374,6 +397,7 @@ tracer.startActiveSpan('db', () => db.query.users.findFirst(...))
 ```
 
 **Enforcement:**
+
 - `packages/db`, `packages/adapters`, and route handlers use span-wrapped functions; lint rule bans direct `db.query` / `db.insert` / `db.update` outside these wrappers
 - Integration test: make a request hitting DB + adapter + LLM; fetch the resulting trace from Sentry; assert ≥4 spans present with expected names
 
@@ -460,6 +484,7 @@ tracesSampleRate: 1.0 // cost explosion
 ```
 
 **Enforcement:**
+
 - Sampling config lives in `packages/observability/src/sampling.ts`; single source
 - Changes to sampling rates require ADR (observability cost is a budget)
 - Integration test: error path produces a trace that reaches Sentry; health check path does not
@@ -482,7 +507,7 @@ trigger:
   source: sentry
   query: error_rate > 0.01
   window: 5m
-severity: page          # page | warn | info
+severity: page # page | warn | info
 owner: api-team
 runbook: docs/runbook/api-error-rate-high.md
 meaning: |
@@ -502,17 +527,17 @@ action:
 
 **Alerts Gaia ships with:**
 
-| Alert | Trigger | Severity |
-|---|---|---|
-| `api-error-rate-high` | Error rate > 1% / 5m | page |
-| `api-latency-p95-high` | p95 > 500ms / 10m | warn |
-| `db-slow-queries` | Any query > 1s / 5m | warn |
-| `llm-cost-spike` | LLM spend > 2x rolling avg / 1h | warn |
-| `signup-funnel-drop` | Signup→verify conversion < 50% / 1h | warn |
-| `failed-login-spike` | >100 failed logins / 5m from single IP | warn (security) |
-| `deploy-failed` | Railway build/deploy failed | page |
-| `uptime-down` | Better Stack health check fails | page |
-| `audit-log-write-failed` | Audit log insert failed | page (critical) |
+| Alert                    | Trigger                                | Severity        |
+| ------------------------ | -------------------------------------- | --------------- |
+| `api-error-rate-high`    | Error rate > 1% / 5m                   | page            |
+| `api-latency-p95-high`   | p95 > 500ms / 10m                      | warn            |
+| `db-slow-queries`        | Any query > 1s / 5m                    | warn            |
+| `llm-cost-spike`         | LLM spend > 2x rolling avg / 1h        | warn            |
+| `signup-funnel-drop`     | Signup→verify conversion < 50% / 1h    | warn            |
+| `failed-login-spike`     | >100 failed logins / 5m from single IP | warn (security) |
+| `deploy-failed`          | Railway build/deploy failed            | page            |
+| `uptime-down`            | Better Stack health check fails        | page            |
+| `audit-log-write-failed` | Audit log insert failed                | page (critical) |
 
 **Anti-pattern:**
 
@@ -523,6 +548,7 @@ trigger: errors > 100
 ```
 
 **Enforcement:**
+
 - `scripts/validate-alerts.ts` runs in CI: every alert file must have `runbook`, `meaning`, `check`, `action` fields
 - Quarterly alert audit: fired-but-ignored alerts (no incident created) are deleted or reclassified
 
@@ -534,14 +560,14 @@ A raw threshold alert (`error_rate > 1%`) fires on every transient blip. An SLO-
 
 **Gaia's SLOs (v1 starter set):**
 
-| Service | SLO | Error budget (monthly) |
-|---|---|---|
-| API availability | 99.9% | 43 min downtime |
-| API latency | p95 < 300ms on authenticated routes | — |
-| Auth availability | 99.95% | 21 min downtime |
-| Audit log write | 99.99% | 4.3 min failure |
-| LLM response latency | p95 < 3s | — |
-| Email delivery | 99% sent successfully | 1% bounce/fail |
+| Service              | SLO                                 | Error budget (monthly) |
+| -------------------- | ----------------------------------- | ---------------------- |
+| API availability     | 99.9%                               | 43 min downtime        |
+| API latency          | p95 < 300ms on authenticated routes | —                      |
+| Auth availability    | 99.95%                              | 21 min downtime        |
+| Audit log write      | 99.99%                              | 4.3 min failure        |
+| LLM response latency | p95 < 3s                            | —                      |
+| Email delivery       | 99% sent successfully               | 1% bounce/fail         |
 
 **Alert on burn rate, not threshold.** Classic Google SRE patterns:
 
@@ -562,15 +588,15 @@ target: 0.999
 window: 30d
 alerts:
   - name: api-availability-fast-burn
-    burn_rate: 14.4  # 2% of monthly budget in 1 hour
+    burn_rate: 14.4 # 2% of monthly budget in 1 hour
     window: 1h
     severity: page
   - name: api-availability-slow-burn
-    burn_rate: 6     # 10% of monthly budget in 6 hours
+    burn_rate: 6 # 10% of monthly budget in 6 hours
     window: 6h
     severity: page
   - name: api-availability-trend-burn
-    burn_rate: 3     # 30% of monthly budget in 3 days
+    burn_rate: 3 # 30% of monthly budget in 3 days
     window: 3d
     severity: warn
 ```
@@ -580,10 +606,11 @@ alerts:
 ```yaml
 # ❌ Threshold alert — fires on every blip
 name: api-errors-high
-trigger: error_rate > 0.01  # 1% for 5 min pages on-call; flaky
+trigger: error_rate > 0.01 # 1% for 5 min pages on-call; flaky
 ```
 
 **Enforcement:**
+
 - SLOs tracked in `docs/runbook/slos.md` and implemented as alerts
 - Monthly SLO review — are budgets being consumed? is target still right?
 
@@ -610,16 +637,16 @@ posthog.init(env.PUBLIC_POSTHOG_KEY, {
 
 Key events captured:
 
-| Event | Trigger | Properties |
-|---|---|---|
-| `$pageview` | auto | `$pathname`, `$trace_id` |
-| `signup.started` | user submits form | `email_domain` |
-| `signup.verify_email_sent` | server confirms email sent | — |
-| `signup.verify_clicked` | user clicks link | `latency_since_send_sec` |
-| `signup.completed` | user lands on dashboard | `total_duration_sec` |
-| `checkout.started` | user clicks upgrade | `plan` |
-| `checkout.polar_redirect` | Polar checkout opened | — |
-| `checkout.completed` | webhook confirms payment | `amount_usd` |
+| Event                      | Trigger                    | Properties               |
+| -------------------------- | -------------------------- | ------------------------ |
+| `$pageview`                | auto                       | `$pathname`, `$trace_id` |
+| `signup.started`           | user submits form          | `email_domain`           |
+| `signup.verify_email_sent` | server confirms email sent | —                        |
+| `signup.verify_clicked`    | user clicks link           | `latency_since_send_sec` |
+| `signup.completed`         | user lands on dashboard    | `total_duration_sec`     |
+| `checkout.started`         | user clicks upgrade        | `plan`                   |
+| `checkout.polar_redirect`  | Polar checkout opened      | —                        |
+| `checkout.completed`       | webhook confirms payment   | `amount_usd`             |
 
 Funnel alerts:
 
@@ -653,6 +680,7 @@ export async function sendVerificationEmail(user: User) {
 ```
 
 **Enforcement:**
+
 - Every user-facing flow has a named funnel in PostHog
 - Funnel conversion alerts defined in `infra/alerts/funnels/`
 - Session replay reviewed during incidents (first stop: "what did the user actually see?")
@@ -703,13 +731,13 @@ function emit(level: Level, event: string, context: Record<string, unknown> = {}
 }
 
 export const logger = {
-  trace:    (e: string, c?: Record<string, unknown>) => emit('trace', e, c),
-  debug:    (e: string, c?: Record<string, unknown>) => emit('debug', e, c),
-  info:     (e: string, c?: Record<string, unknown>) => emit('info', e, c),
-  warn:     (e: string, c?: Record<string, unknown>) => emit('warn', e, c),
-  error:    (e: string, c?: Record<string, unknown>) => emit('error', e, c),
+  trace: (e: string, c?: Record<string, unknown>) => emit('trace', e, c),
+  debug: (e: string, c?: Record<string, unknown>) => emit('debug', e, c),
+  info: (e: string, c?: Record<string, unknown>) => emit('info', e, c),
+  warn: (e: string, c?: Record<string, unknown>) => emit('warn', e, c),
+  error: (e: string, c?: Record<string, unknown>) => emit('error', e, c),
   critical: (e: string, c?: Record<string, unknown>) => emit('critical', e, c),
-  log:      (level: Level, e: string, c?: Record<string, unknown>) => emit(level, e, c),
+  log: (level: Level, e: string, c?: Record<string, unknown>) => emit(level, e, c),
 }
 ```
 
@@ -729,12 +757,13 @@ Event naming convention: `<domain>.<action>[.<outcome>]`:
 logger.info('User logged in')
 
 // ❌ Inconsistent event naming
-logger.info('LoggedIn')         // CamelCase
-logger.info('login ok')         // space + free text
-logger.info('user_login_ok')    // tense inconsistent with others
+logger.info('LoggedIn') // CamelCase
+logger.info('login ok') // space + free text
+logger.info('user_login_ok') // tense inconsistent with others
 ```
 
 **Enforcement:**
+
 - Logger's first argument must match `/^[a-z][a-z0-9_]*(\.[a-z][a-z0-9_]*){1,3}$/`
 - Field name registry in `packages/observability/src/schema.ts` — common field names (`userId`, `orgId`, `durationMs`) have shared types; new fields require adding to registry
 - Axiom dashboard relies on field consistency; schema drift breaks dashboards
@@ -745,24 +774,24 @@ logger.info('user_login_ok')    // tense inconsistent with others
 
 Each level has a named audience and named consequence. Using the wrong level is a bug.
 
-| Level | Audience | When | Example |
-|---|---|---|---|
-| `trace` | Developer | Ultra-verbose dev flow; disabled in prod | `trace('db.query.started', { sql })` |
-| `debug` | Developer | Dev/staging verbose; 1% sampled in prod | `debug('cache.miss', { key })` |
-| `info` | Operator | Business events worth keeping | `info('user.created', { userId })` |
-| `warn` | Operator | Recoverable issue worth noticing | `warn('llm.retry', { attempt: 2 })` |
-| `error` | On-call (awake) | User-facing failure | `error('polar.webhook.invalid', { ... })` |
-| `critical` | On-call (paged) | Pages immediately; systemic failure | `critical('db.unavailable', {})` |
+| Level      | Audience        | When                                     | Example                                   |
+| ---------- | --------------- | ---------------------------------------- | ----------------------------------------- |
+| `trace`    | Developer       | Ultra-verbose dev flow; disabled in prod | `trace('db.query.started', { sql })`      |
+| `debug`    | Developer       | Dev/staging verbose; 1% sampled in prod  | `debug('cache.miss', { key })`            |
+| `info`     | Operator        | Business events worth keeping            | `info('user.created', { userId })`        |
+| `warn`     | Operator        | Recoverable issue worth noticing         | `warn('llm.retry', { attempt: 2 })`       |
+| `error`    | On-call (awake) | User-facing failure                      | `error('polar.webhook.invalid', { ... })` |
+| `critical` | On-call (paged) | Pages immediately; systemic failure      | `critical('db.unavailable', {})`          |
 
 **Environment-specific defaults:**
 
 ```ts
 // packages/config/src/env.ts
 export const logConfig = {
-  development: { level: 'trace',  format: 'pretty', sample: 1.0 },
-  test:        { level: 'warn',   format: 'json',   sample: 1.0 }, // quiet by default
-  staging:     { level: 'debug',  format: 'json',   sample: 0.1 },
-  production:  { level: 'info',   format: 'json',   sample: 0.01 }, // errors always 100%
+  development: { level: 'trace', format: 'pretty', sample: 1.0 },
+  test: { level: 'warn', format: 'json', sample: 1.0 }, // quiet by default
+  staging: { level: 'debug', format: 'json', sample: 0.1 },
+  production: { level: 'info', format: 'json', sample: 0.01 }, // errors always 100%
 }[env.NODE_ENV]
 ```
 
@@ -787,15 +816,16 @@ logger.critical('audit_log.write.failed', { ... }) // compliance failure; page
 
 ```ts
 // ❌ Everything at info
-logger.info('cache miss')                       // should be debug
-logger.info('failed to parse webhook')          // should be error
-logger.info('database unavailable')             // should be critical
+logger.info('cache miss') // should be debug
+logger.info('failed to parse webhook') // should be error
+logger.info('database unavailable') // should be critical
 
 // ❌ Error for non-errors
-logger.error('user password too short')         // validation error — info or warn
+logger.error('user password too short') // validation error — info or warn
 ```
 
 **Enforcement:**
+
 - Alerts configured per-level (critical pages, error warns, etc.) — wrong level triggers wrong response
 - Monthly log-level audit: any `error`/`critical` events firing > 100/day get reviewed (either wrong level or systemic issue)
 
@@ -807,11 +837,11 @@ Not all logs are equal. Hot (debugging) logs are queried daily. Warm (analysis) 
 
 **Gaia's retention tiers:**
 
-| Tier | Duration | Destination | Cost | Query speed |
-|---|---|---|---|---|
-| **Hot** | 14 days | Axiom (default dataset) | $$$ | Seconds |
-| **Warm** | 90 days | Axiom (archive dataset) | $$ | Minutes |
-| **Cold** | 7 years | S3 / R2 via Axiom export | $ | Hours |
+| Tier     | Duration | Destination              | Cost | Query speed |
+| -------- | -------- | ------------------------ | ---- | ----------- |
+| **Hot**  | 14 days  | Axiom (default dataset)  | $$$  | Seconds     |
+| **Warm** | 90 days  | Axiom (archive dataset)  | $$   | Minutes     |
+| **Cold** | 7 years  | S3 / R2 via Axiom export | $    | Hours       |
 
 **Routing rules (applied at log-emit time):**
 
@@ -853,6 +883,7 @@ logger.info('audit.user.deleted', {
 ```
 
 **Enforcement:**
+
 - Routing logic lives in one file (`router.ts`); new log categories added here
 - Monthly Axiom cost review — alert on 2x rolling-average monthly spend
 - Compliance test: simulate GDPR data request — verify audit log query returns records from 3+ years ago
@@ -900,15 +931,16 @@ logger.info('audit.user.deleted', {
 
 Observability cost is a budget, tracked in `docs/runbook/observability-cost.md`:
 
-| Component | Budget (v1) |
-|---|---|
-| Sentry | $100/mo (baseline events + traces + replays) |
-| Axiom | $100/mo (~100GB log ingest) |
-| PostHog | Free tier (100k events/mo → paid as growth) |
-| Better Stack | $30/mo (uptime) |
-| **Total** | ~$250/mo for v1 scale |
+| Component    | Budget (v1)                                  |
+| ------------ | -------------------------------------------- |
+| Sentry       | $100/mo (baseline events + traces + replays) |
+| Axiom        | $100/mo (~100GB log ingest)                  |
+| PostHog      | Free tier (100k events/mo → paid as growth)  |
+| Better Stack | $30/mo (uptime)                              |
+| **Total**    | ~$250/mo for v1 scale                        |
 
 **Alerts fire when:**
+
 - Axiom monthly spend > $150 (50% over budget)
 - Sentry quota > 80% through mid-month
 - PostHog event volume > 90% of tier
@@ -946,17 +978,17 @@ If the trace ID can't join across Axiom and Sentry, observability is broken — 
 
 ## Quick reference
 
-| Need | API | Output |
-|---|---|---|
-| Log an event | `logger.info('user.created', { userId })` | Axiom JSON |
-| Log a recoverable issue | `logger.warn('adapter.retry', { attempt })` | Axiom JSON + trend alert |
-| Log an error | `throwError('CODE', { context })` | Auto: Sentry + Axiom |
-| Trace a boundary | `tracer.startActiveSpan('name', async () => ...)` | Sentry span |
-| Capture user event | `posthog.capture({ distinctId, event, properties })` | PostHog event |
-| Check a trace | Sentry → Traces → search by `trace_id` | Distributed view |
-| Check logs | Axiom → query dataset with SQL-like syntax | Queryable events |
-| Check funnel | PostHog → Insights → Funnels | Conversion rates |
-| Check uptime | Better Stack dashboard | Uptime + incidents |
+| Need                    | API                                                  | Output                   |
+| ----------------------- | ---------------------------------------------------- | ------------------------ |
+| Log an event            | `logger.info('user.created', { userId })`            | Axiom JSON               |
+| Log a recoverable issue | `logger.warn('adapter.retry', { attempt })`          | Axiom JSON + trend alert |
+| Log an error            | `throwError('CODE', { context })`                    | Auto: Sentry + Axiom     |
+| Trace a boundary        | `tracer.startActiveSpan('name', async () => ...)`    | Sentry span              |
+| Capture user event      | `posthog.capture({ distinctId, event, properties })` | PostHog event            |
+| Check a trace           | Sentry → Traces → search by `trace_id`               | Distributed view         |
+| Check logs              | Axiom → query dataset with SQL-like syntax           | Queryable events         |
+| Check funnel            | PostHog → Insights → Funnels                         | Conversion rates         |
+| Check uptime            | Better Stack dashboard                               | Uptime + incidents       |
 
 ---
 
@@ -969,4 +1001,4 @@ If the trace ID can't join across Axiom and Sentry, observability is broken — 
 - Runbook index: `docs/runbook/index.md`
 - SLO definitions: `docs/runbook/slos.md`
 
-*This file is versioned. Changes that contradict `code.md` require an ADR.*
+_This file is versioned. Changes that contradict `code.md` require an ADR._

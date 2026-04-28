@@ -21,11 +21,11 @@ The test: **would a solo founder who's never seen Gaia ship their first feature 
 
 Developer experience reduces to three dimensions:
 
-| Dimension | What it measures | How Gaia addresses |
-|---|---|---|
-| **Feedback loops** | Speed of response to developer actions | Sub-5s typecheck, sub-2s lint, sub-30s install, sub-5min CI |
-| **Cognitive load** | Mental effort to complete tasks | Convention over configuration, one-job commands, colocated docs |
-| **Flow state** | Continuous focus without interruption | No dashboards required, errors point to fix, CLI never asks unnecessarily |
+| Dimension          | What it measures                       | How Gaia addresses                                                        |
+| ------------------ | -------------------------------------- | ------------------------------------------------------------------------- |
+| **Feedback loops** | Speed of response to developer actions | Sub-5s typecheck, sub-2s lint, sub-30s install, sub-5min CI               |
+| **Cognitive load** | Mental effort to complete tasks        | Convention over configuration, one-job commands, colocated docs           |
+| **Flow state**     | Continuous focus without interruption  | No dashboards required, errors point to fix, CLI never asks unnecessarily |
 
 Every DX decision traces to one or more of these. If a new tool or pattern lengthens feedback loops, adds cognitive load, or breaks flow — it's a regression, even if technically better in isolation.
 
@@ -98,16 +98,16 @@ gaia ship                          # Ship to production
 
 ### Global flags (every command supports these)
 
-| Flag | Purpose |
-|---|---|
-| `--help`, `-h` | Show help for this command |
-| `--version`, `-V` | Print Gaia CLI version |
-| `--json` | Output JSON instead of human format |
-| `--verbose`, `-v` | Verbose output (show all steps) |
-| `--quiet`, `-q` | Suppress non-error output |
-| `--no-color` | Disable color output (pipes, CI) |
-| `--dry-run` | Preview what would happen without executing |
-| `--yes`, `-y` | Skip confirmations (for scripts) |
+| Flag              | Purpose                                     |
+| ----------------- | ------------------------------------------- |
+| `--help`, `-h`    | Show help for this command                  |
+| `--version`, `-V` | Print Gaia CLI version                      |
+| `--json`          | Output JSON instead of human format         |
+| `--verbose`, `-v` | Verbose output (show all steps)             |
+| `--quiet`, `-q`   | Suppress non-error output                   |
+| `--no-color`      | Disable color output (pipes, CI)            |
+| `--dry-run`       | Preview what would happen without executing |
+| `--yes`, `-y`     | Skip confirmations (for scripts)            |
 
 ### Local flag conventions
 
@@ -194,14 +194,14 @@ $ gaia deploy --env=production
 
 ### Color conventions (using @gaia/cli-colors)
 
-| Color | Usage |
-|---|---|
-| Green | Success, completion |
-| Red | Errors, failures |
-| Yellow | Warnings, pending |
-| Cyan | Info, pointers, URLs |
-| Dim | Secondary info (paths, timings, details) |
-| Bold | Emphasis, key terms |
+| Color  | Usage                                    |
+| ------ | ---------------------------------------- |
+| Green  | Success, completion                      |
+| Red    | Errors, failures                         |
+| Yellow | Warnings, pending                        |
+| Cyan   | Info, pointers, URLs                     |
+| Dim    | Secondary info (paths, timings, details) |
+| Bold   | Emphasis, key terms                      |
 
 Colors auto-disable on non-TTY (piped output, CI without `FORCE_COLOR`).
 
@@ -285,21 +285,23 @@ Every CLI error:
 
 ### Error severity levels
 
-| Level | When | Example |
-|---|---|---|
-| **Info** | FYI, no action needed | `Using cached dependencies. Run --no-cache to rebuild.` |
-| **Warning** | Action recommended but not blocking | `Node 18 is EOL. Consider upgrading to 20+.` |
-| **Error** | Blocks current command | `Migration failed. Run: gaia db status` |
-| **Fatal** | Cannot continue, corrupted state | `Config corrupt. Restore from .gaia/backup/` |
+| Level       | When                                | Example                                                 |
+| ----------- | ----------------------------------- | ------------------------------------------------------- |
+| **Info**    | FYI, no action needed               | `Using cached dependencies. Run --no-cache to rebuild.` |
+| **Warning** | Action recommended but not blocking | `Node 18 is EOL. Consider upgrading to 20+.`            |
+| **Error**   | Blocks current command              | `Migration failed. Run: gaia db status`                 |
+| **Fatal**   | Cannot continue, corrupted state    | `Config corrupt. Restore from .gaia/backup/`            |
 
 ### Good vs bad error messages
 
 **❌ Bad:**
+
 ```
 Error: ENOENT
 ```
 
 **✅ Good:**
+
 ```
 Error: No .gaia/rules.ts file found in current directory.
 
@@ -312,11 +314,13 @@ What to do:
 ```
 
 **❌ Bad:**
+
 ```
 Error: Request failed with status 500
 ```
 
 **✅ Good:**
+
 ```
 Error: Deploy failed — Railway API returned 500.
 
@@ -345,24 +349,25 @@ Your code is unchanged. Your last successful deploy is still live.
 
 Every loop has a target. Miss it, we investigate.
 
-| Loop | Target | Current tool |
-|---|---|---|
-| Install dependencies | <30s | Bun |
-| Cold start dev server | <2s | Bun + Elysia + Vite |
-| Hot reload after file change | <500ms | Vite HMR + Bun --hot |
-| Typecheck (single file) | <1s | tsgo |
-| Typecheck (full project) | <5s | tsgo --noEmit |
-| Lint (single file) | <500ms | Oxlint |
-| Lint (full project) | <2s | Oxlint |
-| Format | <1s | oxfmt |
-| Run single test | <5s | Bun test |
-| Run test file | <10s | Bun test |
-| Run full test suite | <60s | Bun test + Playwright (parallel) |
-| Build for production | <30s | Bun + Vite |
-| Deploy to staging | <2min | Railway |
-| Full CI (PR) | <5min | GitHub Actions |
+| Loop                         | Target | Current tool                     |
+| ---------------------------- | ------ | -------------------------------- |
+| Install dependencies         | <30s   | Bun                              |
+| Cold start dev server        | <2s    | Bun + Elysia + Vite              |
+| Hot reload after file change | <500ms | Vite HMR + Bun --hot             |
+| Typecheck (single file)      | <1s    | tsgo                             |
+| Typecheck (full project)     | <5s    | tsgo --noEmit                    |
+| Lint (single file)           | <500ms | Oxlint                           |
+| Lint (full project)          | <2s    | Oxlint                           |
+| Format                       | <1s    | oxfmt                            |
+| Run single test              | <5s    | Bun test                         |
+| Run test file                | <10s   | Bun test                         |
+| Run full test suite          | <60s   | Bun test + Playwright (parallel) |
+| Build for production         | <30s   | Bun + Vite                       |
+| Deploy to staging            | <2min  | Railway                          |
+| Full CI (PR)                 | <5min  | GitHub Actions                   |
 
 **When loops miss target:**
+
 1. Add to the tracking list
 2. Investigate within a week
 3. Either fix or document why the slower target is acceptable
@@ -374,17 +379,17 @@ Every loop has a target. Miss it, we investigate.
 
 ### What goes where
 
-| Location | What | Audience |
-|---|---|---|
-| `README.md` (root) | Quick start, what Gaia is, links | Newcomers |
-| `CLAUDE.md` (root) | Global rules for agents | Agents |
-| `docs/reference/*.md` | Living cheat sheets per domain | Everyone |
-| `docs/adr/*.md` | Architectural decisions | Maintainers |
-| `docs/spec/*.md` | Product behavior specs | Implementers |
-| `docs/runbook/*.md` | Operational procedures | Ops, on-call |
-| `<package>/README.md` | What this package does, how to use it | Users of the package |
-| `<package>/CLAUDE.md` | Local rules for agents in this package | Agents |
-| `src/**/*.ts` comments | Function-level why (not what) | Readers of the code |
+| Location               | What                                   | Audience             |
+| ---------------------- | -------------------------------------- | -------------------- |
+| `README.md` (root)     | Quick start, what Gaia is, links       | Newcomers            |
+| `CLAUDE.md` (root)     | Global rules for agents                | Agents               |
+| `docs/reference/*.md`  | Living cheat sheets per domain         | Everyone             |
+| `docs/adr/*.md`        | Architectural decisions                | Maintainers          |
+| `docs/spec/*.md`       | Product behavior specs                 | Implementers         |
+| `docs/runbook/*.md`    | Operational procedures                 | Ops, on-call         |
+| `<package>/README.md`  | What this package does, how to use it  | Users of the package |
+| `<package>/CLAUDE.md`  | Local rules for agents in this package | Agents               |
+| `src/**/*.ts` comments | Function-level why (not what)          | Readers of the code  |
 
 ### What does NOT go in docs
 
@@ -502,16 +507,16 @@ You can't improve what you don't measure.
 
 ### Key metrics
 
-| Metric | What it tells you | Target |
-|---|---|---|
-| **TTHW (time-to-hello-world)** | First-success speed | <5 min |
-| **TT1PR (time-to-first-PR)** | When new users commit something | <30 min |
-| **Install time** | How fast deps resolve | <30s |
-| **Cold start** | Dev server boot | <2s |
-| **Full CI time** | PR feedback latency | <5 min |
-| **Error recovery rate** | % of errors users resolve without support | >80% |
-| **Command help usage** | `--help` invocations / unique commands | High = good DX |
-| **Support ticket clustering** | Which CLI areas generate tickets | Trend down |
+| Metric                         | What it tells you                         | Target         |
+| ------------------------------ | ----------------------------------------- | -------------- |
+| **TTHW (time-to-hello-world)** | First-success speed                       | <5 min         |
+| **TT1PR (time-to-first-PR)**   | When new users commit something           | <30 min        |
+| **Install time**               | How fast deps resolve                     | <30s           |
+| **Cold start**                 | Dev server boot                           | <2s            |
+| **Full CI time**               | PR feedback latency                       | <5 min         |
+| **Error recovery rate**        | % of errors users resolve without support | >80%           |
+| **Command help usage**         | `--help` invocations / unique commands    | High = good DX |
+| **Support ticket clustering**  | Which CLI areas generate tickets          | Trend down     |
 
 ### How to measure
 
@@ -524,37 +529,37 @@ You can't improve what you don't measure.
 
 ## Anti-patterns — what Gaia explicitly rejects
 
-| Anti-pattern | Why rejected |
-|---|---|
-| Web dashboards for routine ops | CLI-first (principle #1); dashboard is the exception |
-| Tutorials as onboarding | Docs are for after; first-run succeeds without them |
-| Full-screen modals in CLI | Breaks scrollback, hostile to dev flow |
-| Confetti / celebration animations | AI slop, wastes attention |
-| Mandatory account creation | First-run must work offline |
-| Phone-home at startup | Telemetry opt-in only |
-| Emojis in production output | Signal density dropper |
-| Heavy install-time scripts | <30s install is sacred |
-| Custom DSLs for config | TypeScript for config; agents already know TS |
-| Global CLI state | `.gaia/` per-project; nothing in `$HOME` without explicit opt-in |
-| "Are you sure?" on non-destructive ops | Cost of decision > cost of undo |
-| Breaking changes in patch releases | SemVer or it doesn't ship |
+| Anti-pattern                           | Why rejected                                                     |
+| -------------------------------------- | ---------------------------------------------------------------- |
+| Web dashboards for routine ops         | CLI-first (principle #1); dashboard is the exception             |
+| Tutorials as onboarding                | Docs are for after; first-run succeeds without them              |
+| Full-screen modals in CLI              | Breaks scrollback, hostile to dev flow                           |
+| Confetti / celebration animations      | AI slop, wastes attention                                        |
+| Mandatory account creation             | First-run must work offline                                      |
+| Phone-home at startup                  | Telemetry opt-in only                                            |
+| Emojis in production output            | Signal density dropper                                           |
+| Heavy install-time scripts             | <30s install is sacred                                           |
+| Custom DSLs for config                 | TypeScript for config; agents already know TS                    |
+| Global CLI state                       | `.gaia/` per-project; nothing in `$HOME` without explicit opt-in |
+| "Are you sure?" on non-destructive ops | Cost of decision > cost of undo                                  |
+| Breaking changes in patch releases     | SemVer or it doesn't ship                                        |
 
 ---
 
 ## Decisions log
 
-| Date | Decision | Rationale |
-|---|---|---|
-| 2026-04-02 | CLI is primary operational surface (VISION principle #13) | Agents operate via CLIs, not dashboards. Audit trail is the product, not separate. |
-| 2026-04-02 | Convention over configuration as default | Rails's gift. 80% defaults right means most users never configure. |
-| 2026-04-19 | 12 DX principles adopted | Grounded in ACM Queue DevEx framework (feedback loops + cognitive load + flow state) + gstack + clig.dev. |
-| 2026-04-19 | TTHW <5 min as KPI | Industry data: first-session completion is most predictive of retention. 5 min is the onboarding target. |
-| 2026-04-19 | Three-part error framework | What/why/how-to-fix. Error recovery rate >80% target. |
-| 2026-04-19 | Feedback loop numerical targets | Install <30s, typecheck <5s, lint <2s, CI <5min. Missing any is a bug. |
-| 2026-04-19 | Verb-noun subcommand structure | Git/docker proven pattern. Scales. Scriptable. Tab-completable. |
-| 2026-04-19 | Stdout/stderr split | Pipes work. `grep` and `jq` both succeed. Scripts don't break. |
-| 2026-04-19 | Destructive ops require `--yes` or `--dry-run` | Destructive-by-default is a bug. Explicit opt-in for irreversibility. |
-| 2026-04-19 | Docs live where code lives | Nothing in Notion. Every package has README. Every command has --help. |
+| Date       | Decision                                                  | Rationale                                                                                                 |
+| ---------- | --------------------------------------------------------- | --------------------------------------------------------------------------------------------------------- |
+| 2026-04-02 | CLI is primary operational surface (VISION principle #13) | Agents operate via CLIs, not dashboards. Audit trail is the product, not separate.                        |
+| 2026-04-02 | Convention over configuration as default                  | Rails's gift. 80% defaults right means most users never configure.                                        |
+| 2026-04-19 | 12 DX principles adopted                                  | Grounded in ACM Queue DevEx framework (feedback loops + cognitive load + flow state) + gstack + clig.dev. |
+| 2026-04-19 | TTHW <5 min as KPI                                        | Industry data: first-session completion is most predictive of retention. 5 min is the onboarding target.  |
+| 2026-04-19 | Three-part error framework                                | What/why/how-to-fix. Error recovery rate >80% target.                                                     |
+| 2026-04-19 | Feedback loop numerical targets                           | Install <30s, typecheck <5s, lint <2s, CI <5min. Missing any is a bug.                                    |
+| 2026-04-19 | Verb-noun subcommand structure                            | Git/docker proven pattern. Scales. Scriptable. Tab-completable.                                           |
+| 2026-04-19 | Stdout/stderr split                                       | Pipes work. `grep` and `jq` both succeed. Scripts don't break.                                            |
+| 2026-04-19 | Destructive ops require `--yes` or `--dry-run`            | Destructive-by-default is a bug. Explicit opt-in for irreversibility.                                     |
+| 2026-04-19 | Docs live where code lives                                | Nothing in Notion. Every package has README. Every command has --help.                                    |
 
 ---
 
@@ -567,4 +572,4 @@ You can't improve what you don't measure.
 - Agent experience (the other half): `docs/reference/ax.md`
 - First-run spec: `docs/spec/onboarding.md`
 
-*DX is reviewed on every PR that touches CLI surfaces. Changes to principles or feedback-loop targets require an ADR.*
+_DX is reviewed on every PR that touches CLI surfaces. Changes to principles or feedback-loop targets require an ADR._

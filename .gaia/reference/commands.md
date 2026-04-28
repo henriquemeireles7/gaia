@@ -10,7 +10,7 @@
 
 The one-page reference for every CLI command in Gaia. Organized by workflow, not by tool. Click-to-copy examples, no placeholder gymnastics.
 
-Read `code.md` first. This file is the *lookup*, not the *why*.
+Read `code.md` first. This file is the _lookup_, not the _why_.
 
 ---
 
@@ -38,28 +38,28 @@ For full flags list on any command: append `--help`.
 
 ## Top 20 commands (daily reference)
 
-| Command | Purpose |
-|---|---|
-| `bun install` | Install all dependencies |
-| `bun run dev` | Start all apps locally (web + api) |
-| `bun run build` | Build all apps for production |
-| `bun test` | Run unit + integration tests |
-| `bun run lint` | Lint + format check |
-| `bun run lint:fix` | Lint + format autofix |
-| `bun run typecheck` | Type check with `tsgo --noEmit` |
-| `bun run db:generate` | Generate a new migration from schema changes |
-| `bun run db:migrate` | Apply pending migrations |
-| `bun run db:studio` | Open Drizzle Studio (DB explorer) |
-| `bun run db:push` | Apply schema changes without migration (local only) |
-| `bun run db:seed` | Seed local DB with realistic data |
-| `bun run check` | Full local pre-commit suite (lint + type + test) |
-| `bun run release` | Create a release PR |
-| `bun run deploy:status` | Check Railway deployment status |
-| `bun run deploy:rollback` | Rollback last deploy |
-| `moon run <target>` | Run a Moon task (`moon run web:dev`) |
-| `moon check --all` | Moon affected + all tasks |
-| `claude` | Start Claude Code session |
-| `/review` | Run Gaia's review skill in Claude Code |
+| Command                   | Purpose                                             |
+| ------------------------- | --------------------------------------------------- |
+| `bun install`             | Install all dependencies                            |
+| `bun run dev`             | Start all apps locally (web + api)                  |
+| `bun run build`           | Build all apps for production                       |
+| `bun test`                | Run unit + integration tests                        |
+| `bun run lint`            | Lint + format check                                 |
+| `bun run lint:fix`        | Lint + format autofix                               |
+| `bun run typecheck`       | Type check with `tsgo --noEmit`                     |
+| `bun run db:generate`     | Generate a new migration from schema changes        |
+| `bun run db:migrate`      | Apply pending migrations                            |
+| `bun run db:studio`       | Open Drizzle Studio (DB explorer)                   |
+| `bun run db:push`         | Apply schema changes without migration (local only) |
+| `bun run db:seed`         | Seed local DB with realistic data                   |
+| `bun run check`           | Full local pre-commit suite (lint + type + test)    |
+| `bun run release`         | Create a release PR                                 |
+| `bun run deploy:status`   | Check Railway deployment status                     |
+| `bun run deploy:rollback` | Rollback last deploy                                |
+| `moon run <target>`       | Run a Moon task (`moon run web:dev`)                |
+| `moon check --all`        | Moon affected + all tasks                           |
+| `claude`                  | Start Claude Code session                           |
+| `/review`                 | Run Gaia's review skill in Claude Code              |
 
 ---
 
@@ -617,16 +617,16 @@ git push --force-with-lease
 
 Gaia's custom scripts follow these standards everywhere:
 
-| Flag | Meaning |
-|---|---|
-| `-h, --help` | Show help for this command |
-| `-v, --verbose` | Verbose output (equivalent to DEBUG log level) |
-| `-q, --quiet` | Minimal output (errors only) |
-| `--json` | Output machine-readable JSON |
-| `--dry-run` | Show what would happen; don't execute |
-| `--force` | Skip confirmation prompts |
-| `--env <env>` | Target a specific environment (`local`, `staging`, `production`) |
-| `--watch` | Re-run on file change |
+| Flag            | Meaning                                                          |
+| --------------- | ---------------------------------------------------------------- |
+| `-h, --help`    | Show help for this command                                       |
+| `-v, --verbose` | Verbose output (equivalent to DEBUG log level)                   |
+| `-q, --quiet`   | Minimal output (errors only)                                     |
+| `--json`        | Output machine-readable JSON                                     |
+| `--dry-run`     | Show what would happen; don't execute                            |
+| `--force`       | Skip confirmation prompts                                        |
+| `--env <env>`   | Target a specific environment (`local`, `staging`, `production`) |
+| `--watch`       | Re-run on file change                                            |
 
 ---
 
@@ -634,15 +634,15 @@ Gaia's custom scripts follow these standards everywhere:
 
 Gaia scripts follow POSIX conventions:
 
-| Code | Meaning |
-|---|---|
-| 0 | Success |
-| 1 | General failure |
-| 2 | Misuse (bad arguments) |
-| 64 | Command line usage error (same as `sysexits.h`) |
-| 65 | Data format error |
-| 69 | Service unavailable |
-| 130 | Interrupted (Ctrl+C) |
+| Code | Meaning                                         |
+| ---- | ----------------------------------------------- |
+| 0    | Success                                         |
+| 1    | General failure                                 |
+| 2    | Misuse (bad arguments)                          |
+| 64   | Command line usage error (same as `sysexits.h`) |
+| 65   | Data format error                               |
+| 69   | Service unavailable                             |
+| 130  | Interrupted (Ctrl+C)                            |
 
 CI uses non-zero as failure. Scripts don't exit 0 on partial failure.
 
@@ -663,7 +663,7 @@ When adding a custom script to `package.json` `scripts` or `moon.yml`:
 
 ## What's NOT covered here
 
-This is a reference, not a tutorial. For the *why* and *when*:
+This is a reference, not a tutorial. For the _why_ and _when_:
 
 - Architecture decisions: `docs/adr/`
 - Workflow runbooks: `docs/runbook/`
@@ -681,4 +681,4 @@ For third-party CLI docs:
 
 ---
 
-*This file is versioned. New commands added to the stack get added here as part of the same PR.*
+_This file is versioned. New commands added to the stack get added here as part of the same PR._

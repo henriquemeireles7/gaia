@@ -23,8 +23,8 @@ The sub-agent does not see the main conversation. The prompt must include:
 
 ## Default sub-agent types
 
-| Sub-agent | Use for |
-|---|---|
-| Explore | Multi-file reconnaissance, "where does X live", "what's the current shape of Y". |
-| Plan | Designing an implementation strategy before code is written. |
-| general-purpose | Open-ended research that needs writes (e.g. authoring docs based on inputs). |
+| Sub-agent       | Use for                                                                          |
+| --------------- | -------------------------------------------------------------------------------- |
+| Explore         | Multi-file reconnaissance, "where does X live", "what's the current shape of Y". |
+| Plan            | Designing an implementation strategy before code is written.                     |
+| general-purpose | Open-ended research that needs writes (e.g. authoring docs based on inputs).     |

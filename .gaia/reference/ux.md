@@ -9,7 +9,7 @@
 
 ## What this file is
 
-Gaia's user experience patterns — the *how* of flows, states, and journeys. `design.md` covers visual language (what things look like); this file covers *what happens between screens*.
+Gaia's user experience patterns — the _how_ of flows, states, and journeys. `design.md` covers visual language (what things look like); this file covers _what happens between screens_.
 
 The split:
 
@@ -75,20 +75,20 @@ Keyboard flows designed end-to-end, not just focusable buttons. Screen reader fl
 
 Every interactive component in Gaia handles all states. Not all visually distinct — but all accounted for, typed, and tested.
 
-| State | When | UX requirement |
-|---|---|---|
-| **Default** | At rest | Base styling, discoverable affordance |
-| **Hover** | Pointer over (desktop, `@media (hover: hover)`) | Subtle cue — no commitment |
-| **Focus** | Keyboard navigation (`:focus-visible`) | Visible ring, never `outline: none` without replacement |
-| **Active** | Pressed / in the act of clicking | Visual feedback of commitment |
-| **Disabled** | Action unavailable | 50% opacity, `cursor: not-allowed`, tooltip explains *why* |
-| **Loading** | Processing | Spinner or skeleton, UI never freezes |
-| **Empty** | No data yet | Instruction + action, never blank |
-| **Partial** | Some data, more coming | Show what's loaded, skeleton for rest |
-| **Error** | Failed | What/why/how to fix |
-| **Success** | Completed | Brief confirmation, next action visible |
-| **Stale** | Data outdated | "Last updated X minutes ago" + refresh affordance |
-| **Over-limit** | Quota/rate exceeded | Current state + how to unblock |
+| State          | When                                            | UX requirement                                             |
+| -------------- | ----------------------------------------------- | ---------------------------------------------------------- |
+| **Default**    | At rest                                         | Base styling, discoverable affordance                      |
+| **Hover**      | Pointer over (desktop, `@media (hover: hover)`) | Subtle cue — no commitment                                 |
+| **Focus**      | Keyboard navigation (`:focus-visible`)          | Visible ring, never `outline: none` without replacement    |
+| **Active**     | Pressed / in the act of clicking                | Visual feedback of commitment                              |
+| **Disabled**   | Action unavailable                              | 50% opacity, `cursor: not-allowed`, tooltip explains _why_ |
+| **Loading**    | Processing                                      | Spinner or skeleton, UI never freezes                      |
+| **Empty**      | No data yet                                     | Instruction + action, never blank                          |
+| **Partial**    | Some data, more coming                          | Show what's loaded, skeleton for rest                      |
+| **Error**      | Failed                                          | What/why/how to fix                                        |
+| **Success**    | Completed                                       | Brief confirmation, next action visible                    |
+| **Stale**      | Data outdated                                   | "Last updated X minutes ago" + refresh affordance          |
+| **Over-limit** | Quota/rate exceeded                             | Current state + how to unblock                             |
 
 **Disabled states MUST explain why.** A disabled button with no tooltip is a dead end. Tooltip or helper text answers "why can't I?"
 
@@ -125,6 +125,7 @@ Each choice routes to a tailored starting experience. "Just exploring" gets the 
 ### Onboarding patterns
 
 **Pattern 1: Empty dashboard is dead.** Never land new users on a raw empty shell. Either:
+
 - Preload sample data (with a "Clear sample data" button)
 - Route to a guided first-action flow
 - Show a single, prominent next-action prompt
@@ -133,7 +134,7 @@ Each choice routes to a tailored starting experience. "Just exploring" gets the 
 
 **Pattern 3: Skip is allowed.** Force-onboarding is dark. Every step has a "Skip for now" option. Users who skip come back to where they were.
 
-**Pattern 4: First success visible.** The first "you did it" moment happens within 5 minutes. Not "your account is set up" — *something the user wanted* is now done.
+**Pattern 4: First success visible.** The first "you did it" moment happens within 5 minutes. Not "your account is set up" — _something the user wanted_ is now done.
 
 **Pattern 5: Welcome back.** Second session: acknowledge "welcome back" + show progress + suggest the next step (not the first step again).
 
@@ -201,18 +202,18 @@ Every empty state has:
 - Never "No data."
 - Never "Nothing here."
 - Never "Empty."
-- Always framed around *what to do next*
+- Always framed around _what to do next_
 - Voice matches `voice.md` — warm, direct, specific
 
 ### Examples
 
-| Scenario | ❌ Bad | ✅ Good |
-|---|---|---|
-| New user, no projects | "No projects" | "Your first project starts here. [Create project]" |
-| Inbox cleared | "No messages" | "You're all caught up." |
-| Search returns nothing | "0 results" | "No matches for 'alpha'. Try a different term or [clear filters]." |
-| Permission denied area | "Access denied" | "You need admin access to see this. Ask your workspace owner." |
-| Feature not yet used | "No configured alerts" | "Set up your first alert to get notified when X happens. [Create alert]" |
+| Scenario               | ❌ Bad                 | ✅ Good                                                                  |
+| ---------------------- | ---------------------- | ------------------------------------------------------------------------ |
+| New user, no projects  | "No projects"          | "Your first project starts here. [Create project]"                       |
+| Inbox cleared          | "No messages"          | "You're all caught up."                                                  |
+| Search returns nothing | "0 results"            | "No matches for 'alpha'. Try a different term or [clear filters]."       |
+| Permission denied area | "Access denied"        | "You need admin access to see this. Ask your workspace owner."           |
+| Feature not yet used   | "No configured alerts" | "Set up your first alert to get notified when X happens. [Create alert]" |
 
 ---
 
@@ -228,21 +229,22 @@ Every error message follows:
 
 ### Error taxonomy
 
-| Type | Tone | Recovery |
-|---|---|---|
-| **Validation** (user input issue) | Neutral, helpful | Inline, next to field |
-| **Permission** (user can't) | Clear, directs to admin | Show who has access |
-| **Rate limit / quota** (user over-used) | Neutral, shows when it resets | Timer or "Upgrade" path |
-| **Network transient** (temporary) | Reassuring, suggest retry | "Try again" button |
-| **Server error** (our fault) | Honest, preserve data | "Try again" + "Contact support" |
-| **Not found** (wrong URL) | Calm, help them find it | Search + home link |
-| **Unrecoverable** (data loss risk) | Sober, preserve what's possible | Show last-saved state + recovery actions |
+| Type                                    | Tone                            | Recovery                                 |
+| --------------------------------------- | ------------------------------- | ---------------------------------------- |
+| **Validation** (user input issue)       | Neutral, helpful                | Inline, next to field                    |
+| **Permission** (user can't)             | Clear, directs to admin         | Show who has access                      |
+| **Rate limit / quota** (user over-used) | Neutral, shows when it resets   | Timer or "Upgrade" path                  |
+| **Network transient** (temporary)       | Reassuring, suggest retry       | "Try again" button                       |
+| **Server error** (our fault)            | Honest, preserve data           | "Try again" + "Contact support"          |
+| **Not found** (wrong URL)               | Calm, help them find it         | Search + home link                       |
+| **Unrecoverable** (data loss risk)      | Sober, preserve what's possible | Show last-saved state + recovery actions |
 
 ### Patterns by type
 
 #### Validation errors
 
 **Rules:**
+
 - Inline, next to the field
 - Appears on blur (not on every keystroke)
 - Error icon + red text (matching `--error` token)
@@ -257,6 +259,7 @@ Every error message follows:
 #### Permission errors
 
 **Rules:**
+
 - State what's blocked
 - State what's needed
 - State how to get it
@@ -289,6 +292,7 @@ Your changes are safe. We've logged it.
 ```
 
 Three principles:
+
 - Reassure (not your fault)
 - Honest about state (your data is safe OR we've lost context)
 - Clear next action
@@ -312,16 +316,16 @@ The user might lose data. Give them the text. Let them copy it. Offer retry. Let
 
 ### Error anti-patterns
 
-| Anti-pattern | Why banned |
-|---|---|
-| "Oops! Something went wrong 🙈" | Humor trivializes user frustration |
-| "An error occurred" | Tells nothing |
-| Stack trace as primary message | Scares users; leaks implementation |
-| Error without recovery action | Dead end |
-| Red exclamation mark with no text | Unclear |
-| "Please try again" with no button | Forces manual retry |
-| Blaming the user ("You did X wrong") | Shame |
-| Dismissing without fixing ("[OK]" closes the error) | No path forward |
+| Anti-pattern                                        | Why banned                         |
+| --------------------------------------------------- | ---------------------------------- |
+| "Oops! Something went wrong 🙈"                     | Humor trivializes user frustration |
+| "An error occurred"                                 | Tells nothing                      |
+| Stack trace as primary message                      | Scares users; leaks implementation |
+| Error without recovery action                       | Dead end                           |
+| Red exclamation mark with no text                   | Unclear                            |
+| "Please try again" with no button                   | Forces manual retry                |
+| Blaming the user ("You did X wrong")                | Shame                              |
+| Dismissing without fixing ("[OK]" closes the error) | No path forward                    |
 
 ---
 
@@ -329,27 +333,30 @@ The user might lose data. Give them the text. Let them copy it. Offer retry. Let
 
 ### The latency-tier response
 
-| Time | User perception | Response |
-|---|---|---|
-| **<100ms** | Instant | No indicator; UI just responds |
-| **100ms-1s** | Slight wait | Skeleton or subtle spinner, no text |
-| **1-3s** | Noticeable wait | Indeterminate spinner + brief label ("Saving...") |
-| **3-10s** | Active waiting | Progress indicator where possible, context message ("Running 47 tests — 12 done") |
-| **10s+** | Long wait | Explicit progress + cancel option if possible + explain why ("Training the model — this usually takes ~30 seconds") |
+| Time         | User perception | Response                                                                                                            |
+| ------------ | --------------- | ------------------------------------------------------------------------------------------------------------------- |
+| **<100ms**   | Instant         | No indicator; UI just responds                                                                                      |
+| **100ms-1s** | Slight wait     | Skeleton or subtle spinner, no text                                                                                 |
+| **1-3s**     | Noticeable wait | Indeterminate spinner + brief label ("Saving...")                                                                   |
+| **3-10s**    | Active waiting  | Progress indicator where possible, context message ("Running 47 tests — 12 done")                                   |
+| **10s+**     | Long wait       | Explicit progress + cancel option if possible + explain why ("Training the model — this usually takes ~30 seconds") |
 
 ### Skeleton vs spinner
 
 **Skeleton screens** (grey placeholder shapes) when:
+
 - You know roughly the layout of incoming content
 - Loading is fast enough (<3s) that a spinner feels abrupt
 - The perceived performance matters more than precision
 
 **Spinners** when:
+
 - Background operation with no visible output yet
 - Indeterminate duration
 - Small-area interaction (button saving)
 
 **Neither — just disable** when:
+
 - <100ms operation
 - Button click that completes before the user releases
 
@@ -361,7 +368,7 @@ For fast, likely-to-succeed operations (mark-read, toggle, like):
 2. Send the actual request in background
 3. If it fails: revert + show error inline
 
-Rule: only optimistic-update actions that *almost always succeed*. Never optimistic-update anything with material consequence (payment, delete).
+Rule: only optimistic-update actions that _almost always succeed_. Never optimistic-update anything with material consequence (payment, delete).
 
 ### Progress bars — only honest ones
 
@@ -447,12 +454,12 @@ Forms are where SaaS flows die. Every field costs conversion.
 
 ### Validation timing
 
-| Event | Action |
-|---|---|
-| `onChange` (typing) | No validation (too noisy) |
-| `onBlur` (leaving field) | Validate this field, show error if any |
-| `onSubmit` | Re-validate all, focus first invalid field |
-| `onFocus` (returning to errored field) | Clear the error (they're fixing it) |
+| Event                                  | Action                                     |
+| -------------------------------------- | ------------------------------------------ |
+| `onChange` (typing)                    | No validation (too noisy)                  |
+| `onBlur` (leaving field)               | Validate this field, show error if any     |
+| `onSubmit`                             | Re-validate all, focus first invalid field |
+| `onFocus` (returning to errored field) | Clear the error (they're fixing it)        |
 
 ### Multi-step forms
 
@@ -466,16 +473,16 @@ For anything >5 fields:
 
 ### Form anti-patterns
 
-| Anti-pattern | Why |
-|---|---|
-| Submit-time validation wall | User has to scroll to find errors |
-| Cryptic error messages | "Field invalid" tells nothing |
-| Lost data on browser close | Persistent grief |
-| Required fields for things you don't use | Costs completions |
-| Password complexity rules revealed after submit | Frustration |
-| "Enter your phone for security" that's really for marketing | Manipulation |
-| CAPTCHA before submit (without real bot risk) | Friction |
-| Asking for the same info twice | Poor memory |
+| Anti-pattern                                                | Why                               |
+| ----------------------------------------------------------- | --------------------------------- |
+| Submit-time validation wall                                 | User has to scroll to find errors |
+| Cryptic error messages                                      | "Field invalid" tells nothing     |
+| Lost data on browser close                                  | Persistent grief                  |
+| Required fields for things you don't use                    | Costs completions                 |
+| Password complexity rules revealed after submit             | Frustration                       |
+| "Enter your phone for security" that's really for marketing | Manipulation                      |
+| CAPTCHA before submit (without real bot risk)               | Friction                          |
+| Asking for the same info twice                              | Poor memory                       |
 
 ---
 
@@ -492,23 +499,27 @@ For anything >5 fields:
 ### Navigation patterns
 
 **Top nav:**
+
 - Logo → home
 - Primary sections (3-7 items)
 - Search (if applicable)
 - Account / user menu (right)
 
 **Sidebar nav:**
+
 - For apps with many sections/pages
 - Collapsible on desktop
 - Bottom drawer or sheet on mobile
 - Active section highlighted
 
 **Breadcrumbs:**
+
 - When depth ≥3
 - Each level clickable
 - Last level = current (not clickable)
 
 **Deep links:**
+
 - Every state reachable by URL
 - URL reflects location + filters
 - Share-a-link works for any screen
@@ -560,22 +571,22 @@ This is a line Gaia doesn't cross. Regulatory (GDPR, FTC, EU DSA) and ethical.
 
 ### Explicitly forbidden
 
-| Pattern | What it is | Why banned |
-|---|---|---|
-| **Fake urgency** | "Only 2 left!" when infinite | Lie |
-| **Fabricated scarcity** | "13 people are looking at this" fake | Lie |
-| **Forced social proof** | "Join 50,000 founders" inflated | Lie |
-| **Pre-checked consent** | "☑ Send me marketing" pre-filled | Unfair default |
-| **Roach motel** | Easy signup, impossible cancel | Coercion |
-| **Confirmshaming** | "No thanks, I don't care about my users" | Emotional manipulation |
-| **Sneaking** | Items added to cart without consent | Bait-and-switch |
-| **Hidden costs** | Shipping, taxes, fees revealed at checkout | Deception |
-| **Disguised ads** | Ads styled as content | Deception |
-| **Trick questions** | Double-negative consent forms | Confusion |
-| **Forced continuity** | Free trial auto-converts without notice | Deception |
-| **Bait-and-switch** | CTA promises A, delivers B | Deception |
-| **Friend spam** | Pressuring contact-list access for virality | Coercion |
-| **Privacy zuckering** | Unclear what's shared with whom | Deception |
+| Pattern                 | What it is                                  | Why banned             |
+| ----------------------- | ------------------------------------------- | ---------------------- |
+| **Fake urgency**        | "Only 2 left!" when infinite                | Lie                    |
+| **Fabricated scarcity** | "13 people are looking at this" fake        | Lie                    |
+| **Forced social proof** | "Join 50,000 founders" inflated             | Lie                    |
+| **Pre-checked consent** | "☑ Send me marketing" pre-filled            | Unfair default         |
+| **Roach motel**         | Easy signup, impossible cancel              | Coercion               |
+| **Confirmshaming**      | "No thanks, I don't care about my users"    | Emotional manipulation |
+| **Sneaking**            | Items added to cart without consent         | Bait-and-switch        |
+| **Hidden costs**        | Shipping, taxes, fees revealed at checkout  | Deception              |
+| **Disguised ads**       | Ads styled as content                       | Deception              |
+| **Trick questions**     | Double-negative consent forms               | Confusion              |
+| **Forced continuity**   | Free trial auto-converts without notice     | Deception              |
+| **Bait-and-switch**     | CTA promises A, delivers B                  | Deception              |
+| **Friend spam**         | Pressuring contact-list access for virality | Coercion               |
+| **Privacy zuckering**   | Unclear what's shared with whom             | Deception              |
 
 ### What's allowed (ethical persuasion)
 
@@ -656,15 +667,15 @@ You can't improve what you don't measure.
 
 ### Key metrics
 
-| Metric | What it tells you | Target |
-|---|---|---|
-| **Time-to-first-value (TTFV)** | Onboarding efficiency | <5 min |
-| **Activation rate** | % users who reach first value | >30% |
-| **Week-1 retention** | Did they come back? | >40% |
-| **Task success rate** | % completing core flows | >90% |
-| **Error rate per session** | UI fighting users | <1 per session avg |
-| **Support ticket clustering** | Which UI area generates tickets | Trend down over time |
-| **Form completion rate** | Forms aren't losing people | >80% for essential forms |
+| Metric                         | What it tells you               | Target                   |
+| ------------------------------ | ------------------------------- | ------------------------ |
+| **Time-to-first-value (TTFV)** | Onboarding efficiency           | <5 min                   |
+| **Activation rate**            | % users who reach first value   | >30%                     |
+| **Week-1 retention**           | Did they come back?             | >40%                     |
+| **Task success rate**          | % completing core flows         | >90%                     |
+| **Error rate per session**     | UI fighting users               | <1 per session avg       |
+| **Support ticket clustering**  | Which UI area generates tickets | Trend down over time     |
+| **Form completion rate**       | Forms aren't losing people      | >80% for essential forms |
 
 ### Tools
 
@@ -713,17 +724,17 @@ If any checkbox fails, the flow isn't done.
 
 ## Decisions log
 
-| Date | Decision | Rationale |
-|---|---|---|
-| 2026-04-19 | 12 component states enforced at type level | Blank screens are bugs. Type system makes "did we handle loading?" a compile-time question. |
-| 2026-04-19 | Intent-based onboarding as default pattern | Multi-step wizards ask questions users can't answer yet. One up-front intent question routes intelligently. |
-| 2026-04-19 | 5-minute time-to-first-value target | Industry data: 40-60% of users who don't reach value in first session never return. 5-min is the aha-moment target. |
-| 2026-04-19 | Three-part error message framework (what/why/how to fix) | Every error has a recovery path. No dead ends. No cryptic codes as primary. |
-| 2026-04-19 | Dark patterns explicitly banned (regulatory + ethical) | GDPR, FTC, EU DSA enforcement accelerating. 97% of EU apps contain dark patterns — Gaia is the 3%. |
-| 2026-04-19 | Accessibility as flow concern, not component checklist | Keyboard, screen reader, reduced motion all tested end-to-end for primary flows. |
-| 2026-04-19 | Reversibility > confirmation | Undo toasts preferred. Confirmation dialogs reserved for truly irreversible ops. |
-| 2026-04-19 | Loading state by latency tier | Different responses for <100ms, 100ms-1s, 1-3s, 3-10s, 10s+. Fake progress banned. |
-| 2026-04-19 | Form validation on blur, not keystroke | Blur-time validation is helpful; keystroke is anxious. Submit-time wall-of-red is forbidden. |
+| Date       | Decision                                                 | Rationale                                                                                                           |
+| ---------- | -------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------- |
+| 2026-04-19 | 12 component states enforced at type level               | Blank screens are bugs. Type system makes "did we handle loading?" a compile-time question.                         |
+| 2026-04-19 | Intent-based onboarding as default pattern               | Multi-step wizards ask questions users can't answer yet. One up-front intent question routes intelligently.         |
+| 2026-04-19 | 5-minute time-to-first-value target                      | Industry data: 40-60% of users who don't reach value in first session never return. 5-min is the aha-moment target. |
+| 2026-04-19 | Three-part error message framework (what/why/how to fix) | Every error has a recovery path. No dead ends. No cryptic codes as primary.                                         |
+| 2026-04-19 | Dark patterns explicitly banned (regulatory + ethical)   | GDPR, FTC, EU DSA enforcement accelerating. 97% of EU apps contain dark patterns — Gaia is the 3%.                  |
+| 2026-04-19 | Accessibility as flow concern, not component checklist   | Keyboard, screen reader, reduced motion all tested end-to-end for primary flows.                                    |
+| 2026-04-19 | Reversibility > confirmation                             | Undo toasts preferred. Confirmation dialogs reserved for truly irreversible ops.                                    |
+| 2026-04-19 | Loading state by latency tier                            | Different responses for <100ms, 100ms-1s, 1-3s, 3-10s, 10s+. Fake progress banned.                                  |
+| 2026-04-19 | Form validation on blur, not keystroke                   | Blur-time validation is helpful; keystroke is anxious. Submit-time wall-of-red is forbidden.                        |
 
 ---
 
@@ -736,4 +747,4 @@ If any checkbox fails, the flow isn't done.
 - Measurement infrastructure: `docs/reference/observability.md`
 - Frontend implementation: `docs/reference/frontend.md`
 
-*UX patterns are versioned. Changes to dark pattern rules or accessibility baseline require an ADR.*
+_UX patterns are versioned. Changes to dark pattern rules or accessibility baseline require an ADR._

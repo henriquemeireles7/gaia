@@ -1,0 +1,51 @@
+{
+  "$schema": "./node_modules/oxlint/configuration_schema.json",
+  "plugins": ["typescript", "unicorn", "oxc", "import"],
+  "categories": {
+    "correctness": "error",
+    "suspicious": "error",
+    "perf": "warn"
+  },
+  "rules": {
+    "typescript/no-explicit-any": "error",
+    "no-empty": ["error", { "allowEmptyCatch": false }],
+    "no-throw-literal": "error",
+    "no-debugger": "error",
+    "no-console": ["warn", { "allow": ["error", "warn"] }],
+    "unicorn/prefer-node-protocol": "error",
+    "unicorn/no-array-sort": "off",
+    "no-underscore-dangle": "off",
+    "unicorn/prefer-set-has": "off"
+  },
+  "env": {
+    "builtin": true
+  },
+  "ignorePatterns": [
+    "**/node_modules/**",
+    "**/dist/**",
+    "**/.vinxi/**",
+    "**/.output/**",
+    ".gaia/audit/**",
+    ".gaia/memory/working/**",
+    "public/**"
+  ],
+  "overrides": [
+    {
+      "files": [
+        "apps/api/scripts/**",
+        "packages/security/harden-check.ts",
+        "packages/core/logger.ts",
+        "packages/adapters/email.ts",
+        "packages/adapters/ai.ts",
+        ".claude/hooks/**",
+        ".claude/skills/**",
+        "scripts/**",
+        "**/*.test.ts",
+        "**/*.test.tsx"
+      ],
+      "rules": {
+        "no-console": "off"
+      }
+    }
+  ]
+}

@@ -3,7 +3,7 @@
 > Status: Reference
 > Last verified: April 2026
 > Scope: Every value reused across the visual design — colors, spacing, typography, motion, breakpoints
-> Paired with: `design.md` (the *why* and *aesthetic*)
+> Paired with: `design.md` (the _why_ and _aesthetic_)
 
 ---
 
@@ -18,12 +18,14 @@ Gaia's design tokens as code. `tokens.md` is the reference doc; `packages/ui/src
 ## Why tokens as code
 
 Three tokens (`amber-500`, `space-md`, `radius-sm`) defined once, used everywhere. Without tokens:
+
 - Same color appears with slight variations across the codebase
 - Rebranding means find-and-replace across hundreds of files
 - Figma and CSS drift silently
 - Agents invent new values on every generated component
 
 With tokens:
+
 - **One source of truth.** Change once, propagates everywhere.
 - **Semantic meaning.** `--text-muted` says what the color does; `#A69D91` says only what it is.
 - **Type safety.** TypeScript knows the valid tokens; invalid references are compile errors.
@@ -65,6 +67,7 @@ space: {
 ```
 
 **Rules:**
+
 - Descriptive names, not usage names (`amber.500`, not `primary`)
 - Never applied directly in components or CSS
 - Exist to be referenced by semantic and component tokens
@@ -105,6 +108,7 @@ spacing: {
 ```
 
 **Rules:**
+
 - Named by usage (`text.primary`, not `ink.900`)
 - Reference primitives, never raw values
 - This is the layer components import
@@ -128,12 +132,14 @@ button: {
 ```
 
 **Rules:**
+
 - Only when semantic tokens insufficient
 - Reference semantic tokens when possible
 - Most components don't need this tier — stop at semantic
 - If you're adding component tokens, ask whether the semantic tier is missing something general
 
 **The test for which tier:**
+
 - "What color is this?" → primitive
 - "What does this color do?" → semantic
 - "What does this specific component do with this color?" → component
@@ -179,6 +185,7 @@ moon run ui:tokens
 ```
 
 Runs on:
+
 - Pre-commit (via Moon)
 - CI (verifies generated files match source)
 - Post-pull (if `tokens.ts` changed)
@@ -197,7 +204,7 @@ Primitives use OKLCH. Semantic tokens reference primitives.
 export const primitives = {
   color: {
     amber: {
-      50:  'oklch(0.98 0.02 80)',
+      50: 'oklch(0.98 0.02 80)',
       100: 'oklch(0.95 0.03 75)',
       200: 'oklch(0.89 0.05 75)',
       500: 'oklch(0.72 0.08 70)',
@@ -218,25 +225,25 @@ export const primitives = {
 export const semantic = {
   color: {
     bg: {
-      primary:   primitives.color.amber[50],
+      primary: primitives.color.amber[50],
       secondary: primitives.color.amber[100],
-      tertiary:  primitives.color.amber[200],
-      surface:   '#ffffff',
+      tertiary: primitives.color.amber[200],
+      surface: '#ffffff',
     },
     text: {
-      primary:   primitives.color.ink[900],
+      primary: primitives.color.ink[900],
       secondary: primitives.color.ink[600],
-      muted:     primitives.color.ink[400],
+      muted: primitives.color.ink[400],
     },
     accent: {
       default: primitives.color.amber[500],
-      hover:   primitives.color.amber[600],
+      hover: primitives.color.amber[600],
     },
     status: {
       success: primitives.color.sage[500],
-      error:   primitives.color.terracotta[500],
+      error: primitives.color.terracotta[500],
       warning: primitives.color.gold[500],
-      info:    primitives.color.slate[400],
+      info: primitives.color.slate[400],
     },
   },
 } as const
@@ -246,8 +253,8 @@ export const semantic = {
 
 ```css
 .element {
-  color: #C4956A;                    /* generated sRGB fallback */
-  color: oklch(0.72 0.08 70);        /* OKLCH for modern browsers */
+  color: #c4956a; /* generated sRGB fallback */
+  color: oklch(0.72 0.08 70); /* OKLCH for modern browsers */
 }
 ```
 
@@ -257,36 +264,36 @@ export const semantic = {
 export const typography = {
   family: {
     serif: '"Instrument Serif", Georgia, serif',
-    sans:  '"Instrument Sans", system-ui, sans-serif',
-    mono:  '"Geist Mono", "Fira Code", Menlo, monospace',
+    sans: '"Instrument Sans", system-ui, sans-serif',
+    mono: '"Geist Mono", "Fira Code", Menlo, monospace',
   },
   size: {
-    xs:   '0.75rem',     // 12px
-    sm:   '0.875rem',    // 14px
-    base: '1rem',        // 16px — never below
-    lg:   '1.1875rem',   // 19px
-    xl:   '1.5rem',      // 24px
-    '2xl':'2rem',        // 32px
-    '3xl':'2.25rem',     // 36px
-    '4xl':'clamp(2.5rem, 2rem + 2vw, 3rem)',
+    xs: '0.75rem', // 12px
+    sm: '0.875rem', // 14px
+    base: '1rem', // 16px — never below
+    lg: '1.1875rem', // 19px
+    xl: '1.5rem', // 24px
+    '2xl': '2rem', // 32px
+    '3xl': '2.25rem', // 36px
+    '4xl': 'clamp(2.5rem, 2rem + 2vw, 3rem)',
     hero: 'clamp(2.75rem, 2rem + 3vw, 3.5rem)',
   },
   weight: {
-    regular:  '400',
-    medium:   '500',
+    regular: '400',
+    medium: '500',
     semibold: '600',
-    bold:     '700',
+    bold: '700',
   },
   leading: {
-    tight:   '1.2',   // headings
-    normal:  '1.5',
-    relaxed: '1.6',   // body
-    loose:   '1.75',  // long-form prose
+    tight: '1.2', // headings
+    normal: '1.5',
+    relaxed: '1.6', // body
+    loose: '1.75', // long-form prose
   },
   tracking: {
-    tight:  '-0.02em',
+    tight: '-0.02em',
     normal: '0',
-    wide:   '0.025em',
+    wide: '0.025em',
   },
 } as const
 ```
@@ -295,17 +302,17 @@ export const typography = {
 
 ```ts
 export const spacing = {
-  0:  '0px',
-  1:  '2px',    // 2xs
-  2:  '4px',    // xs
-  3:  '8px',    // sm
-  4:  '16px',   // md
-  5:  '24px',   // lg
-  6:  '32px',   // xl
-  7:  '48px',   // 2xl
-  8:  '64px',   // 3xl
-  9:  '96px',   // 4xl
-  10: '128px',  // 5xl
+  0: '0px',
+  1: '2px', // 2xs
+  2: '4px', // xs
+  3: '8px', // sm
+  4: '16px', // md
+  5: '24px', // lg
+  6: '32px', // xl
+  7: '48px', // 2xl
+  8: '64px', // 3xl
+  9: '96px', // 4xl
+  10: '128px', // 5xl
 } as const
 ```
 
@@ -314,11 +321,11 @@ Semantic aliases:
 ```ts
 export const semantic = {
   spacing: {
-    xs:  spacing[2],
-    sm:  spacing[3],
-    md:  spacing[4],
-    lg:  spacing[5],
-    xl:  spacing[6],
+    xs: spacing[2],
+    sm: spacing[3],
+    md: spacing[4],
+    lg: spacing[5],
+    xl: spacing[6],
     '2xl': spacing[7],
     '3xl': spacing[8],
     '4xl': spacing[9],
@@ -331,9 +338,9 @@ export const semantic = {
 ```ts
 export const radius = {
   none: '0',
-  sm:   '8px',    // buttons, inputs, tags
-  md:   '12px',   // cards, alerts
-  lg:   '16px',   // modals, hero sections
+  sm: '8px', // buttons, inputs, tags
+  md: '12px', // cards, alerts
+  lg: '16px', // modals, hero sections
   full: '9999px', // pills, badges, avatars
 } as const
 ```
@@ -345,10 +352,10 @@ Subtle, warm-toned shadows matching the aesthetic. Use `oklch` for shadow colors
 ```ts
 export const shadow = {
   none: 'none',
-  sm:   '0 1px 2px 0 oklch(0.18 0.01 60 / 0.05)',
-  md:   '0 4px 6px -1px oklch(0.18 0.01 60 / 0.08), 0 2px 4px -2px oklch(0.18 0.01 60 / 0.04)',
-  lg:   '0 10px 15px -3px oklch(0.18 0.01 60 / 0.08), 0 4px 6px -4px oklch(0.18 0.01 60 / 0.04)',
-  xl:   '0 20px 25px -5px oklch(0.18 0.01 60 / 0.08), 0 8px 10px -6px oklch(0.18 0.01 60 / 0.04)',
+  sm: '0 1px 2px 0 oklch(0.18 0.01 60 / 0.05)',
+  md: '0 4px 6px -1px oklch(0.18 0.01 60 / 0.08), 0 2px 4px -2px oklch(0.18 0.01 60 / 0.04)',
+  lg: '0 10px 15px -3px oklch(0.18 0.01 60 / 0.08), 0 4px 6px -4px oklch(0.18 0.01 60 / 0.04)',
+  xl: '0 20px 25px -5px oklch(0.18 0.01 60 / 0.08), 0 8px 10px -6px oklch(0.18 0.01 60 / 0.04)',
   inner: 'inset 0 2px 4px 0 oklch(0.18 0.01 60 / 0.06)',
 } as const
 ```
@@ -359,13 +366,13 @@ Semantic scale. No arbitrary values.
 
 ```ts
 export const zIndex = {
-  base:          '0',
-  dropdown:      '100',
-  sticky:        '200',
+  base: '0',
+  dropdown: '100',
+  sticky: '200',
   modalBackdrop: '300',
-  modal:         '400',
-  toast:         '500',
-  tooltip:       '600',
+  modal: '400',
+  toast: '500',
+  tooltip: '600',
 } as const
 ```
 
@@ -374,16 +381,16 @@ export const zIndex = {
 ```ts
 export const motion = {
   duration: {
-    instant: '0ms',     // disabled / no motion
-    micro:   '150ms',   // hover, toggle
-    short:   '250ms',   // state change, modal fade
-    medium:  '400ms',   // structural change
-    long:    '500ms',   // rare — page transitions
+    instant: '0ms', // disabled / no motion
+    micro: '150ms', // hover, toggle
+    short: '250ms', // state change, modal fade
+    medium: '400ms', // structural change
+    long: '500ms', // rare — page transitions
   },
   easing: {
-    enter:  'cubic-bezier(0.25, 1, 0.5, 1)',   // quart-out
-    exit:   'cubic-bezier(0.7, 0, 0.84, 0)',   // ease-in
-    move:   'cubic-bezier(0.65, 0, 0.35, 1)',  // ease-in-out
+    enter: 'cubic-bezier(0.25, 1, 0.5, 1)', // quart-out
+    exit: 'cubic-bezier(0.7, 0, 0.84, 0)', // ease-in
+    move: 'cubic-bezier(0.65, 0, 0.35, 1)', // ease-in-out
     // ❌ Do not add: bounce, elastic, overshoot
   },
 } as const
@@ -393,9 +400,9 @@ export const motion = {
 
 ```ts
 export const breakpoint = {
-  sm: '640px',   // small tablet
-  md: '768px',   // tablet
-  lg: '1024px',  // laptop
+  sm: '640px', // small tablet
+  md: '768px', // tablet
+  lg: '1024px', // laptop
   // xl: '1280px',  // only if design needs it
 } as const
 ```
@@ -405,9 +412,9 @@ export const breakpoint = {
 ```ts
 export const opacity = {
   disabled: '0.5',
-  subtle:   '0.6',
-  muted:    '0.75',
-  full:     '1',
+  subtle: '0.6',
+  muted: '0.75',
+  full: '1',
 } as const
 ```
 
@@ -471,9 +478,9 @@ Generated `tokens.css`:
 
 @supports not (color: oklch(0 0 0)) {
   :root {
-    --amber-50: #FAF8F5;
-    --amber-500: #C4956A;
-    --ink-900: #1A1714;
+    --amber-50: #faf8f5;
+    --amber-500: #c4956a;
+    --ink-900: #1a1714;
     /* sRGB fallbacks */
   }
 }
@@ -494,8 +501,8 @@ Components reference semantic tokens:
 
 ```css
 /* packages/ui/src/globals.css */
-@import "tailwindcss";
-@import "./tokens.css";
+@import 'tailwindcss';
+@import './tokens.css';
 
 @theme {
   --color-bg-primary: var(--bg-primary);
@@ -549,7 +556,7 @@ For Figma and external tool sync. Generated `tokens.dtcg.json`:
 {
   "color": {
     "amber": {
-      "50":  { "$value": "#FAF8F5", "$type": "color" },
+      "50": { "$value": "#FAF8F5", "$type": "color" },
       "500": { "$value": "#C4956A", "$type": "color" }
     }
   },
@@ -606,7 +613,7 @@ export const primitives = {
   color: {
     amber: {
       // ...existing
-      400: 'oklch(0.80 0.06 70)',  // new primitive
+      400: 'oklch(0.80 0.06 70)', // new primitive
     },
   },
 }
@@ -618,9 +625,9 @@ export const primitives = {
 export const semantic = {
   color: {
     border: {
-      subtle:   primitives.color.amber[200],
-      default:  primitives.color.amber[200],
-      emphasis: primitives.color.amber[400],  // new semantic token
+      subtle: primitives.color.amber[200],
+      default: primitives.color.amber[200],
+      emphasis: primitives.color.amber[400], // new semantic token
     },
   },
 }
@@ -633,6 +640,7 @@ bun run tokens:generate
 ```
 
 Generates:
+
 - CSS custom property `--border-emphasis`
 - Tailwind v4 class `border-border-emphasis`
 - TypeScript entry `tokens.color.border.emphasis`
@@ -642,9 +650,7 @@ Generates:
 
 ```tsx
 // In a component
-<div class="border border-border-emphasis">
-  {/* uses new token */}
-</div>
+;<div class="border border-border-emphasis">{/* uses new token */}</div>
 
 // Or in TypeScript
 import { tokens } from '@gaia/ui/tokens'
@@ -660,6 +666,7 @@ Add to decisions log in `design.md`:
 ### Step 6 — commit
 
 Single PR touches:
+
 - `packages/ui/src/tokens.ts` (source)
 - `packages/ui/src/tokens.css` (regenerated)
 - `packages/ui/src/tokens.dtcg.json` (regenerated)
@@ -733,18 +740,18 @@ CI fails if generated files drift from source.
 
 ### Dark mode (deferred to future tier)
 
-If added, dark mode is a *semantic remapping*, not a component change:
+If added, dark mode is a _semantic remapping_, not a component change:
 
 ```ts
 // tokens.dark.ts (future)
 export const semanticDark = {
   color: {
     bg: {
-      primary:   primitives.color.ink[900],   // was amber.50
+      primary: primitives.color.ink[900], // was amber.50
       secondary: primitives.color.ink[800],
     },
     text: {
-      primary: primitives.color.amber[50],    // was ink.900
+      primary: primitives.color.amber[50], // was ink.900
     },
   },
 }
@@ -760,28 +767,28 @@ Same pattern if ever needed: swap primitives, keep semantic mappings. Components
 
 ## Common mistakes
 
-| Mistake | Why wrong | Fix |
-|---|---|---|
-| Hardcoding a color in CSS | Breaks on re-theme, untestable | Use semantic token |
-| Using primitive directly in component | Skips semantic meaning | Reference semantic token |
-| Adding a component token when semantic would work | Tier inflation | Stop at semantic tier |
-| Off-scale spacing (`padding: 13px`) | Breaks vertical rhythm | Pick nearest scale step |
-| Magic z-index (`z-index: 9999`) | Layer chaos at scale | Use semantic z-index |
-| Vendor-prefixed token names | Couples to tool, not design | Abstract name |
-| New primitive for one-off use | Palette bloat | Reuse existing, or question the use case |
+| Mistake                                           | Why wrong                      | Fix                                      |
+| ------------------------------------------------- | ------------------------------ | ---------------------------------------- |
+| Hardcoding a color in CSS                         | Breaks on re-theme, untestable | Use semantic token                       |
+| Using primitive directly in component             | Skips semantic meaning         | Reference semantic token                 |
+| Adding a component token when semantic would work | Tier inflation                 | Stop at semantic tier                    |
+| Off-scale spacing (`padding: 13px`)               | Breaks vertical rhythm         | Pick nearest scale step                  |
+| Magic z-index (`z-index: 9999`)                   | Layer chaos at scale           | Use semantic z-index                     |
+| Vendor-prefixed token names                       | Couples to tool, not design    | Abstract name                            |
+| New primitive for one-off use                     | Palette bloat                  | Reuse existing, or question the use case |
 
 ---
 
 ## Quick reference
 
-| Need | Answer |
-|---|---|
-| Source of all values | `packages/ui/src/tokens.ts` |
-| Generated CSS | `packages/ui/src/tokens.css` (do not edit) |
-| Tailwind integration | `packages/ui/src/globals.css` with `@theme` |
-| Figma sync | `packages/ui/src/tokens.dtcg.json` |
-| Add a token | Edit tokens.ts → run `bun run tokens:generate` |
-| Test contrast | Contrast tests in `tokens.test.ts` |
+| Need                     | Answer                                              |
+| ------------------------ | --------------------------------------------------- |
+| Source of all values     | `packages/ui/src/tokens.ts`                         |
+| Generated CSS            | `packages/ui/src/tokens.css` (do not edit)          |
+| Tailwind integration     | `packages/ui/src/globals.css` with `@theme`         |
+| Figma sync               | `packages/ui/src/tokens.dtcg.json`                  |
+| Add a token              | Edit tokens.ts → run `bun run tokens:generate`      |
+| Test contrast            | Contrast tests in `tokens.test.ts`                  |
 | Reference from component | Import from `@gaia/ui/tokens` or use CSS `var(--*)` |
 
 ---
@@ -794,4 +801,4 @@ Same pattern if ever needed: swap primitives, keep semantic mappings. Components
 - DTCG spec: https://www.designtokens.org/
 - OKLCH: https://oklch.com/, https://oklch.net/
 
-*Tokens are code. Changes require PR review. Semantic additions follow the existing pattern; primitive additions require rationale in the design.md decisions log.*
+_Tokens are code. Changes require PR review. Semantic additions follow the existing pattern; primitive additions require rationale in the design.md decisions log._

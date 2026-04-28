@@ -76,7 +76,7 @@ export const rules: readonly Rule[] = [
     reference: 'code',
     description: '`as any` is banned in feature/service code; types must be earned.',
     tier: 'lint',
-    mechanism: { kind: 'oxlint', rule: 'no-explicit-any' },
+    mechanism: { kind: 'oxlint', rule: 'typescript/no-explicit-any' },
   },
   {
     id: 'code/agents-duplicate-humans-extract',
@@ -162,10 +162,10 @@ export const rules: readonly Rule[] = [
 
   // ─── errors.md ────────────────────────────────────────────────
   {
-    id: 'errors/no-bare-throw-error',
+    id: 'errors/no-throw-literal',
     reference: 'errors',
     description:
-      'No `throw new Error(...)` in feature/service code; use named codes from packages/errors.',
+      'Throwing string literals is banned (`throw "fail"`); throw `new AppError("CODE")` instead.',
     tier: 'lint',
     mechanism: { kind: 'oxlint', rule: 'no-throw-literal' },
   },
@@ -185,7 +185,7 @@ export const rules: readonly Rule[] = [
     description: 'Block edits to locked config files unless explicitly authorized.',
     tier: 'hook',
     mechanism: { kind: 'hook', hook: '.claude/hooks/protect-config.ts' },
-    blocked: ['biome.json', 'tsconfig.json'],
+    blocked: ['biome.json', 'tsconfig.json', '.oxlintrc.json', '.oxfmtrc.json'],
   },
   {
     id: 'security/no-secrets-committed',
@@ -432,7 +432,7 @@ export const rules: readonly Rule[] = [
     description:
       '`catch` blocks must rethrow, handle a specific error type, or call a typed handler.',
     tier: 'lint',
-    mechanism: { kind: 'pending', note: 'Oxlint no-empty-catch (needs oxlint adoption)' },
+    mechanism: { kind: 'oxlint', rule: 'no-empty' },
   },
 
   // ─── security.md (additions) ─────────────────────────────────

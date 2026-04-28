@@ -10,7 +10,7 @@
 
 The error handling patterns for Gaia. These implement principle #3 of `code.md` (named errors, no swallowing) in concrete detail.
 
-Read `code.md` first. This file is the concrete *how*.
+Read `code.md` first. This file is the concrete _how_.
 
 **Key context:** Gaia has one error catalog. Every error thrown anywhere in the codebase refers to a named code from `packages/errors/src/codes.ts`. There are no ad-hoc `throw new Error('user not found')` calls. The catalog is the contract between code and observability.
 
@@ -47,7 +47,9 @@ export async function getUser(id: string, tenantId: string) {
 ```ts
 import { type Result, ok, err } from '@gaia/errors/result'
 
-export async function parseLLMResponse(raw: string): Promise<Result<ParsedPlan, 'LLM_PARSE_FAILED'>> {
+export async function parseLLMResponse(
+  raw: string,
+): Promise<Result<ParsedPlan, 'LLM_PARSE_FAILED'>> {
   try {
     const parsed = JSON.parse(raw)
     const validation = Value.Check(PlanSchema, parsed)
@@ -83,31 +85,36 @@ import { t } from 'elysia'
 
 export const errorCatalog = {
   // Auth (401 / 403)
-  UNAUTHENTICATED:        { status: 401, http: 'Unauthorized', retryable: false, severity: 'warn' },
-  INVALID_CREDENTIALS:    { status: 401, http: 'Unauthorized', retryable: false, severity: 'warn' },
-  SESSION_EXPIRED:        { status: 401, http: 'Unauthorized', retryable: false, severity: 'info' },
-  FORBIDDEN:              { status: 403, http: 'Forbidden',    retryable: false, severity: 'warn' },
+  UNAUTHENTICATED: { status: 401, http: 'Unauthorized', retryable: false, severity: 'warn' },
+  INVALID_CREDENTIALS: { status: 401, http: 'Unauthorized', retryable: false, severity: 'warn' },
+  SESSION_EXPIRED: { status: 401, http: 'Unauthorized', retryable: false, severity: 'info' },
+  FORBIDDEN: { status: 403, http: 'Forbidden', retryable: false, severity: 'warn' },
 
   // Validation / not found (4xx)
-  VALIDATION_FAILED:      { status: 422, http: 'Unprocessable', retryable: false, severity: 'info' },
-  NOT_FOUND:              { status: 404, http: 'Not Found',     retryable: false, severity: 'info' },
-  USER_NOT_FOUND:         { status: 404, http: 'Not Found',     retryable: false, severity: 'info' },
-  CONFLICT:               { status: 409, http: 'Conflict',      retryable: false, severity: 'info' },
-  USER_EMAIL_TAKEN:       { status: 409, http: 'Conflict',      retryable: false, severity: 'info' },
+  VALIDATION_FAILED: { status: 422, http: 'Unprocessable', retryable: false, severity: 'info' },
+  NOT_FOUND: { status: 404, http: 'Not Found', retryable: false, severity: 'info' },
+  USER_NOT_FOUND: { status: 404, http: 'Not Found', retryable: false, severity: 'info' },
+  CONFLICT: { status: 409, http: 'Conflict', retryable: false, severity: 'info' },
+  USER_EMAIL_TAKEN: { status: 409, http: 'Conflict', retryable: false, severity: 'info' },
 
   // Rate limit / quota (429)
-  RATE_LIMITED:           { status: 429, http: 'Too Many',      retryable: true,  severity: 'warn' },
-  QUOTA_EXCEEDED:         { status: 429, http: 'Too Many',      retryable: false, severity: 'warn' },
+  RATE_LIMITED: { status: 429, http: 'Too Many', retryable: true, severity: 'warn' },
+  QUOTA_EXCEEDED: { status: 429, http: 'Too Many', retryable: false, severity: 'warn' },
 
   // Server errors (5xx) — retryable
-  DATABASE_TIMEOUT:       { status: 503, http: 'Unavailable',   retryable: true,  severity: 'error' },
-  DATABASE_UNAVAILABLE:   { status: 503, http: 'Unavailable',   retryable: true,  severity: 'critical' },
-  EXTERNAL_SERVICE_DOWN:  { status: 503, http: 'Unavailable',   retryable: true,  severity: 'error' },
-  INTERNAL:               { status: 500, http: 'Internal',      retryable: false, severity: 'critical' },
+  DATABASE_TIMEOUT: { status: 503, http: 'Unavailable', retryable: true, severity: 'error' },
+  DATABASE_UNAVAILABLE: { status: 503, http: 'Unavailable', retryable: true, severity: 'critical' },
+  EXTERNAL_SERVICE_DOWN: { status: 503, http: 'Unavailable', retryable: true, severity: 'error' },
+  INTERNAL: { status: 500, http: 'Internal', retryable: false, severity: 'critical' },
 
   // LLM-specific (non-HTTP)
-  LLM_PARSE_FAILED:       { status: 500, http: 'Internal',      retryable: true,  severity: 'warn' },
-  LLM_PROMPT_INJECTION_DETECTED: { status: 400, http: 'Bad Request', retryable: false, severity: 'error' },
+  LLM_PARSE_FAILED: { status: 500, http: 'Internal', retryable: true, severity: 'warn' },
+  LLM_PROMPT_INJECTION_DETECTED: {
+    status: 400,
+    http: 'Bad Request',
+    retryable: false,
+    severity: 'error',
+  },
 } as const
 
 export type ErrorCode = keyof typeof errorCatalog
@@ -145,7 +152,10 @@ export class GaiaError extends Error {
   readonly context: Record<string, unknown>
   readonly traceId: string
 
-  constructor(code: ErrorCode, opts?: { context?: Record<string, unknown>; cause?: unknown; traceId?: string }) {
+  constructor(
+    code: ErrorCode,
+    opts?: { context?: Record<string, unknown>; cause?: unknown; traceId?: string },
+  ) {
     const spec = errorCatalog[code]
     super(spec.http)
     this.name = 'GaiaError'
@@ -159,12 +169,16 @@ export class GaiaError extends Error {
   }
 }
 
-export function throwError(code: ErrorCode, opts?: { context?: Record<string, unknown>; cause?: unknown }): never {
+export function throwError(
+  code: ErrorCode,
+  opts?: { context?: Record<string, unknown>; cause?: unknown },
+): never {
   throw new GaiaError(code, opts)
 }
 ```
 
 Every throw captures:
+
 - **Code** — what
 - **Context** — inputs that produced the error
 - **Cause** — the underlying error (for wrapping)
@@ -200,34 +214,33 @@ import { logger } from '@gaia/adapters/logs'
 import { Sentry } from '@gaia/adapters/errors'
 import { env } from '@gaia/config/env'
 
-export const errorHandler = new Elysia({ name: 'errors' })
-  .onError(({ error, set, request }) => {
-    if (error instanceof GaiaError) {
-      set.status = error.status
-      logger.log(error.severity, error.code, {
-        traceId: error.traceId,
-        context: error.context,
-        cause: error.cause,
-        path: new URL(request.url).pathname,
-      })
-      if (error.severity === 'critical' || error.severity === 'error') {
-        Sentry.captureException(error)
-      }
-      return {
-        code: error.code,
-        message: userFacingMessage(error.code),
-        traceId: error.traceId,
-        ...(env.NODE_ENV === 'development' ? { context: error.context } : {}),
-      }
+export const errorHandler = new Elysia({ name: 'errors' }).onError(({ error, set, request }) => {
+  if (error instanceof GaiaError) {
+    set.status = error.status
+    logger.log(error.severity, error.code, {
+      traceId: error.traceId,
+      context: error.context,
+      cause: error.cause,
+      path: new URL(request.url).pathname,
+    })
+    if (error.severity === 'critical' || error.severity === 'error') {
+      Sentry.captureException(error)
     }
+    return {
+      code: error.code,
+      message: userFacingMessage(error.code),
+      traceId: error.traceId,
+      ...(env.NODE_ENV === 'development' ? { context: error.context } : {}),
+    }
+  }
 
-    // Unknown error — wrap
-    const wrapped = new GaiaError('INTERNAL', { cause: error })
-    set.status = 500
-    Sentry.captureException(wrapped)
-    logger.critical('INTERNAL', { traceId: wrapped.traceId, cause: String(error) })
-    return { code: 'INTERNAL', message: 'An unexpected error occurred', traceId: wrapped.traceId }
-  })
+  // Unknown error — wrap
+  const wrapped = new GaiaError('INTERNAL', { cause: error })
+  set.status = 500
+  Sentry.captureException(wrapped)
+  logger.critical('INTERNAL', { traceId: wrapped.traceId, cause: String(error) })
+  return { code: 'INTERNAL', message: 'An unexpected error occurred', traceId: wrapped.traceId }
+})
 ```
 
 **Enforcement:** GritQL rule — Elysia routes that call `set.status = ...` outside the `onError` handler fail lint. Use `throwError()`.
@@ -238,11 +251,11 @@ export const errorHandler = new Elysia({ name: 'errors' })
 
 Errors need to speak to three audiences:
 
-| Layer | Audience | Example |
-|---|---|---|
-| **Developer message** | Logs, Sentry | `"db.users.findFirst returned no row for id=xyz, tenantId=abc"` |
-| **User-facing message** | UI | `"We couldn't find that user."` |
-| **Detail** (context object) | Debugging | `{ userId: 'xyz', tenantId: 'abc', lookupSource: 'billing.getSubscription' }` |
+| Layer                       | Audience     | Example                                                                       |
+| --------------------------- | ------------ | ----------------------------------------------------------------------------- |
+| **Developer message**       | Logs, Sentry | `"db.users.findFirst returned no row for id=xyz, tenantId=abc"`               |
+| **User-facing message**     | UI           | `"We couldn't find that user."`                                               |
+| **Detail** (context object) | Debugging    | `{ userId: 'xyz', tenantId: 'abc', lookupSource: 'billing.getSubscription' }` |
 
 The catalog holds a default user-facing message per code, in `packages/errors/src/messages.ts`. Overridable per throw if the specific situation calls for it.
 
@@ -326,7 +339,8 @@ export const syncSubscription = inngest.createFunction(
   async ({ event, step }) => {
     await step.run('update-db', async () => {
       try {
-        return await db.update(subscriptions)
+        return await db
+          .update(subscriptions)
           .set({ status: event.data.status })
           .where(eq(subscriptions.id, event.data.subscriptionId))
       } catch (e) {
@@ -336,7 +350,7 @@ export const syncSubscription = inngest.createFunction(
         throw e // Inngest retries automatically
       }
     })
-  }
+  },
 )
 ```
 
@@ -403,13 +417,22 @@ The error response to the client strips context in production. Logs redact known
 
 ```ts
 // packages/adapters/src/logs.ts
-const SENSITIVE_KEYS = ['password', 'token', 'api_key', 'apikey', 'secret', 'credit_card', 'ssn', 'authorization']
+const SENSITIVE_KEYS = [
+  'password',
+  'token',
+  'api_key',
+  'apikey',
+  'secret',
+  'credit_card',
+  'ssn',
+  'authorization',
+]
 
 function redact(obj: Record<string, unknown>): Record<string, unknown> {
   const out: Record<string, unknown> = {}
   for (const [k, v] of Object.entries(obj)) {
     const keyLower = k.toLowerCase()
-    if (SENSITIVE_KEYS.some(s => keyLower.includes(s))) {
+    if (SENSITIVE_KEYS.some((s) => keyLower.includes(s))) {
       out[k] = '[REDACTED]'
     } else if (typeof v === 'object' && v !== null) {
       out[k] = redact(v as Record<string, unknown>)
@@ -465,6 +488,7 @@ Solid's `ErrorBoundary` catches component render errors. Resource errors caught 
 Ships with Gaia v1:
 
 ### Auth (4xx)
+
 - `UNAUTHENTICATED` (401) — no session
 - `INVALID_CREDENTIALS` (401) — uniform login failure
 - `SESSION_EXPIRED` (401) — token expired
@@ -472,10 +496,12 @@ Ships with Gaia v1:
 - `CSRF_TOKEN_INVALID` (403) — mutation without valid CSRF token
 
 ### Validation (4xx)
+
 - `VALIDATION_FAILED` (422) — TypeBox schema rejected
 - `BAD_REQUEST` (400) — malformed but not validatable
 
 ### Resources (4xx)
+
 - `NOT_FOUND` (404) — generic
 - `USER_NOT_FOUND` (404) — typed specific
 - `RESOURCE_NOT_FOUND` (404) — generic typed
@@ -483,21 +509,25 @@ Ships with Gaia v1:
 - `USER_EMAIL_TAKEN` (409) — typed specific
 
 ### Rate / quota (429)
+
 - `RATE_LIMITED` (429) — IP or user over limit (retryable)
 - `QUOTA_EXCEEDED` (429) — plan limit (not retryable — user must upgrade)
 
 ### Infrastructure (5xx — retryable)
+
 - `DATABASE_TIMEOUT` (503)
 - `DATABASE_UNAVAILABLE` (503)
 - `EXTERNAL_SERVICE_DOWN` (503) — Polar, Resend, Axiom
 - `INTERNAL` (500) — catch-all (not retryable from client)
 
 ### LLM (non-HTTP)
+
 - `LLM_PARSE_FAILED` — LLM returned non-parseable content (retryable)
 - `LLM_PROMPT_INJECTION_DETECTED` (400) — suspected injection (not retryable)
 - `LLM_TIMEOUT` (504) — LLM took too long (retryable)
 
 ### Workflow
+
 - `WORKFLOW_STEP_FAILED` — generic step failure
 - `WORKFLOW_TIMEOUT` — step exceeded timeout
 
@@ -507,17 +537,17 @@ Adding new codes: PR modifies `codes.ts` and `messages.ts`. Build fails if they'
 
 ## Quick reference
 
-| Need | Pattern |
-|---|---|
-| Throw a domain error | `throwError('CODE', { context: {...} })` |
-| Wrap an external error | `throwError('CODE', { cause: e, context: {...} })` |
-| Catch specific error | `if (e instanceof GaiaError && e.code === 'X')` |
-| Get HTTP status | Automatic via `onError` middleware |
-| Client-facing message | Automatic via `userFacingMessage()` |
-| Retry decision (Inngest) | `e.retryable` (automatic) |
-| Parse LLM response | `parseLLMResponse()` returns `Result<T, E>` |
-| Catch boundary in UI | `<ErrorBoundary fallback={...}>` |
-| Redaction in logs | Automatic via logger |
+| Need                     | Pattern                                            |
+| ------------------------ | -------------------------------------------------- |
+| Throw a domain error     | `throwError('CODE', { context: {...} })`           |
+| Wrap an external error   | `throwError('CODE', { cause: e, context: {...} })` |
+| Catch specific error     | `if (e instanceof GaiaError && e.code === 'X')`    |
+| Get HTTP status          | Automatic via `onError` middleware                 |
+| Client-facing message    | Automatic via `userFacingMessage()`                |
+| Retry decision (Inngest) | `e.retryable` (automatic)                          |
+| Parse LLM response       | `parseLLMResponse()` returns `Result<T, E>`        |
+| Catch boundary in UI     | `<ErrorBoundary fallback={...}>`                   |
+| Redaction in logs        | Automatic via logger                               |
 
 ---
 
@@ -530,4 +560,4 @@ Adding new codes: PR modifies `codes.ts` and `messages.ts`. Build fails if they'
 - Security patterns: `docs/reference/security.md`
 - Observability patterns: `docs/reference/observability.md`
 
-*This file is versioned. Changes that contradict `code.md` require an ADR.*
+_This file is versioned. Changes that contradict `code.md` require an ADR._

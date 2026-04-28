@@ -2,11 +2,11 @@
 
 Three retention surfaces (vision §H10). Each has a different lifecycle and retrieval policy.
 
-| Surface | Path | Lifecycle | Retrieval |
-|---|---|---|---|
-| Working | `working/` | Volatile, cleared per task | Always loaded |
+| Surface  | Path               | Lifecycle                           | Retrieval        |
+| -------- | ------------------ | ----------------------------------- | ---------------- |
+| Working  | `working/`         | Volatile, cleared per task          | Always loaded    |
 | Episodic | `episodic/*.jsonl` | Append-only, kept indefinitely (v1) | Top-k by recency |
-| Personal | `personal/*.md` | Stable per-developer | Always loaded |
+| Personal | `personal/*.md`    | Stable per-developer                | Always loaded    |
 
 ## Critical rules
 

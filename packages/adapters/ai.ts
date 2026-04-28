@@ -1,7 +1,7 @@
-import Anthropic from '@anthropic-ai/sdk'
+import AnthropicSDK from '@anthropic-ai/sdk'
 import { env } from '@gaia/config'
 
-export const ai = new Anthropic({ apiKey: env.ANTHROPIC_API_KEY })
+export const ai = new AnthropicSDK({ apiKey: env.ANTHROPIC_API_KEY })
 
 const DEFAULT_TIMEOUT_MS = 10_000
 

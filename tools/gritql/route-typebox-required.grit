@@ -1,0 +1,24 @@
+// tools/gritql/route-typebox-required.grit
+//
+// Enforces backend/route-typebox-required (vision §Code §2 + §Backend §3):
+// every Elysia route handler that takes body/query/params must declare a
+// TypeBox schema for each, registered via .model() or inlined.
+//
+// Detects `.post('/x', handler)` / `.get('/x', handler)` calls without an
+// options object as the third argument when the handler reads from body.
+//
+// Stub plugin — flags routes whose third argument is missing entirely.
+// Refinement (handler-introspection of body/query/params usage) is deferred
+// to a follow-up; this catches the most common drift.
+
+language js
+
+`$method($path, $handler)` where {
+  $method <: or { `$_.post`, `$_.put`, `$_.patch` }
+} => . then {
+  register_diagnostic(
+    span = $method,
+    message = "Mutation routes (post/put/patch) must declare TypeBox schemas as the third argument: { body, response }. See backend.md (rule backend/route-typebox-required).",
+    severity = "warning"
+  )
+}

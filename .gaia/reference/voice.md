@@ -87,7 +87,7 @@ Gaia has opinions. State them. Disagree, sure — but don't pre-disagree with yo
 Just start. The reader doesn't need a table of contents narrated aloud.
 
 **7. The hard parts are where voice lives.**
-Errors, refusals, uncertainty, declines, system failures. Most teams write happy-path tone and abandon everything else to default robot-speak. That's backwards. Your voice matters *most* when something's gone wrong.
+Errors, refusals, uncertainty, declines, system failures. Most teams write happy-path tone and abandon everything else to default robot-speak. That's backwards. Your voice matters _most_ when something's gone wrong.
 
 **Example — error message that carries voice:**
 
@@ -100,12 +100,12 @@ Reassurance (not your fault), honest state (your data is safe), clear next actio
 
 Same person, different room:
 
-| Stakes | Register | Example |
-|---|---|---|
-| Low (welcome, success) | Light, warm, brief | "Welcome back. Your deploy succeeded." |
-| Medium (config, settings) | Neutral, direct | "Environment variables set. Restart to apply." |
-| High (billing, security) | Calm, precise, explicit | "This action will cancel your subscription at the end of the current period. You'll retain access until May 14, 2026." |
-| Critical (data loss, irreversible) | Sober, no humor, clear path back | "This will permanently delete 1,247 records. Type the workspace name to confirm. This cannot be undone." |
+| Stakes                             | Register                         | Example                                                                                                                |
+| ---------------------------------- | -------------------------------- | ---------------------------------------------------------------------------------------------------------------------- |
+| Low (welcome, success)             | Light, warm, brief               | "Welcome back. Your deploy succeeded."                                                                                 |
+| Medium (config, settings)          | Neutral, direct                  | "Environment variables set. Restart to apply."                                                                         |
+| High (billing, security)           | Calm, precise, explicit          | "This action will cancel your subscription at the end of the current period. You'll retain access until May 14, 2026." |
+| Critical (data loss, irreversible) | Sober, no humor, clear path back | "This will permanently delete 1,247 records. Type the workspace name to confirm. This cannot be undone."               |
 
 One voice. Four rooms. Humor at critical stakes feels flippant; solemnity at welcome feels cold. Match the moment.
 
@@ -128,18 +128,18 @@ Ethical persuasion respects autonomy. Manipulation exploits cognitive biases to 
 
 **Banned across all Gaia surfaces** (regardless of what competitors do):
 
-| Pattern | Why banned |
-|---|---|
-| Fake urgency ("Only 2 left!" when infinite) | Lie |
-| Fabricated scarcity ("Others are looking at this") | Lie |
-| Forced social proof ("Join 10,000 founders!" when untrue) | Lie |
-| Guilt-trip declines ("No thanks, I don't care about my code quality") | Coercive |
-| Pre-checked consent ("☑ Sign me up for marketing") | Unfair default |
-| Hidden costs revealed at checkout | Bait-and-switch |
-| Roach motels (easy signup, impossible unsubscribe) | Coercion |
-| Confirmshaming | Emotional manipulation |
-| Countdown timers for "limited-time offers" that reset | Lie |
-| "Are you sure you want to leave?" with guilt | Coercion |
+| Pattern                                                               | Why banned             |
+| --------------------------------------------------------------------- | ---------------------- |
+| Fake urgency ("Only 2 left!" when infinite)                           | Lie                    |
+| Fabricated scarcity ("Others are looking at this")                    | Lie                    |
+| Forced social proof ("Join 10,000 founders!" when untrue)             | Lie                    |
+| Guilt-trip declines ("No thanks, I don't care about my code quality") | Coercive               |
+| Pre-checked consent ("☑ Sign me up for marketing")                    | Unfair default         |
+| Hidden costs revealed at checkout                                     | Bait-and-switch        |
+| Roach motels (easy signup, impossible unsubscribe)                    | Coercion               |
+| Confirmshaming                                                        | Emotional manipulation |
+| Countdown timers for "limited-time offers" that reset                 | Lie                    |
+| "Are you sure you want to leave?" with guilt                          | Coercion               |
 
 **Allowed and encouraged:**
 
@@ -192,14 +192,14 @@ Buttons, labels, tooltips, form placeholders. The highest-leverage writing in th
 
 **Examples:**
 
-| Context | ❌ Generic | ✅ Gaia voice |
-|---|---|---|
-| Signup button | "Get Started" | "Clone Gaia" |
-| Save action | "Submit" | "Save changes" |
-| Delete confirmation | "Are you sure?" | "Delete workspace and 1,247 records?" |
-| Empty search | "No results" | "Nothing matches 'foo' — check the spelling or widen your filter" |
-| Loading | "Loading..." | "Fetching your projects — hang on" (or a skeleton) |
-| 404 | "Page not found" | "We couldn't find that page. It may have been renamed or moved — here's how to find what you're looking for: [search] [sitemap] [home]" |
+| Context             | ❌ Generic       | ✅ Gaia voice                                                                                                                           |
+| ------------------- | ---------------- | --------------------------------------------------------------------------------------------------------------------------------------- |
+| Signup button       | "Get Started"    | "Clone Gaia"                                                                                                                            |
+| Save action         | "Submit"         | "Save changes"                                                                                                                          |
+| Delete confirmation | "Are you sure?"  | "Delete workspace and 1,247 records?"                                                                                                   |
+| Empty search        | "No results"     | "Nothing matches 'foo' — check the spelling or widen your filter"                                                                       |
+| Loading             | "Loading..."     | "Fetching your projects — hang on" (or a skeleton)                                                                                      |
+| 404                 | "Page not found" | "We couldn't find that page. It may have been renamed or moved — here's how to find what you're looking for: [search] [sitemap] [home]" |
 
 ### Error messages
 
@@ -229,6 +229,7 @@ The three-part framework (matches `design.md`):
 Empty is an onboarding moment, not a dead end.
 
 **Pattern:**
+
 - Short title, positively framed
 - One-line explanation of what goes here
 - Primary action
@@ -399,12 +400,12 @@ Secondary: **small teams (2-5) adopting agent-native workflows** who want conven
 
 **Four tone axes:**
 
-| Axis | Gaia's position |
-|---|---|
-| Formal ←→ Casual | **Casual, but precise.** "Bun's 20x faster" not "Bun demonstrates significant performance improvements." |
-| Serious ←→ Playful | **Serious, with occasional dry wit.** Not jokes-as-content. A one-line observation that's true and funny. |
-| Matter-of-fact ←→ Enthusiastic | **Matter-of-fact.** The product speaks; no cheerleader needed. |
-| Respectful ←→ Irreverent | **Respectful of the reader, irreverent toward incumbents.** "Another create-react-app clone" is fair game. "Our users" is not. |
+| Axis                           | Gaia's position                                                                                                                |
+| ------------------------------ | ------------------------------------------------------------------------------------------------------------------------------ |
+| Formal ←→ Casual               | **Casual, but precise.** "Bun's 20x faster" not "Bun demonstrates significant performance improvements."                       |
+| Serious ←→ Playful             | **Serious, with occasional dry wit.** Not jokes-as-content. A one-line observation that's true and funny.                      |
+| Matter-of-fact ←→ Enthusiastic | **Matter-of-fact.** The product speaks; no cheerleader needed.                                                                 |
+| Respectful ←→ Irreverent       | **Respectful of the reader, irreverent toward incumbents.** "Another create-react-app clone" is fair game. "Our users" is not. |
 
 ### Voice patterns
 
@@ -433,30 +434,30 @@ Anti-audience sentences build trust. They prove the product isn't trying to be e
 
 **The working vocabulary** — these show up naturally, not as buzzwords:
 
-- *Ship, deploy, run, install, scaffold*
-- *Agent, harness, skill, hook, token*
-- *Opinionated, default, escape hatch*
-- *Boundary, layer, surface*
-- *Honest, specific, deliberate, restrained*
-- *The one thing, the boring part, the hard part*
+- _Ship, deploy, run, install, scaffold_
+- _Agent, harness, skill, hook, token_
+- _Opinionated, default, escape hatch_
+- _Boundary, layer, surface_
+- _Honest, specific, deliberate, restrained_
+- _The one thing, the boring part, the hard part_
 
 **Words we never use** (agents writing Gaia copy check against this list):
 
-- *Revolutionize / revolutionary*
-- *Transformative / game-changing*
-- *Leverage* (as verb)
-- *Synergy*
-- *Holistic approach*
-- *Seamless*
-- *Solution* (as stand-in for "product")
-- *Unlock* (use concrete action)
-- *Reimagine / disrupt*
-- *Mindful, intentional* (overused in tech)
-- *Journey* (as euphemism for "process")
-- *Empower, enable* (weak verbs)
-- *Best-in-class, world-class* (without evidence)
-- *Boss babe, slay, queen, level up* (wrong register)
-- *Vibrations, manifestation, sacred* (wrong domain)
+- _Revolutionize / revolutionary_
+- _Transformative / game-changing_
+- _Leverage_ (as verb)
+- _Synergy_
+- _Holistic approach_
+- _Seamless_
+- _Solution_ (as stand-in for "product")
+- _Unlock_ (use concrete action)
+- _Reimagine / disrupt_
+- _Mindful, intentional_ (overused in tech)
+- _Journey_ (as euphemism for "process")
+- _Empower, enable_ (weak verbs)
+- _Best-in-class, world-class_ (without evidence)
+- _Boss babe, slay, queen, level up_ (wrong register)
+- _Vibrations, manifestation, sacred_ (wrong domain)
 
 ---
 
@@ -464,7 +465,7 @@ Anti-audience sentences build trust. They prove the product isn't trying to be e
 
 Before any copy ships — marketing, docs, microcopy, AI-generated, all of it — apply the Indy Test:
 
-> *Would a real person say this to a friend at the kitchen table?*
+> _Would a real person say this to a friend at the kitchen table?_
 
 Three failure modes:
 
@@ -505,13 +506,13 @@ Rejecting the test = at least three of these present. Rewrite.
 
 For tracking voice consistency over time. Score each dimension 1-5:
 
-| Dimension | 1 (fail) | 3 (passes) | 5 (exemplary) |
-|---|---|---|---|
-| **Specificity** | Abstract, vague | Some concrete detail | Named numbers, real examples throughout |
-| **Rhythm variation** | Uniform sentences | Some variation | Short + long mix, deliberate cadence |
-| **Position-taking** | Hedged throughout | Takes some positions | Clear opinions with rationale |
-| **Register match** | Wrong tone for stakes | Appropriate | Precisely calibrated to the moment |
-| **Anti-manipulation** | Uses dark patterns | Clean | Actively transparent, offers real escape |
+| Dimension             | 1 (fail)              | 3 (passes)           | 5 (exemplary)                            |
+| --------------------- | --------------------- | -------------------- | ---------------------------------------- |
+| **Specificity**       | Abstract, vague       | Some concrete detail | Named numbers, real examples throughout  |
+| **Rhythm variation**  | Uniform sentences     | Some variation       | Short + long mix, deliberate cadence     |
+| **Position-taking**   | Hedged throughout     | Takes some positions | Clear opinions with rationale            |
+| **Register match**    | Wrong tone for stakes | Appropriate          | Precisely calibrated to the moment       |
+| **Anti-manipulation** | Uses dark patterns    | Clean                | Actively transparent, offers real escape |
 
 **Target:** average score ≥ 4 across sampled copy. Score < 3 triggers a rewrite. Monthly review of shipped copy.
 
@@ -540,20 +541,20 @@ The reader never processes a "lesson" — they process a story that happened to 
 
 Summarized from all the above. Copy fails if it:
 
-| Anti-pattern | Why | Fix |
-|---|---|---|
-| "It's important to understand that..." | Nobody talks like this | State the thing |
-| "In this section..." | Announcement, not content | Start with content |
-| "There are several key factors..." | Vague hedge | Name them, or tell a story that shows them |
-| "This is a crucial/fundamental concept" | Telling, not showing | If crucial, the reader feels it |
-| Uniform paragraph length | AI tell | Vary rhythm |
-| Perfect intro→3-points→conclusion | Too clean | Surprise the reader |
-| Both-sidesing every claim | AI safety bias | Take a position |
-| Rhetorical questions with no sting | Filler | Real questions or delete |
-| "Click here" links | Meaningless | Describe the destination |
-| "Journey" as euphemism | Tech cliché | "Process", "path", or the specific word |
-| Explaining metaphors | Insults reader | Trust them |
-| Emoji in button labels | AI slop | 🚀 No |
+| Anti-pattern                            | Why                       | Fix                                        |
+| --------------------------------------- | ------------------------- | ------------------------------------------ |
+| "It's important to understand that..."  | Nobody talks like this    | State the thing                            |
+| "In this section..."                    | Announcement, not content | Start with content                         |
+| "There are several key factors..."      | Vague hedge               | Name them, or tell a story that shows them |
+| "This is a crucial/fundamental concept" | Telling, not showing      | If crucial, the reader feels it            |
+| Uniform paragraph length                | AI tell                   | Vary rhythm                                |
+| Perfect intro→3-points→conclusion       | Too clean                 | Surprise the reader                        |
+| Both-sidesing every claim               | AI safety bias            | Take a position                            |
+| Rhetorical questions with no sting      | Filler                    | Real questions or delete                   |
+| "Click here" links                      | Meaningless               | Describe the destination                   |
+| "Journey" as euphemism                  | Tech cliché               | "Process", "path", or the specific word    |
+| Explaining metaphors                    | Insults reader            | Trust them                                 |
+| Emoji in button labels                  | AI slop                   | 🚀 No                                      |
 
 ---
 
@@ -596,14 +597,14 @@ Include in context:
 
 ## Decisions log
 
-| Date | Decision | Rationale |
-|---|---|---|
-| 2026-04-02 | Adopt the voice framework from `human.md` (Right Decision course) as Gaia's voice foundation | Proven voice system; Henry/Indy patterns already tested across long-form content. Adapts well to Gaia's solo-founder audience. |
-| 2026-04-19 | Add "hard parts are where voice lives" as core principle | Most teams write happy-path tone and default everything else. Gaia differentiates on error messages, refusals, and uncertainty specifically. |
-| 2026-04-19 | Explicit ban on dark patterns (fake urgency, guilt-trips, roach motels) | Legal risk (GDPR, FTC, EU DSA enforcement accelerating 2026). Long-term trust. Not just ethics — regulatory. |
-| 2026-04-19 | Stakes-based register (4 levels) | Single "tone" fails across contexts. Calibrated register keeps voice consistent while serving different moments. |
-| 2026-04-19 | The voice rubric (measured monthly) | Voice drift is invisible until quantified. Rubric makes drift visible and the response actionable. |
-| 2026-04-19 | Banned word list | Specific enough to lint-check. Agents writing Gaia copy use the list; lint rule flags violations. |
+| Date       | Decision                                                                                     | Rationale                                                                                                                                    |
+| ---------- | -------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------- |
+| 2026-04-02 | Adopt the voice framework from `human.md` (Right Decision course) as Gaia's voice foundation | Proven voice system; Henry/Indy patterns already tested across long-form content. Adapts well to Gaia's solo-founder audience.               |
+| 2026-04-19 | Add "hard parts are where voice lives" as core principle                                     | Most teams write happy-path tone and default everything else. Gaia differentiates on error messages, refusals, and uncertainty specifically. |
+| 2026-04-19 | Explicit ban on dark patterns (fake urgency, guilt-trips, roach motels)                      | Legal risk (GDPR, FTC, EU DSA enforcement accelerating 2026). Long-term trust. Not just ethics — regulatory.                                 |
+| 2026-04-19 | Stakes-based register (4 levels)                                                             | Single "tone" fails across contexts. Calibrated register keeps voice consistent while serving different moments.                             |
+| 2026-04-19 | The voice rubric (measured monthly)                                                          | Voice drift is invisible until quantified. Rubric makes drift visible and the response actionable.                                           |
+| 2026-04-19 | Banned word list                                                                             | Specific enough to lint-check. Agents writing Gaia copy use the list; lint rule flags violations.                                            |
 
 ---
 
@@ -613,6 +614,6 @@ Include in context:
 - UX flows using this voice: `docs/reference/ux.md`
 - Error message patterns: `docs/reference/errors.md` (technical), this file (human-facing)
 - AI-assist patterns: `docs/reference/ax.md`
-- Writing standards: Orwell's "Politics and the English Language", Strunk & White, Zinsser's *On Writing Well*
+- Writing standards: Orwell's "Politics and the English Language", Strunk & White, Zinsser's _On Writing Well_
 
-*Voice is code-reviewed. Changes that touch brand voice or banned-word list require an ADR.*
+_Voice is code-reviewed. Changes that touch brand voice or banned-word list require an ADR._

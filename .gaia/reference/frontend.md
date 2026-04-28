@@ -10,9 +10,9 @@
 
 The stack-specific patterns for frontend code in Gaia. These patterns implement the 10 coding principles from `code.md` in the context of SolidStart + Solid 1.x + Eden Treaty + Tailwind v4.
 
-Read `code.md` first. This file is the concrete *how*; `code.md` is the *why*.
+Read `code.md` first. This file is the concrete _how_; `code.md` is the _why_.
 
-**Important context for agents:** Solid looks like React but isn't React. Components run *once* as setup functions. Reactivity lives at the signal level, not the component level. Patterns that work in React (destructuring props, `useEffect` for derived state, `.map()` for lists) are broken or wasteful here.
+**Important context for agents:** Solid looks like React but isn't React. Components run _once_ as setup functions. Reactivity lives at the signal level, not the component level. Patterns that work in React (destructuring props, `useEffect` for derived state, `.map()` for lists) are broken or wasteful here.
 
 ---
 
@@ -28,17 +28,19 @@ The decision is flat, not judgment-based:
 Agents migrating from React will reach for `createSignal({ ... })` with an object. This is wrong — object signals don't have fine-grained reactivity, and updates require replacing the whole object.
 
 **Anti-pattern:**
+
 ```tsx
 // ❌ Object in a signal — no fine-grained reactivity
 const [user, setUser] = createSignal({ name: 'Ada', age: 30, email: '' })
 
 // Updates require replacing the whole object
-setUser(u => ({ ...u, name: 'Grace' }))
+setUser((u) => ({ ...u, name: 'Grace' }))
 
 // Any component reading user() re-runs if ANYTHING changes
 ```
 
 **Pattern:**
+
 ```tsx
 // ✅ Store for objects — deep reactivity, granular updates
 import { createStore } from 'solid-js/store'
@@ -59,7 +61,8 @@ setUser({ name: 'Grace', age: 31 }) // merge update
 
 `createEffect` is not `useEffect`. In React, `useEffect` is the standard place for derived state. In Solid, that's an anti-pattern — effects run after render and create glitches.
 
-Effects are for side effects that reach *outside* Solid's reactive graph:
+Effects are for side effects that reach _outside_ Solid's reactive graph:
+
 - DOM manipulation (setting focus, scrolling)
 - Third-party library initialization (charts, maps)
 - Browser APIs (localStorage, IndexedDB)
@@ -68,6 +71,7 @@ Effects are for side effects that reach *outside* Solid's reactive graph:
 Derivations — values computed from other signals — are plain functions, or `createMemo` when the computation is expensive enough to cache.
 
 **Anti-pattern:**
+
 ```tsx
 // ❌ Effect used for derivation — glitches, unnecessary work
 const [firstName, setFirstName] = createSignal('Ada')
@@ -80,6 +84,7 @@ createEffect(() => {
 ```
 
 **Pattern:**
+
 ```tsx
 // ✅ Plain function derivation — synchronous, no extra render
 const [firstName, setFirstName] = createSignal('Ada')
@@ -91,6 +96,7 @@ const heavyComputed = createMemo(() => expensiveCalc(firstName(), lastName()))
 ```
 
 **Valid use of `createEffect`:**
+
 ```tsx
 // ✅ Side effect outside Solid's graph
 createEffect(() => {
@@ -107,15 +113,22 @@ createEffect(() => {
 SolidJS JSX props are accessed through getters so that reading a prop inside JSX or a reactive scope automatically tracks dependencies. Destructuring extracts the value and breaks the reactive connection.
 
 **Anti-pattern:**
+
 ```tsx
 // ❌ Destructuring breaks reactivity
 function UserCard({ name, avatar, onClick }) {
-  return <button onClick={onClick}><img src={avatar} />{name}</button>
+  return (
+    <button onClick={onClick}>
+      <img src={avatar} />
+      {name}
+    </button>
+  )
 }
 // When parent updates `name`, UserCard does NOT re-render the text
 ```
 
 **Pattern:**
+
 ```tsx
 // ✅ splitProps preserves reactivity
 import { splitProps, mergeProps, JSX } from 'solid-js'
@@ -149,6 +162,7 @@ function UserCard(props: UserCardProps) {
 JSX expressions with `.map()` or ternaries on arrays break fine-grained reactivity. Solid's control flow components track identity and only update what changed.
 
 **Anti-pattern:**
+
 ```tsx
 // ❌ Ternary and .map() in JSX — full re-render on any change
 function Dashboard() {
@@ -158,13 +172,16 @@ function Dashboard() {
   return (
     <div>
       {user() ? <h1>{user()!.name}</h1> : <p>Loading...</p>}
-      {items()?.map(item => <ItemCard item={item} />)}
+      {items()?.map((item) => (
+        <ItemCard item={item} />
+      ))}
     </div>
   )
 }
 ```
 
 **Pattern:**
+
 ```tsx
 // ✅ Control flow components — identity tracking, Suspense integration
 import { Show, For, Suspense } from 'solid-js'
@@ -204,6 +221,7 @@ Different primitives for different data shapes:
 - **`<Index>`** — tracks items by position. Use for lists where position is stable but the value at that position may change (form inputs, sparse arrays).
 
 **Pattern:**
+
 ```tsx
 // ✅ <For> — users is an array of objects with unique IDs
 <For each={users()}>
@@ -227,6 +245,7 @@ Rule of thumb: if items have stable IDs and can be reordered/removed, use `<For>
 Never use raw `fetch()` in a component. Never roll manual loading states with signals. `createAsync` + `<Suspense>` handles it.
 
 **Pattern:**
+
 ```tsx
 import { createAsync } from '@solidjs/router'
 import { Suspense, Show } from 'solid-js'
@@ -260,6 +279,7 @@ Every `createAsync` must be wrapped by a `<Suspense>` with a named, meaningful f
 A preload function is not meant to resolve data; it's meant to start the work as early as possible. SolidStart fires `preload` on link hover (navigation intent) and again during actual navigation. Data is ready by the time the component renders.
 
 **Pattern:**
+
 ```tsx
 // apps/web/src/routes/users/[id].tsx
 import { type RouteDefinition, type RouteSectionProps, createAsync } from '@solidjs/router'
@@ -292,6 +312,7 @@ SolidStart server functions are declared inside functions with the `"use server"
 The `"use server"` pragma is invisible from the filename. Gaia's convention: server functions live in `.server.ts` files co-located with the route that uses them. This makes server vs. client explicit at the file level.
 
 **Structure:**
+
 ```
 apps/web/src/routes/users/
 ├── [id].tsx          # client component
@@ -301,6 +322,7 @@ apps/web/src/routes/users/
 ```
 
 **Pattern:**
+
 ```ts
 // apps/web/src/routes/users/[id].server.ts
 'use server'
@@ -335,15 +357,13 @@ export const updateUser = authAction(async (id: string, formData: FormData) => {
 Every server function is a public HTTP endpoint — anyone can hit it. Auth, validation, and audit are not optional. `packages/ui/src/server-helpers.ts` (or equivalent) exports factory functions that enforce this.
 
 **Pattern:**
+
 ```ts
 // packages/ui/src/server-helpers.ts (or apps/web/src/lib/server-helpers.ts)
 import { action, query } from '@solidjs/router'
 import { getSession } from '@/lib/auth'
 
-export function authQuery<T extends (...args: any[]) => Promise<any>>(
-  fn: T,
-  name: string
-) {
+export function authQuery<T extends (...args: any[]) => Promise<any>>(fn: T, name: string) {
   return query(async (...args: Parameters<T>) => {
     'use server'
     const session = await getSession()
@@ -353,10 +373,7 @@ export function authQuery<T extends (...args: any[]) => Promise<any>>(
   }, name)
 }
 
-export function authAction<T extends (...args: any[]) => Promise<any>>(
-  fn: T,
-  name: string
-) {
+export function authAction<T extends (...args: any[]) => Promise<any>>(fn: T, name: string) {
   return action(async (...args: Parameters<T>) => {
     'use server'
     const session = await getSession()
@@ -366,10 +383,7 @@ export function authAction<T extends (...args: any[]) => Promise<any>>(
   }, name)
 }
 
-export function publicQuery<T extends (...args: any[]) => Promise<any>>(
-  fn: T,
-  name: string
-) {
+export function publicQuery<T extends (...args: any[]) => Promise<any>>(fn: T, name: string) {
   return query(fn, name) // no auth, still audited + rate-limited
 }
 ```
@@ -385,6 +399,7 @@ Raw `action()` and `query()` from `@solidjs/router` are not imported in feature 
 Never call `fetch()` directly in frontend code. Never import `axios`. Every HTTP call to the Gaia backend goes through the Eden Treaty client in `apps/web/src/lib/api.ts`. Types flow from Elysia to Solid automatically — no manual type declarations, no code generation.
 
 **Setup:**
+
 ```ts
 // apps/web/src/lib/api.ts
 import { treaty } from '@elysiajs/eden'
@@ -403,6 +418,7 @@ export const api = treaty<App>(env.PUBLIC_API_URL, {
 ```
 
 **Usage:**
+
 ```ts
 // In a server function or createAsync
 const { data, error, status } = await api.users({ id }).get()
@@ -410,8 +426,10 @@ const { data, error, status } = await api.users({ id }).get()
 if (error) {
   // error is narrowed by status — full type safety
   switch (error.status) {
-    case 404: /* handled */ break
-    case 403: /* handled */ break
+    case 404:
+      /* handled */ break
+    case 403:
+      /* handled */ break
   }
 }
 ```
@@ -427,6 +445,7 @@ External APIs (Stripe, Polar, Resend — though those should be server-side only
 Design tokens live in `packages/ui/src/tokens.ts` (typed, enforced) and drive Tailwind v4 config. No arbitrary values in class strings.
 
 **Rules:**
+
 - No `text-[#3b82f6]` or `w-[427px]` — use tokens
 - No inline `style={}` for colors, spacing, or font size — use classes
 - No `margin` between flex/grid children — use `gap`
@@ -472,21 +491,21 @@ If a section of the UI could appear in 10 other landing pages, redo it.
 
 ## Quick reference
 
-| Need | Pattern |
-|---|---|
-| Single value state | `createSignal` |
-| Object or nested state | `createStore` |
-| Async data | `createAsync` + `<Suspense>` |
-| Derived value | Plain function or `createMemo` |
-| Side effect (DOM, 3rd party) | `createEffect` |
-| Component props | `splitProps` + `mergeProps` |
-| Conditional rendering | `<Show when={...}>` |
-| List rendering | `<For each={...}>` (identity) or `<Index each={...}>` (position) |
-| Multiple conditions | `<Switch>` + `<Match>` |
-| Server-side data fetch | `query()` in `*.server.ts` via `authQuery()` |
-| Server-side mutation | `action()` in `*.server.ts` via `authAction()` |
-| Route-level preload | `export const route = { preload: ... }` |
-| HTTP to Gaia API | `api.<route>.<method>()` from Eden Treaty |
+| Need                         | Pattern                                                          |
+| ---------------------------- | ---------------------------------------------------------------- |
+| Single value state           | `createSignal`                                                   |
+| Object or nested state       | `createStore`                                                    |
+| Async data                   | `createAsync` + `<Suspense>`                                     |
+| Derived value                | Plain function or `createMemo`                                   |
+| Side effect (DOM, 3rd party) | `createEffect`                                                   |
+| Component props              | `splitProps` + `mergeProps`                                      |
+| Conditional rendering        | `<Show when={...}>`                                              |
+| List rendering               | `<For each={...}>` (identity) or `<Index each={...}>` (position) |
+| Multiple conditions          | `<Switch>` + `<Match>`                                           |
+| Server-side data fetch       | `query()` in `*.server.ts` via `authQuery()`                     |
+| Server-side mutation         | `action()` in `*.server.ts` via `authAction()`                   |
+| Route-level preload          | `export const route = { preload: ... }`                          |
+| HTTP to Gaia API             | `api.<route>.<method>()` from Eden Treaty                        |
 
 ---
 
@@ -498,4 +517,4 @@ If a section of the UI could appear in 10 other landing pages, redo it.
 - Security patterns: `docs/reference/security.md`
 - Observability patterns: `docs/reference/observability.md`
 
-*This file is versioned. Changes to frontend patterns require a PR; changes that contradict `code.md` require an ADR.*
+_This file is versioned. Changes to frontend patterns require a PR; changes that contradict `code.md` require an ADR._

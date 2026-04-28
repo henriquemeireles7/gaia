@@ -10,7 +10,7 @@
 
 The stack-specific patterns for tests in Gaia. These patterns implement the 10 coding principles from `code.md` — particularly principle #7 (test behavior at public surfaces; mutation-test the interior) and principle #10 (Code Health is a gate, not a guideline).
 
-Read `code.md` first. This file is the concrete *how*.
+Read `code.md` first. This file is the concrete _how_.
 
 **Key context:** Bun's built-in test runner is 3-10x faster than Vitest and 10-20x faster than Jest on large codebases. Eden Treaty lets integration tests pass the Elysia instance directly (no network hop). Playwright is the default E2E tool for 2026. Stryker handles mutation testing for unit and integration tests; E2E tests are too slow for mutation.
 
@@ -22,11 +22,11 @@ Read `code.md` first. This file is the concrete *how*.
 
 The old "100% unit coverage" target is dead. Modern testing distributes effort by what each test type is good at:
 
-| Test type | Count | Speed | Coverage of... |
-|---|---|---|---|
-| Unit | ~80% | < 1ms each | Pure functions, services, adapters, reducers |
-| Integration | ~15% | < 100ms each | Routes (via Eden), DB queries, adapter ↔ external service |
-| E2E | ~5% | 1-10s each | Critical user flows: auth, billing, onboarding |
+| Test type   | Count | Speed        | Coverage of...                                            |
+| ----------- | ----- | ------------ | --------------------------------------------------------- |
+| Unit        | ~80%  | < 1ms each   | Pure functions, services, adapters, reducers              |
+| Integration | ~15%  | < 100ms each | Routes (via Eden), DB queries, adapter ↔ external service |
+| E2E         | ~5%   | 1-10s each   | Critical user flows: auth, billing, onboarding            |
 
 A test suite dominated by integration tests is a smell — agents tend to write them because they're easier to set up ("just hit the route"). Unit tests force you to decompose.
 
@@ -186,7 +186,15 @@ export class AuthFeature {
     await this.page.getByRole('heading', { name: /create account/i }).waitFor()
   }
 
-  async fillSignUpForm({ email, password, name }: { email: string; password: string; name: string }) {
+  async fillSignUpForm({
+    email,
+    password,
+    name,
+  }: {
+    email: string
+    password: string
+    name: string
+  }) {
     await this.page.getByLabel(/email/i).fill(email)
     await this.page.getByLabel(/password/i).fill(password)
     await this.page.getByLabel(/name/i).fill(name)
@@ -216,11 +224,7 @@ export default {
   packageManager: 'bun',
   testRunner: 'command',
   commandRunner: { command: 'bun test' },
-  mutate: [
-    'packages/*/src/**/*.ts',
-    '!packages/*/src/**/*.test.ts',
-    '!packages/*/src/index.ts',
-  ],
+  mutate: ['packages/*/src/**/*.ts', '!packages/*/src/**/*.test.ts', '!packages/*/src/index.ts'],
   checkers: ['typescript'],
   tsconfigFile: 'tsconfig.json',
   thresholds: { high: 85, low: 70, break: 80 },
@@ -300,6 +304,7 @@ describe('rate limiting', () => {
 Unit + integration tests don't catch "this route falls over at 100 req/s." Load tests do.
 
 **Critical routes for v1:**
+
 - `POST /auth/login` (traffic spikes during incidents)
 - `POST /api/checkout/complete` (Polar webhook callbacks)
 - `GET /api/dashboard` (hot path for logged-in users)
@@ -336,12 +341,14 @@ if (result.latency.p95 > 200) {
 Snapshot tests rot. When a snapshot fails, the easy action is to update it — which defeats the test. Rules:
 
 **Snapshots OK for:**
+
 - Generated JSON (API responses of a fixed contract)
 - Generated HTML (transactional emails)
 - CLI output (help text, table formatting)
 - Migration SQL (to catch unintended schema changes)
 
 **Snapshots NOT OK for:**
+
 - Solid components (markup changes frequently; snapshot becomes noise)
 - Error messages (wording changes; use `expect().toContain()` instead)
 - Dates/timestamps (always changing; mock or exclude)
@@ -367,20 +374,38 @@ it('renders welcome email', () => {
 A test name is documentation. The function being tested is implicit from the file and `describe` block. The test name describes the specific behavior.
 
 **Anti-pattern:**
+
 ```ts
-it('test1', () => { /* ... */ })
-it('test duplicate', () => { /* ... */ })
-it('should work', () => { /* ... */ })
-it('createUser function creates a user', () => { /* ... */ })
+it('test1', () => {
+  /* ... */
+})
+it('test duplicate', () => {
+  /* ... */
+})
+it('should work', () => {
+  /* ... */
+})
+it('createUser function creates a user', () => {
+  /* ... */
+})
 ```
 
 **Pattern:**
+
 ```ts
 describe('createUser', () => {
-  it('rejects duplicate email with CONFLICT error', () => { /* ... */ })
-  it('normalizes email to lowercase before storing', () => { /* ... */ })
-  it('hashes the password with argon2id', () => { /* ... */ })
-  it('emits a user.created event on success', () => { /* ... */ })
+  it('rejects duplicate email with CONFLICT error', () => {
+    /* ... */
+  })
+  it('normalizes email to lowercase before storing', () => {
+    /* ... */
+  })
+  it('hashes the password with argon2id', () => {
+    /* ... */
+  })
+  it('emits a user.created event on success', () => {
+    /* ... */
+  })
 })
 ```
 
@@ -460,12 +485,12 @@ concurrent = false
 
 ## Test file naming
 
-| Pattern | Type | Concurrency | Imports DB? |
-|---|---|---|---|
-| `*.test.ts` | Unit | Concurrent | No (lint-enforced) |
-| `*.integration.test.ts` | Integration | Sequential | Yes, via `@gaia/testing` |
-| `*.load.ts` | Load | Manual / release | Yes |
-| `*.spec.ts` | E2E (Playwright) | Playwright workers | No (UI only) |
+| Pattern                 | Type             | Concurrency        | Imports DB?              |
+| ----------------------- | ---------------- | ------------------ | ------------------------ |
+| `*.test.ts`             | Unit             | Concurrent         | No (lint-enforced)       |
+| `*.integration.test.ts` | Integration      | Sequential         | Yes, via `@gaia/testing` |
+| `*.load.ts`             | Load             | Manual / release   | Yes                      |
+| `*.spec.ts`             | E2E (Playwright) | Playwright workers | No (UI only)             |
 
 ---
 
@@ -528,18 +553,18 @@ Mutation test + load test + full E2E run weekly or on release — too slow for e
 
 ## Quick reference
 
-| Need | Pattern | Location |
-|---|---|---|
-| Unit test (pure) | `*.test.ts` alongside source | Feature folder |
-| Integration test | `*.integration.test.ts` with Eden Treaty | `apps/api/test/` |
-| E2E test | `*.spec.ts` with Playwright Feature Objects | `apps/web/test/e2e/` |
-| Load test | `*.load.ts` with autocannon/k6 | `apps/api/test/load/` |
-| Mutation test | Stryker weekly + on release | `stryker.conf.mjs` |
-| Security test | `*.integration.test.ts` in `packages/security/test/` | `packages/security/` |
-| Snapshot (stable output) | `toMatchSnapshot()` for JSON/HTML/CLI | Anywhere |
-| Test double | In-memory fake with captured state | `packages/testing/adapters/` |
-| Fixture | Typed factory function | `packages/testing/fixtures/` |
-| E2E Feature Object | Class wrapping related user actions | `packages/testing/e2e/features/` |
+| Need                     | Pattern                                              | Location                         |
+| ------------------------ | ---------------------------------------------------- | -------------------------------- |
+| Unit test (pure)         | `*.test.ts` alongside source                         | Feature folder                   |
+| Integration test         | `*.integration.test.ts` with Eden Treaty             | `apps/api/test/`                 |
+| E2E test                 | `*.spec.ts` with Playwright Feature Objects          | `apps/web/test/e2e/`             |
+| Load test                | `*.load.ts` with autocannon/k6                       | `apps/api/test/load/`            |
+| Mutation test            | Stryker weekly + on release                          | `stryker.conf.mjs`               |
+| Security test            | `*.integration.test.ts` in `packages/security/test/` | `packages/security/`             |
+| Snapshot (stable output) | `toMatchSnapshot()` for JSON/HTML/CLI                | Anywhere                         |
+| Test double              | In-memory fake with captured state                   | `packages/testing/adapters/`     |
+| Fixture                  | Typed factory function                               | `packages/testing/fixtures/`     |
+| E2E Feature Object       | Class wrapping related user actions                  | `packages/testing/e2e/features/` |
 
 ---
 
@@ -551,4 +576,4 @@ Mutation test + load test + full E2E run weekly or on release — too slow for e
 - Database patterns: `docs/reference/database.md`
 - Security patterns: `docs/reference/security.md`
 
-*This file is versioned. Changes that contradict `code.md` require an ADR.*
+_This file is versioned. Changes that contradict `code.md` require an ADR._

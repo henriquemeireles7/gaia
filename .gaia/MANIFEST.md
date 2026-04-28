@@ -4,29 +4,29 @@ Index of folders that have a `CLAUDE.md` and why. Vision §H6: every CLAUDE.md e
 
 ## Root
 
-| Folder | Why a CLAUDE.md |
-|---|---|
-| `/` | Resolver. Skills routing, docs routing, four engineering disciplines. |
+| Folder | Why a CLAUDE.md                                                       |
+| ------ | --------------------------------------------------------------------- |
+| `/`    | Resolver. Skills routing, docs routing, four engineering disciplines. |
 
 ## Methodology
 
-| Folder | Why a CLAUDE.md |
-|---|---|
-| `.gaia/` | Methodology-internal resolver. Routes domain questions to `reference/*.md`. |
-| `.gaia/memory/` | Three retention surfaces with different rules. |
-| `.gaia/protocols/` | Trust layer — permissions, schemas. *(Phase 2 will populate.)* |
+| Folder             | Why a CLAUDE.md                                                             |
+| ------------------ | --------------------------------------------------------------------------- |
+| `.gaia/`           | Methodology-internal resolver. Routes domain questions to `reference/*.md`. |
+| `.gaia/memory/`    | Three retention surfaces with different rules.                              |
+| `.gaia/protocols/` | Trust layer — permissions, schemas. _(Phase 2 will populate.)_              |
 
 ## Application
 
-| Folder | Why a CLAUDE.md |
-|---|---|
-| `apps/api/` | Elysia HTTP API. Single entry, TypeBox routes, Eden Treaty types. |
-| `apps/web/` | SolidStart frontend (file-based routing, Bun runtime). |
-| `packages/adapters/` | Vendor wrappers. One file per capability (payments, email, ai, storage, analytics, error-tracking). |
-| `packages/auth/` | Better Auth wired to Drizzle. Mounted into Elysia. |
-| `packages/api/` | Eden Treaty client (server→client type bridge). |
-| `packages/workflows/` | Inngest client. |
-| `packages/config/`, `packages/errors/`, `packages/db/`, `packages/core/`, `packages/ui/`, `packages/security/` | Foundation packages. |
+| Folder                                                                                                         | Why a CLAUDE.md                                                                                     |
+| -------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------- |
+| `apps/api/`                                                                                                    | Elysia HTTP API. Single entry, TypeBox routes, Eden Treaty types.                                   |
+| `apps/web/`                                                                                                    | SolidStart frontend (file-based routing, Bun runtime).                                              |
+| `packages/adapters/`                                                                                           | Vendor wrappers. One file per capability (payments, email, ai, storage, analytics, error-tracking). |
+| `packages/auth/`                                                                                               | Better Auth wired to Drizzle. Mounted into Elysia.                                                  |
+| `packages/api/`                                                                                                | Eden Treaty client (server→client type bridge).                                                     |
+| `packages/workflows/`                                                                                          | Inngest client.                                                                                     |
+| `packages/config/`, `packages/errors/`, `packages/db/`, `packages/core/`, `packages/ui/`, `packages/security/` | Foundation packages.                                                                                |
 
 ## Out of scope for the manifest
 

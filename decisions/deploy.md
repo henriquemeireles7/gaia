@@ -3,6 +3,7 @@
 > Last verified: 2026-04-08
 
 ## Infrastructure
+
 - **Hosting:** Railway (app + PostgreSQL, same provider = zero network hop)
 - **Container:** Dockerfile with Bun image
 - **Database:** PostgreSQL on Railway
@@ -10,16 +11,19 @@
 - **Email:** hsameireles@gmail.com
 
 ## Subdomain Strategy
+
 - `rightdecision.io` — Main website (brand, pricing page, both products)
 - `app.rightdecision.io` — Course platform (Life Decisions + Business Decisions)
 - `api.rightdecision.io` — Automation APIs (Business Decisions)
 - All served from same Railway deployment, route-based separation
 
 ## Environment Variables
+
 All env vars flow through `platform/env.ts` via `@t3-oss/env-core` + Zod validation.
 Build crashes if env vars are missing or invalid. Never use `process.env` directly.
 
 Required vars (see `.env.example`):
+
 - `DATABASE_URL` — PostgreSQL connection string
 - `BETTER_AUTH_SECRET` — auth session signing
 - `STRIPE_SECRET_KEY` — payment processing
@@ -27,14 +31,17 @@ Required vars (see `.env.example`):
 - `RESEND_API_KEY` — transactional email
 
 Optional SEO vars:
+
 - `INDEXNOW_KEY` — IndexNow protocol key for instant search engine notification
 - `GOOGLE_SERVICE_ACCOUNT_JSON` — GCP service account for Search Console API
 
 ## Config-as-Code (`railway.toml`)
+
 All build and deploy settings are version-controlled in `railway.toml` at the repo root.
 Code config **always overrides** Railway dashboard settings.
 
 What it controls:
+
 - **Builder:** `DOCKERFILE` — uses our multi-stage Dockerfile
 - **Start command:** `bun run dist/app.js`
 - **Healthcheck:** `GET /health` with 300s timeout — Railway rolls back if it fails
@@ -42,20 +49,24 @@ What it controls:
 - **Replicas:** 1 (scale up by changing `numReplicas`)
 
 What it does NOT control (use `railway variable set` or dashboard):
+
 - Environment variables (DATABASE_URL, secrets, etc.)
 - Custom domains and networking
 - Volume mounts
 
 Rules:
+
 - NEVER configure build/deploy settings in the dashboard — they'll be overridden by `railway.toml`
 - To add pre-deploy migrations: add `preDeployCommand = "bun run db:migrate"` to `[deploy]`
 - To add environment overrides: use `[environments.staging.deploy]` sections
 - Config file path does NOT follow Root Directory — always use absolute path from repo root
 
 ## CI Pipeline
+
 GitHub Actions: `biome ci` → `tsc --noEmit` → `bun test` → `bun run build`
 
 ## Deploy Checklist
+
 1. `bun run check` passes locally (lint + typecheck + test)
 2. Push to branch, CI green
 3. Railway auto-deploys from main branch
@@ -64,11 +75,13 @@ GitHub Actions: `biome ci` → `tsc --noEmit` → `bun test` → `bun run build`
 6. `bun run indexnow` — notify search engines of new/changed URLs
 
 ## SEO Scripts
+
 - `bun run indexnow` — Submit new URLs to Bing/Yandex via IndexNow protocol
 - `bun run freshness` — Report content older than 90 days (GEO citation decay)
 - `bun run content:check` — Validate content quality (word count, keywords, links, FAQ)
 
 ## Database Migrations
+
 ```bash
 bun run db:generate  # Generate migration from schema changes
 bun run db:migrate   # Apply migrations
@@ -81,7 +94,9 @@ bun run db:studio    # Open Drizzle Studio for inspection
 Act first, ask never. Use authenticated CLIs directly — NEVER tell the user to check a dashboard.
 
 ### Railway (`railway`)
+
 Project: decisions | Environment: production | Service: rightdecision
+
 ```sh
 railway variable list --kv              # list all env vars
 railway variable set KEY=value          # set env var (triggers redeploy)
@@ -93,10 +108,12 @@ railway up                              # manual deploy
 railway redeploy                        # redeploy current
 railway connect postgres                # interactive psql session to production DB
 ```
+
 **Database access:** `railway connect postgres` for production PostgreSQL. Dev server runs against Railway production DB.
 **If "No linked project":** `railway link` — project "decisions", environment "production".
 
 ### Stripe (`stripe`)
+
 ```sh
 stripe products list                    # list products
 stripe products create --name "..."     # create product
@@ -107,9 +124,11 @@ stripe listen --forward-to localhost:3000/api/stripe/webhook  # local webhook te
 stripe logs tail                        # watch API request logs
 stripe trigger <event>                  # fire test webhook events
 ```
+
 ALWAYS invoke `/stripe-best-practices` before writing or reviewing Stripe integration code.
 
 ### GitHub (`gh`)
+
 ```sh
 gh pr create --title "..." --body "..."   # create PR
 gh pr list                                # list PRs
@@ -121,7 +140,9 @@ gh api repos/{owner}/{repo}/...           # raw API calls
 ```
 
 ### PostHog (MCP tools, not CLI)
+
 Use `mcp__posthog__*` tools directly:
+
 - `mcp__posthog__query-trends` — analytics trends
 - `mcp__posthog__query-funnel` — funnel analysis
 - `mcp__posthog__feature-flag-get-all` — list feature flags
@@ -130,6 +151,7 @@ Use `mcp__posthog__*` tools directly:
 - `mcp__posthog__error-tracking-issues-list` — production errors
 
 ## Deploy Anti-patterns
+
 - Deploying without running `bun run check` first
 - Manual database migrations on production — automate in deploy pipeline
 - Storing secrets in `.env` files committed to git — use Railway dashboard
@@ -143,6 +165,7 @@ Use `mcp__posthog__*` tools directly:
 ## Rollback Procedure
 
 When a deploy breaks production:
+
 ```bash
 # 1. Check what's broken
 railway logs --latest
@@ -159,6 +182,7 @@ git push
 ```
 
 **When to rollback vs hotfix-forward:**
+
 - Rollback: UI broken, API errors, startup crash — anything that blocks ALL users
 - Hotfix-forward: data migration issue, partial feature broken, edge case — rollback would lose data
 - After any rollback: invoke `/d-harness` to generate prevention artifact
@@ -177,6 +201,7 @@ git push
 - **V2 trigger:** First paying customer. Then add Railway staging environment with separate DB.
 
 ## Domain Setup
+
 - Primary: rightdecision.io (TBD)
 - App: app.rightdecision.io (course platform)
 - API: api.rightdecision.io (Business Decisions automation)
@@ -184,16 +209,19 @@ git push
 ## Dockerfile Rules
 
 ### Runtime Stage Must Include All Files Needed by railway.toml
+
 The Dockerfile runtime stage (final `FROM`) must COPY all files and directories referenced by `railway.toml` commands (`preDeployCommand`, `startCommand`). If `startCommand = "bun run dist/app.js"`, then `dist/` must be in a COPY statement. If `preDeployCommand = "bun run db:migrate"`, then migration files and `package.json` must be copied.
 
 Verify manually: check that every path in `railway.toml` commands has a matching COPY in the Dockerfile runtime stage.
 
 ### Lockfile Sync Rule
+
 If `package.json` is modified (new dependencies, version bumps), `bun.lock` MUST also be committed. Otherwise Docker builds use a stale lockfile and `bun install` installs wrong versions or fails entirely.
 
 Use `bun .claude/skills/d-code/scripts/lockfile-check.ts` to verify automatically.
 
 ### Incident: 2026-04-08 — Lockfile + Migration Files Missing
+
 **What happened:** Railway build failed because `package.json` had new dependencies but `bun.lock` wasn't committed. Additionally, migration files needed by `preDeployCommand` were not included in the Dockerfile runtime COPY stage.
 **Root cause:** No automated check for lockfile sync or Dockerfile completeness.
 **Fix:** Added `lockfile-check.ts` script and Dockerfile verification rules. Checked during d-review.

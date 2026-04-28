@@ -1,25 +1,26 @@
 {
   "name": "gaia",
   "version": "0.1.0",
-  "type": "module",
-  "main": "apps/api/server/app.ts",
   "workspaces": [
     "apps/*",
     "packages/*"
   ],
+  "type": "module",
+  "main": "apps/api/server/app.ts",
   "scripts": {
     "dev": "bun --hot apps/api/server/app.ts",
     "dev:web": "vinxi dev",
     "build": "bun build apps/api/server/app.ts --outdir dist --target bun --minify",
     "build:web": "vinxi build",
     "start": "bun run dist/app.js",
-    "check": "bun run check:lint && bun run check:types && bun run harden && bun run check:test",
-    "check:lint": "bunx biome ci .",
+    "check": "bun run check:lint && bun run check:format && bun run check:types && bun run harden && bun run check:test",
+    "check:lint": "bunx oxlint .",
+    "check:format": "bunx oxfmt --check .",
     "check:types": "bunx tsc --noEmit",
     "check:test": "bun test --pass-with-no-tests",
     "harden": "bun packages/security/harden-check.ts",
     "test": "bun test",
-    "lint": "bunx biome check --write --unsafe .",
+    "lint": "bunx oxlint --fix . && bunx oxfmt .",
     "db:generate": "bunx drizzle-kit generate",
     "db:migrate": "bun apps/api/scripts/migrate.ts",
     "db:seed": "bun apps/api/scripts/seed.ts",
@@ -51,8 +52,8 @@
     "drizzle-orm": "^0.38.0",
     "elysia": "^1.1.27",
     "inngest": "^3.27.0",
-    "posthog-node": "^4.4.0",
     "postgres": "^3.4.0",
+    "posthog-node": "^4.4.0",
     "resend": "^4.1.0",
     "solid-js": "^1.9.0",
     "vinxi": "^0.5.0"
@@ -62,6 +63,8 @@
     "@types/bun": "latest",
     "drizzle-kit": "^0.30.0",
     "knip": "^5.40.0",
+    "oxfmt": "^0.47.0",
+    "oxlint": "^1.62.0",
     "typescript": "^5.7.0"
   }
 }

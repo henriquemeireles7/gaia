@@ -18,28 +18,28 @@ The one-person unicorn — a solo founder who wants to build and scale a softwar
 
 ## Stack (locked, v6)
 
-| Layer | Choice |
-|---|---|
-| Runtime | [Bun](https://bun.sh) |
-| Backend | [Elysia](https://elysiajs.com) *(swap in progress)* |
-| Frontend | [SolidStart](https://start.solidjs.com) *(swap in progress)* |
-| Type bridge | [Eden Treaty](https://elysiajs.com/eden/treaty/overview.html) |
-| Validation | [TypeBox](https://github.com/sinclairzx81/typebox) via Standard Schema |
-| Database | [Neon](https://neon.tech) (serverless Postgres) + [Drizzle ORM](https://orm.drizzle.team) |
-| Cache / KV | [Dragonfly](https://www.dragonflydb.io) |
-| Auth | [better-auth](https://www.better-auth.com) |
-| Payments | [Polar](https://polar.sh) (merchant-of-record, solo-friendly) |
-| Email | [Resend](https://resend.com) |
-| Background jobs | [Inngest](https://www.inngest.com) |
-| Analytics | [PostHog](https://posthog.com) |
-| Errors | [Sentry](https://sentry.io) |
-| Logs/traces | [Axiom](https://axiom.co) + [OpenTelemetry](https://opentelemetry.io) |
-| API docs | [Scalar](https://scalar.com) |
-| Linter | [Oxlint](https://oxc.rs) + Biome GritQL rules |
-| Formatter | [oxfmt](https://oxc.rs) |
-| Test | Bun test + [Playwright](https://playwright.dev) + [Stryker](https://stryker-mutator.io) |
-| Monorepo | [Moon](https://moonrepo.dev) + [proto](https://moonrepo.dev/proto) + Bun workspaces |
-| Deploy | [Railway](https://railway.app) (default) |
+| Layer           | Choice                                                                                    |
+| --------------- | ----------------------------------------------------------------------------------------- |
+| Runtime         | [Bun](https://bun.sh)                                                                     |
+| Backend         | [Elysia](https://elysiajs.com) _(swap in progress)_                                       |
+| Frontend        | [SolidStart](https://start.solidjs.com) _(swap in progress)_                              |
+| Type bridge     | [Eden Treaty](https://elysiajs.com/eden/treaty/overview.html)                             |
+| Validation      | [TypeBox](https://github.com/sinclairzx81/typebox) via Standard Schema                    |
+| Database        | [Neon](https://neon.tech) (serverless Postgres) + [Drizzle ORM](https://orm.drizzle.team) |
+| Cache / KV      | [Dragonfly](https://www.dragonflydb.io)                                                   |
+| Auth            | [better-auth](https://www.better-auth.com)                                                |
+| Payments        | [Polar](https://polar.sh) (merchant-of-record, solo-friendly)                             |
+| Email           | [Resend](https://resend.com)                                                              |
+| Background jobs | [Inngest](https://www.inngest.com)                                                        |
+| Analytics       | [PostHog](https://posthog.com)                                                            |
+| Errors          | [Sentry](https://sentry.io)                                                               |
+| Logs/traces     | [Axiom](https://axiom.co) + [OpenTelemetry](https://opentelemetry.io)                     |
+| API docs        | [Scalar](https://scalar.com)                                                              |
+| Linter          | [Oxlint](https://oxc.rs) + Biome GritQL rules                                             |
+| Formatter       | [oxfmt](https://oxc.rs)                                                                   |
+| Test            | Bun test + [Playwright](https://playwright.dev) + [Stryker](https://stryker-mutator.io)   |
+| Monorepo        | [Moon](https://moonrepo.dev) + [proto](https://moonrepo.dev/proto) + Bun workspaces       |
+| Deploy          | [Railway](https://railway.app) (default)                                                  |
 
 Full vendor reasoning lives in [`.gaia/vision.md`](./.gaia/vision.md#the-stack).
 
@@ -87,14 +87,14 @@ The visible split: **everything Gaia-methodology lives under `.gaia/`. `.claude/
 
 ## Scripts
 
-| Command | Description |
-|---|---|
-| `bun run dev` | Dev server with hot reload. |
-| `bun run check` | Full pipeline (lint + types + harden + test). Run before every commit. |
-| `bun run lint` | Auto-fix lint issues. |
-| `bun run db:migrate` | Run database migrations. |
-| `bun run db:generate` | Generate a new migration. |
-| `bun run db:studio` | Open Drizzle Studio. |
+| Command               | Description                                                            |
+| --------------------- | ---------------------------------------------------------------------- |
+| `bun run dev`         | Dev server with hot reload.                                            |
+| `bun run check`       | Full pipeline (lint + types + harden + test). Run before every commit. |
+| `bun run lint`        | Auto-fix lint issues.                                                  |
+| `bun run db:migrate`  | Run database migrations.                                               |
+| `bun run db:generate` | Generate a new migration.                                              |
+| `bun run db:studio`   | Open Drizzle Studio.                                                   |
 
 ## License
 

@@ -17,14 +17,14 @@ The outcomes we are committing to this period:
 
 ## Committed initiatives
 
-| ID | Title | Hypothesis | Status |
-|---|---|---|---|
+| ID                        | Title                         | Hypothesis                                                                                  | Status |
+| ------------------------- | ----------------------------- | ------------------------------------------------------------------------------------------- | ------ |
 | 2026-04-27-gaia-bootstrap | kaz-setup → Gaia v6 migration | Migrating in 6 phased PRs lets us ship value at every step instead of one big-bang rewrite. | active |
 
 ## Parked
 
-*(none yet)*
+_(none yet)_
 
 ## Rejected
 
-*(none yet)*
+_(none yet)_

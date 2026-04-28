@@ -9,7 +9,7 @@
 
 ## What this file is
 
-Gaia's agent-facing surfaces made explicit. The template is *agent-native first, humans second* (VISION principle #15). This file defines how that shows up in skills, context files, discoverability signals, and output formats.
+Gaia's agent-facing surfaces made explicit. The template is _agent-native first, humans second_ (VISION principle #15). This file defines how that shows up in skills, context files, discoverability signals, and output formats.
 
 The single most novel file in the Gaia reference library. The Skills > MCP thesis lives here. The three-level progressive disclosure architecture lives here. The llms.txt generation pipeline lives here.
 
@@ -21,12 +21,12 @@ The single most novel file in the Gaia reference library. The Skills > MCP thesi
 
 Agents interact with Gaia through exactly four surface types:
 
-| Surface | What it is | Primary reader |
-|---|---|---|
-| **Skills** (`.gaia/skills/*/SKILL.md`) | Executable workflows with progressive disclosure | Claude Code |
-| **CLAUDE.md** (nested) | Contextual rules and conventions | Claude Code |
-| **llms.txt + .md twins** | Canonical doc tree for external agents | Cursor, Copilot, Codex, ChatGPT, etc. |
-| **MCP servers** (when used) | External capability exposure | Any MCP-compatible client |
+| Surface                                | What it is                                       | Primary reader                        |
+| -------------------------------------- | ------------------------------------------------ | ------------------------------------- |
+| **Skills** (`.gaia/skills/*/SKILL.md`) | Executable workflows with progressive disclosure | Claude Code                           |
+| **CLAUDE.md** (nested)                 | Contextual rules and conventions                 | Claude Code                           |
+| **llms.txt + .md twins**               | Canonical doc tree for external agents           | Cursor, Copilot, Codex, ChatGPT, etc. |
+| **MCP servers** (when used)            | External capability exposure                     | Any MCP-compatible client             |
 
 Each surface has a job. Each has an anatomy. Each has a budget. Violating the budget is how agent-native frameworks fail.
 
@@ -85,11 +85,13 @@ Every doc page has a `.md` twin. `/llms.txt` at root links the canonical referen
 ### Why skills, not chat prompts
 
 Chat prompts have three failure modes:
+
 1. **Rediscovery cost** — every session re-derives workflow, context, quality bar
 2. **Drift** — same prompt, different outputs across sessions
 3. **Unverifiability** — "did the agent do it right?" has no answer
 
 Skills solve all three:
+
 1. **Written once, consulted always** — workflow is canonical
 2. **Constraints hold** — same skill, same output shape
 3. **Testable** — define what "done" looks like in verifiable terms
@@ -121,21 +123,27 @@ description: <pushy description, ~100 words, includes what + when to trigger>
 # <Skill Name>
 
 ## What this does
+
 One-sentence value proposition.
 
 ## When to use this
+
 <Bullet list of triggers — be aggressive, over-specify>
 
 ## Workflow
+
 <State machine: steps with entry, process, exit>
 
 ## Output format
+
 <Template with placeholders>
 
 ## Principles
+
 <Constraints the output must satisfy>
 
 ## NOT this skill
+
 <What the skill does NOT do, with pointers to correct skill>
 ```
 
@@ -144,6 +152,7 @@ One-sentence value proposition.
 The description is the primary triggering mechanism. Metadata is always in context; body loads on trigger.
 
 **Bad description:**
+
 ```yaml
 description: Review a plan for developer experience.
 ```
@@ -151,6 +160,7 @@ description: Review a plan for developer experience.
 Triggers: basically never.
 
 **Good description:**
+
 ```yaml
 description: Use this skill whenever the user wants to review a plan, spec, or design doc for developer experience issues — CLI design, API ergonomics, error messages, onboarding flow, docs quality. Triggers: "devex review", "dx review", "review the plan for DX", "check if this is easy to use", "what will developers feel when they try this", "audit the developer experience". Also trigger proactively when the user has a plan file and mentions shipping, releasing, or sharing with other developers.
 ```
@@ -161,23 +171,23 @@ Triggers: reliably. Over-specifies on purpose. Lists synonyms. Mentions proactiv
 
 Every skill Gaia ships passes d-skill's 15-dimension audit (see `.gaia/skills/d-skill/SKILL.md`). Categories scored 1-5; anything below 3 requires fix before merge:
 
-| # | Category | What it checks |
-|---|---|---|
-| 1 | Best Practices | Progressive disclosure, pushy triggers, examples at ambiguity |
-| 2 | First Principles | State machine, constraints, taste encoding |
-| 3 | Agent Experience | Context budget, explicit decisions, tool choreography |
-| 4 | Human Experience | Question timing, transparency, previews, confidence signals |
-| 5 | Gstack Patterns | Adversarial review, three knowledge layers, exit suggestions |
-| 6 | Error Recovery | Fallback chains, graceful degradation, input validation |
-| 7 | Cross-Skill Coherence | Shared vocabulary, output schema, dependency declaration |
-| 8 | Iteration Intelligence | Decision log, failure library, override tracking |
-| 9 | Scope Discipline | One skill one job, line budget, explicit NOT declarations |
-| 10 | Evaluability | Before/after tests, consistency scoring, regression tests |
-| 11 | Workflow | Linear gates, parallel awareness, human checkpoints |
-| 12 | Human-AI Interaction | Question hierarchy, defaults, batching, show-don't-ask |
-| 13 | Templates | Output templates, starter variants, checklists |
-| 14 | Resources | Domain references, failure catalogs, examples |
-| 15 | Scripts | Deterministic helpers for repetitive tasks |
+| #   | Category               | What it checks                                                |
+| --- | ---------------------- | ------------------------------------------------------------- |
+| 1   | Best Practices         | Progressive disclosure, pushy triggers, examples at ambiguity |
+| 2   | First Principles       | State machine, constraints, taste encoding                    |
+| 3   | Agent Experience       | Context budget, explicit decisions, tool choreography         |
+| 4   | Human Experience       | Question timing, transparency, previews, confidence signals   |
+| 5   | Gstack Patterns        | Adversarial review, three knowledge layers, exit suggestions  |
+| 6   | Error Recovery         | Fallback chains, graceful degradation, input validation       |
+| 7   | Cross-Skill Coherence  | Shared vocabulary, output schema, dependency declaration      |
+| 8   | Iteration Intelligence | Decision log, failure library, override tracking              |
+| 9   | Scope Discipline       | One skill one job, line budget, explicit NOT declarations     |
+| 10  | Evaluability           | Before/after tests, consistency scoring, regression tests     |
+| 11  | Workflow               | Linear gates, parallel awareness, human checkpoints           |
+| 12  | Human-AI Interaction   | Question hierarchy, defaults, batching, show-don't-ask        |
+| 13  | Templates              | Output templates, starter variants, checklists                |
+| 14  | Resources              | Domain references, failure catalogs, examples                 |
+| 15  | Scripts                | Deterministic helpers for repetitive tasks                    |
 
 ### Skills Gaia ships v1
 
@@ -232,15 +242,19 @@ A folder gets its own CLAUDE.md **only** when it has rules that differ from glob
 # <Package/folder name>
 
 ## Local conventions
+
 <Rules that differ from root or add to it>
 
 ## Patterns to follow
+
 <Concrete examples, 2-3 max>
 
 ## Anti-patterns
+
 <What to avoid, why>
 
 ## Where to look first
+
 <Key files an agent should read to understand this folder>
 ```
 
@@ -256,13 +270,13 @@ At `docs/MANIFEST.md`:
 Lists which folders have local CLAUDE.md files and why.
 Folders not listed here inherit from root CLAUDE.md.
 
-| Path | Why | Last reviewed |
-|---|---|---|
-| apps/web | Pages do 3 things rule | 2026-04-19 |
-| apps/api | Elysia routes vs services | 2026-04-19 |
-| packages/db | Migration safety | 2026-04-19 |
-| packages/errors | Named-error-only rule | 2026-04-19 |
-| packages/adapters | Capability-named, one-file-per-system | 2026-04-19 |
+| Path              | Why                                   | Last reviewed |
+| ----------------- | ------------------------------------- | ------------- |
+| apps/web          | Pages do 3 things rule                | 2026-04-19    |
+| apps/api          | Elysia routes vs services             | 2026-04-19    |
+| packages/db       | Migration safety                      | 2026-04-19    |
+| packages/errors   | Named-error-only rule                 | 2026-04-19    |
+| packages/adapters | Capability-named, one-file-per-system | 2026-04-19    |
 ```
 
 Agents query MANIFEST.md to understand the context map. It's the dependency graph for rules.
@@ -335,11 +349,15 @@ Two HTML-comment tags control what appears in llms versions:
 
 ```markdown
 <!-- llms-only -->
+
 This paragraph only appears in the Markdown/llms version — not on the rendered HTML docs site. Use for context that helps agents but clutters human reading.
+
 <!-- /llms-only -->
 
 <!-- llms-ignore -->
+
 This paragraph only appears on the HTML site. Use for marketing copy, navigation hints, anything agents don't need.
+
 <!-- /llms-ignore -->
 ```
 
@@ -360,6 +378,7 @@ docs/reference/*.md (source of truth)
 ```
 
 Runs on:
+
 - Every commit to docs/ (via CI)
 - `gaia llms-txt generate` manually
 - Post-docs-build hook
@@ -373,6 +392,7 @@ Runs on:
 Model Context Protocol is for exposing **external capabilities** to agents. Things the agent can't do through regular tools or skills.
 
 **Good MCP use cases:**
+
 - Private data access (internal databases, proprietary APIs)
 - Real-time state (metrics, alerts, live logs)
 - External system integration (Jira, Linear, Stripe live data)
@@ -380,6 +400,7 @@ Model Context Protocol is for exposing **external capabilities** to agents. Thin
 - Anything that requires persistent credentials
 
 **Bad MCP use cases:**
+
 - Workflows (use skills — MCP servers can't progressively disclose)
 - Documentation (use llms.txt + .md twins)
 - Local operations (use CLI commands inside skills)
@@ -387,21 +408,22 @@ Model Context Protocol is for exposing **external capabilities** to agents. Thin
 
 ### The distinction crystallized
 
-| Dimension | Skills | MCP |
-|---|---|---|
-| Purpose | Procedures / workflows | Capabilities / data access |
-| Context cost | Metadata always; body on trigger | Full schema always loaded |
-| Progressive disclosure | Yes (three levels) | Limited |
-| State | Stateless | Often stateful |
-| Installation | File in repo | Server process |
-| Deployment | Part of repo | Separate lifecycle |
-| When to pick | "How to do X" | "Access to Y" |
+| Dimension              | Skills                           | MCP                        |
+| ---------------------- | -------------------------------- | -------------------------- |
+| Purpose                | Procedures / workflows           | Capabilities / data access |
+| Context cost           | Metadata always; body on trigger | Full schema always loaded  |
+| Progressive disclosure | Yes (three levels)               | Limited                    |
+| State                  | Stateless                        | Often stateful             |
+| Installation           | File in repo                     | Server process             |
+| Deployment             | Part of repo                     | Separate lifecycle         |
+| When to pick           | "How to do X"                    | "Access to Y"              |
 
 ### Gaia's MCP policy
 
 v1 template ships with **zero MCP servers**. The template is self-contained.
 
 When users add MCP later (for their own business needs), we recommend:
+
 - Keep MCP servers to 2-3 maximum per project
 - Each MCP exposes one capability domain, not a grab-bag
 - Context-heavy MCPs (schema >1000 tokens) should be used rarely
@@ -428,20 +450,25 @@ Every long-running skill produces a structured artifact:
 # <Skill> Run — 2026-04-19T14:32:15Z
 
 ## Input
+
 <What the skill was called with>
 
 ## Decisions
+
 - [2026-04-19] Chose Option B because [reason]
 - [2026-04-19] Deferred decision on X — see open questions
 
 ## Output
+
 <The actual artifact>
 
 ## Open questions
+
 - Q: Should we use pattern Y or Z? (blocking implementer)
 - Q: Confirm the pricing of the X package
 
 ## Next steps
+
 - Run `gaia scaffold feature billing` when decisions above are confirmed
 - Review with `/review` after scaffolding
 ```
@@ -469,6 +496,7 @@ With structured outputs: the next agent reads the decisions log, the open questi
 A SKILL.md isn't a document; it's an instruction set the agent executes. Treating it as prose leads to exactly the same vulnerabilities as treating untrusted scripts as prose.
 
 **Risks:**
+
 - Prompt injection through skill content (user-added skills especially)
 - Credential exfiltration via tool choreography
 - Silent privilege escalation
@@ -500,15 +528,15 @@ These get a second reviewer and explicit ADR entry.
 
 Every AX surface has a budget. Violating the budget is how frameworks fail.
 
-| Surface | Budget | Why |
-|---|---|---|
-| Skill metadata (always loaded) | ~100 words | Multiplied by N skills; stays in context forever |
-| SKILL.md body (on trigger) | <500 lines | Loads into working memory every invocation |
-| CLAUDE.md (root) | <200 lines | Loaded on every Claude Code session |
-| CLAUDE.md (nested) | <100 lines | Adds to session whenever scope includes it |
-| llms.txt | <500 lines | External agents ingest whole file |
-| llms-full.txt | <50k tokens | Token-efficient corpus, not full internet |
-| Reference files | <1000 lines each | Loaded on explicit reference only |
+| Surface                        | Budget           | Why                                              |
+| ------------------------------ | ---------------- | ------------------------------------------------ |
+| Skill metadata (always loaded) | ~100 words       | Multiplied by N skills; stays in context forever |
+| SKILL.md body (on trigger)     | <500 lines       | Loads into working memory every invocation       |
+| CLAUDE.md (root)               | <200 lines       | Loaded on every Claude Code session              |
+| CLAUDE.md (nested)             | <100 lines       | Adds to session whenever scope includes it       |
+| llms.txt                       | <500 lines       | External agents ingest whole file                |
+| llms-full.txt                  | <50k tokens      | Token-efficient corpus, not full internet        |
+| Reference files                | <1000 lines each | Loaded on explicit reference only                |
 
 **Global rule:** if a surface exceeds budget, refactor — don't relax the budget. Usually refactoring means extracting to reference files, adding hierarchy, or cutting.
 
@@ -529,13 +557,7 @@ At the root of every Gaia project: `.gaia/manifest.json`
     "database": "neon",
     "auth": "better-auth"
   },
-  "skills_installed": [
-    "review",
-    "ship",
-    "scaffold",
-    "harness",
-    "d-skill"
-  ],
+  "skills_installed": ["review", "ship", "scaffold", "harness", "d-skill"],
   "claude_md_files": [
     "CLAUDE.md",
     "apps/web/CLAUDE.md",
@@ -549,6 +571,7 @@ At the root of every Gaia project: `.gaia/manifest.json`
 ```
 
 Agents can:
+
 - Check Gaia version compatibility
 - See which skills are available without loading them
 - Navigate CLAUDE.md structure before walking the tree
@@ -575,19 +598,19 @@ External agents (Cursor, Copilot, Codex) bypass skills and use llms.txt + .md tw
 
 ## Anti-patterns — what Gaia explicitly rejects
 
-| Anti-pattern | Why rejected |
-|---|---|
-| Giant chat prompts instead of skills | Rediscovery cost; no versioning; no testability |
-| CLAUDE.md duplicating reference docs | Token waste; drift; two sources of truth |
-| Skills that do 3 different things | Triggering becomes unreliable; scope bloat |
-| Passive-voice descriptions ("This skill may be used for...") | Claude under-triggers; pushy voice required |
-| MCP servers for workflows | Wrong tool; procedures belong in skills |
-| Hidden tools / magic behavior | Agent can't reason about what's possible |
-| Untyped output formats | Next agent can't parse; chains break |
-| Skills that silently fail | Agent proceeds with corruption; always surface failure |
-| Docs only on a website (no .md twins) | External agents can't parse HTML reliably |
-| Long CLAUDE.md files (>200 lines) | Token budget violation; extract to reference |
-| Skills without decisions logs | Un-resumable; context dies at session end |
+| Anti-pattern                                                 | Why rejected                                           |
+| ------------------------------------------------------------ | ------------------------------------------------------ |
+| Giant chat prompts instead of skills                         | Rediscovery cost; no versioning; no testability        |
+| CLAUDE.md duplicating reference docs                         | Token waste; drift; two sources of truth               |
+| Skills that do 3 different things                            | Triggering becomes unreliable; scope bloat             |
+| Passive-voice descriptions ("This skill may be used for...") | Claude under-triggers; pushy voice required            |
+| MCP servers for workflows                                    | Wrong tool; procedures belong in skills                |
+| Hidden tools / magic behavior                                | Agent can't reason about what's possible               |
+| Untyped output formats                                       | Next agent can't parse; chains break                   |
+| Skills that silently fail                                    | Agent proceeds with corruption; always surface failure |
+| Docs only on a website (no .md twins)                        | External agents can't parse HTML reliably              |
+| Long CLAUDE.md files (>200 lines)                            | Token budget violation; extract to reference           |
+| Skills without decisions logs                                | Un-resumable; context dies at session end              |
 
 ---
 
@@ -620,15 +643,15 @@ You can't improve what you don't measure.
 
 ### Key metrics
 
-| Metric | What it tells you | Target |
-|---|---|---|
-| **Skill trigger rate** | Skills firing when they should | >85% on test prompts |
-| **Skill token spend** | Avg context consumed per skill run | Trending down over time |
-| **Output consistency** | Same prompt, 3 runs, structural similarity | >80% |
-| **Handoff success rate** | Next agent picks up with no re-derivation | >90% |
-| **CLAUDE.md coverage** | Folders with deviating rules that have CLAUDE.md | 100% |
-| **llms.txt freshness** | Time since last docs-change regeneration | <24h |
-| **External agent success** | Cursor/Copilot produce correct code using llms.txt | Survey + logs |
+| Metric                     | What it tells you                                  | Target                  |
+| -------------------------- | -------------------------------------------------- | ----------------------- |
+| **Skill trigger rate**     | Skills firing when they should                     | >85% on test prompts    |
+| **Skill token spend**      | Avg context consumed per skill run                 | Trending down over time |
+| **Output consistency**     | Same prompt, 3 runs, structural similarity         | >80%                    |
+| **Handoff success rate**   | Next agent picks up with no re-derivation          | >90%                    |
+| **CLAUDE.md coverage**     | Folders with deviating rules that have CLAUDE.md   | 100%                    |
+| **llms.txt freshness**     | Time since last docs-change regeneration           | <24h                    |
+| **External agent success** | Cursor/Copilot produce correct code using llms.txt | Survey + logs           |
 
 ### How to measure
 
@@ -641,19 +664,19 @@ You can't improve what you don't measure.
 
 ## Decisions log
 
-| Date | Decision | Rationale |
-|---|---|---|
-| 2026-04-02 | Skills are the primary agent interface (VISION principle #15 + #13) | Chat prompts have rediscovery cost + drift + unverifiability. Skills solve all three. |
-| 2026-04-02 | Three-level progressive disclosure (Anthropic skill-creator standard) | Token budget respect. Metadata + body + resources, loaded as needed. |
-| 2026-04-02 | CLAUDE.md only where local rules differ | Missing CLAUDE.md = inherits. MANIFEST.md maps which folders have local rules. |
-| 2026-04-19 | 12 AX principles adopted | Grounded in d-skill 15-category framework + Anthropic skill-creator + gstack + llms.txt state of art. |
-| 2026-04-19 | Skills > MCP as primary interface | MCP is for capabilities (external data/systems). Skills are for procedures. Most agent-native needs are procedural. |
-| 2026-04-19 | llms.txt + .md twins as external agent surface | External agents (Cursor, Copilot, Codex, ChatGPT) don't read HTML reliably. Markdown + llms.txt is the emerging standard. |
-| 2026-04-19 | Skills-as-code security review | Snyk 2026 research: ~37% of community skills have security flaws. Skills run with LLM trust — they need the same scrutiny as scripts. |
-| 2026-04-19 | Self-documenting output pattern | Agents get replaced mid-task. Structured output with decisions log + next steps = resumable workflows. |
-| 2026-04-19 | Zero MCP servers in v1 template | Template self-contained. Users add MCPs for business-specific needs. Keep surface minimal. |
-| 2026-04-19 | Token budgets per surface | Surfaces exceed budgets silently; drift kills frameworks. Explicit budgets force refactor, not relaxation. |
-| 2026-04-19 | d-skill 15-category framework as merge gate | Every skill scored 1-5 per category. <3 requires fix. Ensures consistent quality across contributed skills. |
+| Date       | Decision                                                              | Rationale                                                                                                                             |
+| ---------- | --------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------- |
+| 2026-04-02 | Skills are the primary agent interface (VISION principle #15 + #13)   | Chat prompts have rediscovery cost + drift + unverifiability. Skills solve all three.                                                 |
+| 2026-04-02 | Three-level progressive disclosure (Anthropic skill-creator standard) | Token budget respect. Metadata + body + resources, loaded as needed.                                                                  |
+| 2026-04-02 | CLAUDE.md only where local rules differ                               | Missing CLAUDE.md = inherits. MANIFEST.md maps which folders have local rules.                                                        |
+| 2026-04-19 | 12 AX principles adopted                                              | Grounded in d-skill 15-category framework + Anthropic skill-creator + gstack + llms.txt state of art.                                 |
+| 2026-04-19 | Skills > MCP as primary interface                                     | MCP is for capabilities (external data/systems). Skills are for procedures. Most agent-native needs are procedural.                   |
+| 2026-04-19 | llms.txt + .md twins as external agent surface                        | External agents (Cursor, Copilot, Codex, ChatGPT) don't read HTML reliably. Markdown + llms.txt is the emerging standard.             |
+| 2026-04-19 | Skills-as-code security review                                        | Snyk 2026 research: ~37% of community skills have security flaws. Skills run with LLM trust — they need the same scrutiny as scripts. |
+| 2026-04-19 | Self-documenting output pattern                                       | Agents get replaced mid-task. Structured output with decisions log + next steps = resumable workflows.                                |
+| 2026-04-19 | Zero MCP servers in v1 template                                       | Template self-contained. Users add MCPs for business-specific needs. Keep surface minimal.                                            |
+| 2026-04-19 | Token budgets per surface                                             | Surfaces exceed budgets silently; drift kills frameworks. Explicit budgets force refactor, not relaxation.                            |
+| 2026-04-19 | d-skill 15-category framework as merge gate                           | Every skill scored 1-5 per category. <3 requires fix. Ensures consistent quality across contributed skills.                           |
 
 ---
 
@@ -668,4 +691,4 @@ You can't improve what you don't measure.
 - Architecture the agent navigates: VISION.md §Architecture
 - Enforcement mechanism: `.gaia/rules.ts`
 
-*AX is reviewed on every PR that touches skills, CLAUDE.md files, or llms.txt generation. Changes to principles or Skills-vs-MCP policy require an ADR.*
+_AX is reviewed on every PR that touches skills, CLAUDE.md files, or llms.txt generation. Changes to principles or Skills-vs-MCP policy require an ADR._

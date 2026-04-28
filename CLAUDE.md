@@ -15,29 +15,29 @@ These shape the agent's behavior at the point of work (vision §Harness):
 
 ## Docs resolver — read on demand
 
-| Question | File |
-|---|---|
-| What is Gaia? Who is it for? | `.gaia/vision.md` |
-| How do I write code? | `.gaia/reference/code.md` |
-| Backend conventions | `.gaia/reference/backend.md` |
-| Frontend conventions | `.gaia/reference/frontend.md` |
-| DB / migrations | `.gaia/reference/database.md` |
-| Tests, coverage, mutation | `.gaia/reference/testing.md` |
-| Error model | `.gaia/reference/errors.md` |
-| Security baseline | `.gaia/reference/security.md` |
-| Logs / metrics / traces | `.gaia/reference/observability.md` |
-| CLI commands | `.gaia/reference/commands.md` |
-| Design system | `.gaia/reference/design.md`, `.gaia/reference/tokens.md` |
-| UX patterns | `.gaia/reference/ux.md` |
-| Developer experience | `.gaia/reference/dx.md` |
-| Agent experience | `.gaia/reference/ax.md` |
-| Brand voice | `.gaia/reference/voice.md` |
-| Workflow loops | `.gaia/reference/workflow.md` |
-| Harness mechanics | `.gaia/reference/harness.md` |
-| Currently being worked on | `.gaia/initiatives/roadmap.md` |
-| Latest data snapshot | `.gaia/initiatives/context.md` |
-| What's allowed/blocked | `.gaia/protocols/permissions.md` |
-| Index of folder CLAUDE.mds | `.gaia/MANIFEST.md` |
+| Question                     | File                                                     |
+| ---------------------------- | -------------------------------------------------------- |
+| What is Gaia? Who is it for? | `.gaia/vision.md`                                        |
+| How do I write code?         | `.gaia/reference/code.md`                                |
+| Backend conventions          | `.gaia/reference/backend.md`                             |
+| Frontend conventions         | `.gaia/reference/frontend.md`                            |
+| DB / migrations              | `.gaia/reference/database.md`                            |
+| Tests, coverage, mutation    | `.gaia/reference/testing.md`                             |
+| Error model                  | `.gaia/reference/errors.md`                              |
+| Security baseline            | `.gaia/reference/security.md`                            |
+| Logs / metrics / traces      | `.gaia/reference/observability.md`                       |
+| CLI commands                 | `.gaia/reference/commands.md`                            |
+| Design system                | `.gaia/reference/design.md`, `.gaia/reference/tokens.md` |
+| UX patterns                  | `.gaia/reference/ux.md`                                  |
+| Developer experience         | `.gaia/reference/dx.md`                                  |
+| Agent experience             | `.gaia/reference/ax.md`                                  |
+| Brand voice                  | `.gaia/reference/voice.md`                               |
+| Workflow loops               | `.gaia/reference/workflow.md`                            |
+| Harness mechanics            | `.gaia/reference/harness.md`                             |
+| Currently being worked on    | `.gaia/initiatives/roadmap.md`                           |
+| Latest data snapshot         | `.gaia/initiatives/context.md`                           |
+| What's allowed/blocked       | `.gaia/protocols/permissions.md`                         |
+| Index of folder CLAUDE.mds   | `.gaia/MANIFEST.md`                                      |
 
 ## Skills resolver — invoke as your first action
 
@@ -45,24 +45,24 @@ When the user's request matches one of these, invoke the skill BEFORE any other 
 
 ### Workflow loop (Gaia)
 
-| Trigger | Skill |
-|---|---|
-| Start an initiative, brainstorm a bet | `d-strategy` |
-| Extract projects from an initiative | `d-roadmap` |
-| Implement a project (TDD) | `d-tdd` |
-| Write blog/handbook/social/clip content | `d-content` |
-| Pre-commit principles review | `d-review` |
-| Deep audit, scoring, trend tracking | `d-health` |
-| Build/deploy error → prevention rule | `d-harness` |
-| Deploy failed → recover | `d-fail` |
+| Trigger                                 | Skill        |
+| --------------------------------------- | ------------ |
+| Start an initiative, brainstorm a bet   | `d-strategy` |
+| Extract projects from an initiative     | `d-roadmap`  |
+| Implement a project (TDD)               | `d-tdd`      |
+| Write blog/handbook/social/clip content | `d-content`  |
+| Pre-commit principles review            | `d-review`   |
+| Deep audit, scoring, trend tracking     | `d-health`   |
+| Build/deploy error → prevention rule    | `d-harness`  |
+| Deploy failed → recover                 | `d-fail`     |
 
 ### Foundation (gstack, vendored under `.claude/skills/gstack/`)
 
-| Trigger | Skill |
-|---|---|
-| Plan an implementation strategy | `plan` |
-| Review a PR diff | `review` |
-| QA test a web app | `qa` |
+| Trigger                         | Skill    |
+| ------------------------------- | -------- |
+| Plan an implementation strategy | `plan`   |
+| Review a PR diff                | `review` |
+| QA test a web app               | `qa`     |
 
 ## Build order — never skip steps
 

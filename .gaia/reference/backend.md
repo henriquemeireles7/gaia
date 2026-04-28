@@ -10,7 +10,7 @@
 
 The stack-specific patterns for backend code in Gaia. These patterns implement the 10 coding principles from `code.md` in the context of Elysia + Eden Treaty + TypeBox + Bun + Better Auth + Drizzle + Inngest.
 
-Read `code.md` first. This file is the concrete *how*; `code.md` is the *why*.
+Read `code.md` first. This file is the concrete _how_; `code.md` is the _why_.
 
 ---
 
@@ -79,14 +79,14 @@ Each feature declares its TypeBox schemas in `schema.ts`. Schemas are registered
 
 **Naming convention:**
 
-| Purpose | Name pattern | Example |
-|---|---|---|
-| Entity (full shape) | `<feature>.entity` | `users.entity` |
-| Create body | `<feature>.create.body` | `users.create.body` |
-| Update body | `<feature>.update.body` | `users.update.body` |
-| Route params | `<feature>.params` | `users.params` |
-| Query filters | `<feature>.query` | `users.query` |
-| Response lists | `<feature>.list` | `users.list` |
+| Purpose             | Name pattern            | Example             |
+| ------------------- | ----------------------- | ------------------- |
+| Entity (full shape) | `<feature>.entity`      | `users.entity`      |
+| Create body         | `<feature>.create.body` | `users.create.body` |
+| Update body         | `<feature>.update.body` | `users.update.body` |
+| Route params        | `<feature>.params`      | `users.params`      |
+| Query filters       | `<feature>.query`       | `users.query`       |
+| Response lists      | `<feature>.list`        | `users.list`        |
 
 **Pattern:**
 
@@ -122,6 +122,7 @@ export const UserSchemas = {
 Every Elysia route declares schemas for `body`, `query`, `params`, and `headers` when applicable. Inside the handler, types are trusted — no runtime re-validation, no defensive fallbacks.
 
 **Anti-pattern:**
+
 ```ts
 // ❌ Inline schema, defensive parsing, unclear types
 .post('/users', ({ body }: any) => {
@@ -132,6 +133,7 @@ Every Elysia route declares schemas for `body`, `query`, `params`, and `headers`
 ```
 
 **Pattern:**
+
 ```ts
 // ✅ Named schema, validated, typed, trusted
 .post('/users', ({ body }) => userService.create(body), {
@@ -158,6 +160,7 @@ Headers with auth tokens are validated too — they're inputs.
 Every route declares response schemas by status code. This enables Eden Treaty to narrow errors on the client by status, and documents the contract.
 
 **Pattern:**
+
 ```ts
 .post('/users', ({ body, error }) => {
   const existing = userService.findByEmail(body.email)
@@ -174,6 +177,7 @@ Every route declares response schemas by status code. This enables Eden Treaty t
 ```
 
 **On the client (Solid):**
+
 ```ts
 import { api } from '@/lib/api'
 
@@ -199,6 +203,7 @@ if (error) {
 The `packages/security/` package exports two plugins: `protectedRoute` (default) and `publicRoute` (opt-out). Every route composition starts with `protectedRoute`. Public routes explicitly opt out with a comment referencing an ADR explaining why.
 
 **Pattern:**
+
 ```ts
 import { protectedRoute, publicRoute } from '@gaia/security'
 
@@ -226,6 +231,7 @@ export const authRoutes = new Elysia({ prefix: '/auth' })
 Use `derive` to compute request-scoped context (current user, tenant, request ID). Use `beforeHandle` for guards (role checks, permission checks, resource ownership). Both declared at the top of the route file, visible to any reader.
 
 **Pattern:**
+
 ```ts
 import { Elysia } from 'elysia'
 import { requireRole } from '@gaia/security'
@@ -253,6 +259,7 @@ Guards that return a value short-circuit the request. `requireRole` is defined i
 Elysia's built-in `error()` is the idiomatic way to return non-200 responses. Error bodies come from `packages/errors/src/codes.ts`. No custom response wrappers — the old `success()`/`throwError()` from the legacy stack are removed.
 
 **Pattern:**
+
 ```ts
 // packages/errors/src/codes.ts
 import { t } from 'elysia'
@@ -274,15 +281,19 @@ export const ErrorSchemas = {
   // ... full catalog
 }
 
-// In a route
-.get('/:id', async ({ params, error }) => {
-  const user = await userService.get(params.id)
-  if (!user) return error(404, { code: 'NOT_FOUND', message: 'User not found' })
-  return user
-}, {
-  params: 'users.params',
-  response: { 200: 'users.entity', 404: 'errors.not-found' },
-})
+  // In a route
+  .get(
+    '/:id',
+    async ({ params, error }) => {
+      const user = await userService.get(params.id)
+      if (!user) return error(404, { code: 'NOT_FOUND', message: 'User not found' })
+      return user
+    },
+    {
+      params: 'users.params',
+      response: { 200: 'users.entity', 404: 'errors.not-found' },
+    },
+  )
 ```
 
 Services throw domain errors; the global `onError` handler in `packages/api/src/middleware/errors.ts` maps them to HTTP responses.
@@ -296,6 +307,7 @@ Services throw domain errors; the global `onError` handler in `packages/api/src/
 `packages/api/src/middleware/observability.ts` hooks `onRequest`, `afterHandle`, and `onError` to emit OpenTelemetry spans, PostHog events (for user actions), and Sentry captures. Applied once in `defaultMiddleware`; every route inherits.
 
 **Pattern:**
+
 ```ts
 // packages/api/src/middleware/default.ts
 import { Elysia } from 'elysia'
@@ -303,7 +315,7 @@ import { tracing } from './observability'
 import { errorHandler } from './errors'
 
 export const defaultMiddleware = new Elysia({ name: 'default' })
-  .use(tracing)      // spans per request
+  .use(tracing) // spans per request
   .use(errorHandler) // Sentry + structured error response
 ```
 
@@ -324,6 +336,7 @@ logger.info('user.created', { userId: user.id, tenantId: user.tenantId })
 Every external capability (Polar, Resend, Dragonfly, Railway Buckets, Axiom) lives in `packages/adapters/src/<capability>.ts` as a pure TypeScript module. Adapters do not import from Elysia. Routes call adapters; adapters never know about the HTTP layer.
 
 **Pattern:**
+
 ```ts
 // packages/adapters/src/payments.ts
 import Polar from '@polar-sh/sdk'
@@ -363,6 +376,7 @@ The interface is capability-named (`createCheckout`), not vendor-named (`polar.c
 Integration tests import the app instance and pass it to Eden Treaty. No network hop, no port allocation, no server startup. Full type safety. Fast feedback loop.
 
 **Pattern:**
+
 ```ts
 // apps/api/test/users.integration.test.ts
 import { describe, it, expect, beforeEach } from 'bun:test'
@@ -426,7 +440,7 @@ const parsed = Value.Parse(EnvSchema, Bun.env)
 if (!Value.Check(EnvSchema, parsed)) {
   const errors = [...Value.Errors(EnvSchema, Bun.env)]
   console.error('Invalid environment configuration:')
-  errors.forEach(e => console.error(`  ${e.path}: ${e.message}`))
+  errors.forEach((e) => console.error(`  ${e.path}: ${e.message}`))
   process.exit(1)
 }
 
@@ -439,18 +453,18 @@ No route, service, or adapter ever reads `Bun.env` or `process.env` directly. Th
 
 ## Quick reference
 
-| Need | Pattern | Location |
-|---|---|---|
-| New feature | One plugin, one file | `apps/api/src/features/<name>/routes.ts` |
-| Business logic | Pure TS, no Elysia | `apps/api/src/features/<name>/service.ts` |
-| TypeBox schemas | Registered via `.model()` | `apps/api/src/features/<name>/schema.ts` |
-| External service | Capability-named adapter | `packages/adapters/src/<capability>.ts` |
-| Auth enforcement | `protectedRoute` wrapper | `packages/security/` |
-| Rate limiting | Built into `protectedRoute`/`publicRoute` | `packages/security/` |
-| Error response | `error(status, body)` + named schema | `packages/errors/` |
-| Observability | `defaultMiddleware` auto-instruments | `packages/api/src/middleware/` |
-| Env access | `env` object, fail-fast at startup | `packages/config/src/env.ts` |
-| Integration test | Eden Treaty + app instance | `apps/api/test/*.integration.test.ts` |
+| Need             | Pattern                                   | Location                                  |
+| ---------------- | ----------------------------------------- | ----------------------------------------- |
+| New feature      | One plugin, one file                      | `apps/api/src/features/<name>/routes.ts`  |
+| Business logic   | Pure TS, no Elysia                        | `apps/api/src/features/<name>/service.ts` |
+| TypeBox schemas  | Registered via `.model()`                 | `apps/api/src/features/<name>/schema.ts`  |
+| External service | Capability-named adapter                  | `packages/adapters/src/<capability>.ts`   |
+| Auth enforcement | `protectedRoute` wrapper                  | `packages/security/`                      |
+| Rate limiting    | Built into `protectedRoute`/`publicRoute` | `packages/security/`                      |
+| Error response   | `error(status, body)` + named schema      | `packages/errors/`                        |
+| Observability    | `defaultMiddleware` auto-instruments      | `packages/api/src/middleware/`            |
+| Env access       | `env` object, fail-fast at startup        | `packages/config/src/env.ts`              |
+| Integration test | Eden Treaty + app instance                | `apps/api/test/*.integration.test.ts`     |
 
 ---
 
@@ -464,4 +478,4 @@ No route, service, or adapter ever reads `Bun.env` or `process.env` directly. Th
 - Observability patterns: `docs/reference/observability.md`
 - Error code catalog: `docs/reference/errors.md`
 
-*This file is versioned. Changes to backend patterns require a PR; changes that contradict `code.md` require an ADR.*
+_This file is versioned. Changes to backend patterns require a PR; changes that contradict `code.md` require an ADR._

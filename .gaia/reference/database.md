@@ -10,7 +10,7 @@
 
 The stack-specific patterns for database code in Gaia. These patterns implement the 10 coding principles from `code.md` in the context of Drizzle ORM + Neon (Postgres) + TypeBox.
 
-Read `code.md` first. This file is the concrete *how*; `code.md` is the *why*.
+Read `code.md` first. This file is the concrete _how_; `code.md` is the _why_.
 
 **Key context:** Drizzle is a schema-first TypeScript ORM with no custom DSL. Neon is serverless Postgres with database branching — every pull request can have its own isolated database branch. Gaia treats this as the default workflow, not an optional feature.
 
@@ -181,6 +181,7 @@ Drizzle → TypeBox → Elysia → Eden Treaty → Solid. One definition, every 
 `drizzle-kit push` applies schema changes directly to the database without a migration file. Fast for local iteration — dangerous in production because it can silently drop columns or rewrite tables.
 
 Gaia's rule:
+
 - **Local dev**: `drizzle-kit push` for rapid iteration (no migration files yet)
 - **Feature work**: `drizzle-kit generate` creates a migration file; review SQL
 - **CI / production**: `drizzle-kit migrate` applies migration files; `push` is forbidden
@@ -260,9 +261,7 @@ Renames lose data. Column drops in busy tables lock them. The expand-contract pa
 
 ```ts
 // Migration 1: expand
-await db.schema
-  .alterTable(users)
-  .addColumn('display_name', 'text') // nullable initially
+await db.schema.alterTable(users).addColumn('display_name', 'text') // nullable initially
 
 // Migration 2: backfill
 await db.update(users).set({ display_name: users.full_name }) // SQL UPDATE
@@ -270,9 +269,7 @@ await db.update(users).set({ display_name: users.full_name }) // SQL UPDATE
 // Deploy: code uses display_name
 
 // Migration 3: contract (weeks later, after verifying)
-await db.schema
-  .alterTable(users)
-  .dropColumn('full_name')
+await db.schema.alterTable(users).dropColumn('full_name')
 ```
 
 **Never do a direct rename in production.** Drizzle's migration files make this easier by showing the SQL before applying — reviewers can catch dangerous patterns.
@@ -306,7 +303,7 @@ export async function seedTest() {
       count: 5,
       columns: {
         email: f.valuesFromArray({
-          values: ['test1@example.com', 'test2@example.com', /* ... */],
+          values: ['test1@example.com', 'test2@example.com' /* ... */],
         }),
       },
     },
@@ -364,15 +361,16 @@ import { db as baseDb } from './base'
 
 const slowQueryThresholdMs = 50
 
-export const db = env.NODE_ENV === 'development'
-  ? baseDb.$with({
-      logger: {
-        logQuery: (query, params) => {
-          console.log(`[db] ${query}`)
+export const db =
+  env.NODE_ENV === 'development'
+    ? baseDb.$with({
+        logger: {
+          logQuery: (query, params) => {
+            console.log(`[db] ${query}`)
+          },
         },
-      },
-    })
-  : baseDb
+      })
+    : baseDb
 
 // Middleware for slow query EXPLAIN
 if (env.NODE_ENV === 'development') {
@@ -412,22 +410,22 @@ Flags surfacing during `/review` block merge until addressed.
 
 ## Quick reference
 
-| Need | Pattern | Location |
-|---|---|---|
-| New table | One file per entity | `packages/db/src/schema/<n>.ts` |
-| Shared columns | `...timestamps` helper | `packages/db/src/schema/_shared.ts` |
-| Relations | `relations()` next to the table | Each schema file |
-| TypeBox schema | `drizzle-typebox` derivation | Feature's `schema.ts` |
-| Query | Relational (`db.query.*`) default | Service files |
-| Complex SQL | SQL-like with `// SQL-like:` comment | Service files |
-| Migration (generate) | `bun run db:generate` | N/A (CLI) |
-| Migration (apply) | `bun run db:migrate` | N/A (CLI) |
-| Local rapid iteration | `bun run db:push` | Local only |
-| PR-isolated DB | Neon branch (auto) | GitHub Action |
-| Seed for tests | `seedTest()` | `packages/db/src/seed/test.ts` |
-| Seed for dev | `seedLocal()` | `packages/db/src/seed/local.ts` |
-| Soft delete | Filter `isNull(t.deletedAt)` | `packages/db/src/queries.ts` helper |
-| Query logging | Auto in dev; sampled in prod | `packages/db/src/client.ts` |
+| Need                  | Pattern                              | Location                            |
+| --------------------- | ------------------------------------ | ----------------------------------- |
+| New table             | One file per entity                  | `packages/db/src/schema/<n>.ts`     |
+| Shared columns        | `...timestamps` helper               | `packages/db/src/schema/_shared.ts` |
+| Relations             | `relations()` next to the table      | Each schema file                    |
+| TypeBox schema        | `drizzle-typebox` derivation         | Feature's `schema.ts`               |
+| Query                 | Relational (`db.query.*`) default    | Service files                       |
+| Complex SQL           | SQL-like with `// SQL-like:` comment | Service files                       |
+| Migration (generate)  | `bun run db:generate`                | N/A (CLI)                           |
+| Migration (apply)     | `bun run db:migrate`                 | N/A (CLI)                           |
+| Local rapid iteration | `bun run db:push`                    | Local only                          |
+| PR-isolated DB        | Neon branch (auto)                   | GitHub Action                       |
+| Seed for tests        | `seedTest()`                         | `packages/db/src/seed/test.ts`      |
+| Seed for dev          | `seedLocal()`                        | `packages/db/src/seed/local.ts`     |
+| Soft delete           | Filter `isNull(t.deletedAt)`         | `packages/db/src/queries.ts` helper |
+| Query logging         | Auto in dev; sampled in prod         | `packages/db/src/client.ts`         |
 
 ---
 
@@ -439,4 +437,4 @@ Flags surfacing during `/review` block merge until addressed.
 - Security patterns: `docs/reference/security.md`
 - Observability patterns: `docs/reference/observability.md`
 
-*This file is versioned. Changes that contradict `code.md` require an ADR.*
+_This file is versioned. Changes that contradict `code.md` require an ADR._

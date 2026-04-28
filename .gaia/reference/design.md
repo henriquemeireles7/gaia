@@ -9,7 +9,7 @@
 
 ## What this file is
 
-Gaia's visual design system — the *why* and *what* of how things look. The *how* lives in `tokens.md` (the machine-readable token source) and in component code.
+Gaia's visual design system — the _why_ and _what_ of how things look. The _how_ lives in `tokens.md` (the machine-readable token source) and in component code.
 
 This file answers: what does Gaia look like, why, and what are the rules that keep it coherent as it scales?
 
@@ -86,22 +86,22 @@ Dated decisions log at the bottom of this file. Each decision records date, choi
 
 ### Font families
 
-| Role | Font | Why |
-|---|---|---|
-| **Display / hero** | Instrument Serif | Serif in a tech product signals intellectual depth, not stiffness. Used sparingly for biggest headings. |
-| **Body / UI** | Instrument Sans | Same family as Instrument Serif — cohesive. Clean, modern, highly readable. |
-| **Data / tabular** | Instrument Sans with `font-variant-numeric: tabular-nums` | Numbers align vertically in tables. |
-| **Code / prompt templates** | Geist Mono | Clean monospace. Ligatures disabled (`font-variant-ligatures: none`) for AI prompt accuracy. |
+| Role                        | Font                                                      | Why                                                                                                     |
+| --------------------------- | --------------------------------------------------------- | ------------------------------------------------------------------------------------------------------- |
+| **Display / hero**          | Instrument Serif                                          | Serif in a tech product signals intellectual depth, not stiffness. Used sparingly for biggest headings. |
+| **Body / UI**               | Instrument Sans                                           | Same family as Instrument Serif — cohesive. Clean, modern, highly readable.                             |
+| **Data / tabular**          | Instrument Sans with `font-variant-numeric: tabular-nums` | Numbers align vertically in tables.                                                                     |
+| **Code / prompt templates** | Geist Mono                                                | Clean monospace. Ligatures disabled (`font-variant-ligatures: none`) for AI prompt accuracy.            |
 
 ### Loading
 
 ```html
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
 <link
   href="https://fonts.googleapis.com/css2?family=Instrument+Sans:wght@400;500;600;700&family=Instrument+Serif:ital@0;1&display=swap"
   rel="stylesheet"
->
+/>
 ```
 
 `font-display: swap` on every `@font-face`. FOUT over FOIT — swap ugly briefly, never show blank.
@@ -110,17 +110,17 @@ Dated decisions log at the bottom of this file. Each decision records date, choi
 
 Ratio ~1.333 (Perfect Fourth):
 
-| Token | Size | Usage |
-|---|---|---|
-| `xs` | 12px / 0.75rem | Captions, metadata |
-| `sm` | 14px / 0.875rem | Secondary text |
-| `base` | 16px / 1rem | Body — **minimum, never go below** |
-| `lg` | 19px / 1.1875rem | Lead paragraphs |
-| `xl` | 24px / 1.5rem | Section headings |
-| `2xl` | 32px / 2rem | Page subheadings |
-| `3xl` | 36px / 2.25rem | Page headings (mobile) |
-| `4xl` | `clamp(2.5rem, 2rem + 2vw, 3rem)` | Page headings (fluid) |
-| `hero` | `clamp(2.75rem, 2rem + 3vw, 3.5rem)` | Hero display text |
+| Token  | Size                                 | Usage                              |
+| ------ | ------------------------------------ | ---------------------------------- |
+| `xs`   | 12px / 0.75rem                       | Captions, metadata                 |
+| `sm`   | 14px / 0.875rem                      | Secondary text                     |
+| `base` | 16px / 1rem                          | Body — **minimum, never go below** |
+| `lg`   | 19px / 1.1875rem                     | Lead paragraphs                    |
+| `xl`   | 24px / 1.5rem                        | Section headings                   |
+| `2xl`  | 32px / 2rem                          | Page subheadings                   |
+| `3xl`  | 36px / 2.25rem                       | Page headings (mobile)             |
+| `4xl`  | `clamp(2.5rem, 2rem + 2vw, 3rem)`    | Page headings (fluid)              |
+| `hero` | `clamp(2.75rem, 2rem + 3vw, 3.5rem)` | Hero display text                  |
 
 ### Rules
 
@@ -140,6 +140,7 @@ Ratio ~1.333 (Perfect Fourth):
 Restrained. One accent (warm gold) + warm neutrals (cream, sand, linen). Color is rare and meaningful; most UI is cream-and-text.
 
 **60-30-10 distribution:**
+
 - 60% neutrals (cream + sand) — backgrounds, large surfaces
 - 30% secondary (linen, surfaces) — cards, sections
 - 10% accent (gold) — CTAs, active states, focal points
@@ -148,40 +149,40 @@ Restrained. One accent (warm gold) + warm neutrals (cream, sand, linen). Color i
 
 Defined in `tokens.ts` as OKLCH with sRGB fallback. Abbreviated here:
 
-| Token | OKLCH | Hex (fallback) |
-|---|---|---|
-| `amber.50` | `oklch(0.98 0.02 80)` | `#FAF8F5` |
-| `amber.100` | `oklch(0.95 0.03 75)` | `#F2EDE6` |
-| `amber.200` | `oklch(0.89 0.05 75)` | `#E8E0D4` |
-| `amber.500` | `oklch(0.72 0.08 70)` | `#C4956A` |
-| `amber.600` | `oklch(0.63 0.09 55)` | `#B07D4F` |
-| `ink.900` | `oklch(0.18 0.01 60)` | `#1A1714` |
-| `ink.600` | `oklch(0.48 0.02 60)` | `#6B6258` |
-| `ink.400` | `oklch(0.70 0.02 70)` | `#A69D91` |
-| `sage.500` | `oklch(0.65 0.09 140)` | `#6B8F5E` |
-| `terracotta.500` | `oklch(0.60 0.14 30)` | `#C25B4A` |
-| `gold.500` | `oklch(0.78 0.14 85)` | `#D4A843` |
-| `slate.400` | `oklch(0.65 0.03 240)` | `#7B8FA6` |
+| Token            | OKLCH                  | Hex (fallback) |
+| ---------------- | ---------------------- | -------------- |
+| `amber.50`       | `oklch(0.98 0.02 80)`  | `#FAF8F5`      |
+| `amber.100`      | `oklch(0.95 0.03 75)`  | `#F2EDE6`      |
+| `amber.200`      | `oklch(0.89 0.05 75)`  | `#E8E0D4`      |
+| `amber.500`      | `oklch(0.72 0.08 70)`  | `#C4956A`      |
+| `amber.600`      | `oklch(0.63 0.09 55)`  | `#B07D4F`      |
+| `ink.900`        | `oklch(0.18 0.01 60)`  | `#1A1714`      |
+| `ink.600`        | `oklch(0.48 0.02 60)`  | `#6B6258`      |
+| `ink.400`        | `oklch(0.70 0.02 70)`  | `#A69D91`      |
+| `sage.500`       | `oklch(0.65 0.09 140)` | `#6B8F5E`      |
+| `terracotta.500` | `oklch(0.60 0.14 30)`  | `#C25B4A`      |
+| `gold.500`       | `oklch(0.78 0.14 85)`  | `#D4A843`      |
+| `slate.400`      | `oklch(0.65 0.03 240)` | `#7B8FA6`      |
 
 ### Semantic tokens (what code references)
 
 Semantic tokens give meaning; they alias primitives. Swap the aesthetic by changing semantic mappings.
 
-| Semantic | References | Usage |
-|---|---|---|
-| `--bg-primary` | `amber.50` | Main page background |
-| `--bg-secondary` | `amber.100` | Cards, sections |
-| `--bg-tertiary` | `amber.200` | Hover states, subtle borders |
-| `--bg-surface` | `white` | Inputs, modals |
-| `--text-primary` | `ink.900` | Headings, strong text |
-| `--text-secondary` | `ink.600` | Body text |
-| `--text-muted` | `ink.400` | Captions, metadata (test contrast on every bg) |
-| `--accent` | `amber.500` | CTAs, active states |
-| `--accent-hover` | `amber.600` | Hover on accent |
-| `--success` | `sage.500` | Completion, confirmed |
-| `--error` | `terracotta.500` | Errors, destruction |
-| `--warning` | `gold.500` | Warnings |
-| `--info` | `slate.400` | Informational |
+| Semantic           | References       | Usage                                          |
+| ------------------ | ---------------- | ---------------------------------------------- |
+| `--bg-primary`     | `amber.50`       | Main page background                           |
+| `--bg-secondary`   | `amber.100`      | Cards, sections                                |
+| `--bg-tertiary`    | `amber.200`      | Hover states, subtle borders                   |
+| `--bg-surface`     | `white`          | Inputs, modals                                 |
+| `--text-primary`   | `ink.900`        | Headings, strong text                          |
+| `--text-secondary` | `ink.600`        | Body text                                      |
+| `--text-muted`     | `ink.400`        | Captions, metadata (test contrast on every bg) |
+| `--accent`         | `amber.500`      | CTAs, active states                            |
+| `--accent-hover`   | `amber.600`      | Hover on accent                                |
+| `--success`        | `sage.500`       | Completion, confirmed                          |
+| `--error`          | `terracotta.500` | Errors, destruction                            |
+| `--warning`        | `gold.500`       | Warnings                                       |
+| `--info`           | `slate.400`      | Informational                                  |
 
 ### Rules
 
@@ -198,7 +199,7 @@ OKLCH values pass through to P3 displays (Apple devices, OLED) giving richer col
 ```css
 .element {
   /* sRGB fallback for older browsers */
-  color: #C4956A;
+  color: #c4956a;
   /* OKLCH for modern browsers with P3 */
   color: oklch(0.72 0.08 70);
 }
@@ -212,17 +213,17 @@ Most modern frameworks (Tailwind v4) handle this automatically.
 
 Base unit: **8px**. Everything pulls from the scale.
 
-| Token | Value | Usage |
-|---|---|---|
-| `space.2xs` | 2px | Hairline borders, tight glyph spacing |
-| `space.xs` | 4px | Tight gaps, icon-to-text |
-| `space.sm` | 8px | Default gap, input padding |
-| `space.md` | 16px | Card padding, standard gap |
-| `space.lg` | 24px | Section spacing |
-| `space.xl` | 32px | Between sections |
-| `space.2xl` | 48px | Large section breaks |
-| `space.3xl` | 64px | Hero-to-content transitions |
-| `space.4xl` | 96px | Top/bottom of page |
+| Token       | Value | Usage                                 |
+| ----------- | ----- | ------------------------------------- |
+| `space.2xs` | 2px   | Hairline borders, tight glyph spacing |
+| `space.xs`  | 4px   | Tight gaps, icon-to-text              |
+| `space.sm`  | 8px   | Default gap, input padding            |
+| `space.md`  | 16px  | Card padding, standard gap            |
+| `space.lg`  | 24px  | Section spacing                       |
+| `space.xl`  | 32px  | Between sections                      |
+| `space.2xl` | 48px  | Large section breaks                  |
+| `space.3xl` | 64px  | Hero-to-content transitions           |
+| `space.4xl` | 96px  | Top/bottom of page                    |
 
 **Density:** comfortable, not cramped, not drowning. Generous breathing room.
 
@@ -238,21 +239,21 @@ Base unit: **8px**. Everything pulls from the scale.
 
 ### Container max-widths
 
-| Context | Max width |
-|---|---|
-| Outer page | 1200px |
-| Text-heavy content | 800px |
-| Reading prose (blog, course) | 640px |
-| Forms | 480px |
+| Context                         | Max width             |
+| ------------------------------- | --------------------- |
+| Outer page                      | 1200px                |
+| Text-heavy content              | 800px                 |
+| Reading prose (blog, course)    | 640px                 |
+| Forms                           | 480px                 |
 | Modals (small / medium / large) | 400px / 600px / 800px |
 
 ### Border radius
 
-| Token | Value | Usage |
-|---|---|---|
-| `radius.sm` | 8px | Buttons, inputs, tags |
-| `radius.md` | 12px | Cards, alerts |
-| `radius.lg` | 16px | Modals, hero sections |
+| Token         | Value  | Usage                  |
+| ------------- | ------ | ---------------------- |
+| `radius.sm`   | 8px    | Buttons, inputs, tags  |
+| `radius.md`   | 12px   | Cards, alerts          |
+| `radius.lg`   | 16px   | Modals, hero sections  |
 | `radius.full` | 9999px | Pills, badges, avatars |
 
 **Rule:** one element = one radius. Don't mix radii within a single visual boundary.
@@ -267,20 +268,20 @@ Minimal-functional. Only transitions that aid comprehension (state change, layou
 
 ### Easing
 
-| Scenario | Function |
-|---|---|
-| Enter (appearing) | `cubic-bezier(0.25, 1, 0.5, 1)` — quart-out |
-| Exit (disappearing) | `ease-in` |
-| Move (repositioning) | `ease-in-out` |
-| **Never** | bounce, elastic, cubic-bezier with overshoot |
+| Scenario             | Function                                     |
+| -------------------- | -------------------------------------------- |
+| Enter (appearing)    | `cubic-bezier(0.25, 1, 0.5, 1)` — quart-out  |
+| Exit (disappearing)  | `ease-in`                                    |
+| Move (repositioning) | `ease-in-out`                                |
+| **Never**            | bounce, elastic, cubic-bezier with overshoot |
 
 ### Duration
 
-| Type | Range | Example |
-|---|---|---|
-| Micro | 100-150ms | hover, button press, toggle |
-| State change | 200-300ms | panel open, modal fade |
-| Structural | 300-500ms | layout shift, page transition |
+| Type         | Range     | Example                       |
+| ------------ | --------- | ----------------------------- |
+| Micro        | 100-150ms | hover, button press, toggle   |
+| State change | 200-300ms | panel open, modal fade        |
+| Structural   | 300-500ms | layout shift, page transition |
 
 **Rule:** exit duration = 75% of entrance. Faster out than in — feels responsive.
 
@@ -294,7 +295,9 @@ Minimal-functional. Only transitions that aid comprehension (state change, layou
 
 ```css
 @media (prefers-reduced-motion: reduce) {
-  *, *::before, *::after {
+  *,
+  *::before,
+  *::after {
     animation-duration: 0.01ms !important;
     animation-iteration-count: 1 !important;
     transition-duration: 0.01ms !important;
@@ -320,27 +323,33 @@ Content is the effect. Calm products don't animate.
 
 Every interactive element must handle these **8 states**. Not all visually distinct — but all accounted for. Component types enforce this at the type level.
 
-| # | State | When | Visual pattern |
-|---|---|---|---|
-| 1 | **Default** | Resting | Base styling |
-| 2 | **Hover** | Cursor over (desktop only, `@media (hover: hover)`) | Subtle bg/border shift |
-| 3 | **Focus** | Keyboard navigation (`:focus-visible`) | Gold focus ring via `box-shadow` — **never** `outline: none` without replacement |
-| 4 | **Active** | Pressed / clicked | Slight scale down + darker bg |
-| 5 | **Disabled** | Not available | 50% opacity + `cursor: not-allowed` |
-| 6 | **Loading** | Processing | Spinner inside button, or skeleton placeholder — **never** freeze the UI |
-| 7 | **Error** | Invalid / failed | Terracotta border + text with icon |
-| 8 | **Success** | Completed | Sage confirmation with checkmark |
+| #   | State        | When                                                | Visual pattern                                                                   |
+| --- | ------------ | --------------------------------------------------- | -------------------------------------------------------------------------------- |
+| 1   | **Default**  | Resting                                             | Base styling                                                                     |
+| 2   | **Hover**    | Cursor over (desktop only, `@media (hover: hover)`) | Subtle bg/border shift                                                           |
+| 3   | **Focus**    | Keyboard navigation (`:focus-visible`)              | Gold focus ring via `box-shadow` — **never** `outline: none` without replacement |
+| 4   | **Active**   | Pressed / clicked                                   | Slight scale down + darker bg                                                    |
+| 5   | **Disabled** | Not available                                       | 50% opacity + `cursor: not-allowed`                                              |
+| 6   | **Loading**  | Processing                                          | Spinner inside button, or skeleton placeholder — **never** freeze the UI         |
+| 7   | **Error**    | Invalid / failed                                    | Terracotta border + text with icon                                               |
+| 8   | **Success**  | Completed                                           | Sage confirmation with checkmark                                                 |
 
 **The type system enforces this:**
 
 ```ts
 // packages/ui/src/button/types.ts
 export type ButtonState =
-  | 'default' | 'hover' | 'focus' | 'active'
-  | 'disabled' | 'loading' | 'error' | 'success'
+  | 'default'
+  | 'hover'
+  | 'focus'
+  | 'active'
+  | 'disabled'
+  | 'loading'
+  | 'error'
+  | 'success'
 
 export type ButtonProps = {
-  state?: ButtonState  // optional — defaults to 'default'
+  state?: ButtonState // optional — defaults to 'default'
   // ...
 }
 ```
@@ -357,11 +366,11 @@ Core component patterns. Implementations live in `packages/ui/`.
 
 Three variants:
 
-| Variant | Background | Text | Border | Use when |
-|---|---|---|---|---|
-| **Primary** | `--accent` (gold) | White | None | Main CTA on the page |
-| **Secondary** | `--bg-secondary` (sand) | `--text-primary` | None | Secondary actions |
-| **Ghost** | transparent | `--text-primary` | 1px `--bg-tertiary` | Tertiary / toolbar |
+| Variant       | Background              | Text             | Border              | Use when             |
+| ------------- | ----------------------- | ---------------- | ------------------- | -------------------- |
+| **Primary**   | `--accent` (gold)       | White            | None                | Main CTA on the page |
+| **Secondary** | `--bg-secondary` (sand) | `--text-primary` | None                | Secondary actions    |
+| **Ghost**     | transparent             | `--text-primary` | 1px `--bg-tertiary` | Tertiary / toolbar   |
 
 **Every button:** min 44×44px touch target even if visually smaller (padding to meet). Focus ring. All 8 states.
 
@@ -386,12 +395,12 @@ Three variants:
 
 Tinted backgrounds matching semantic color:
 
-| Type | Background | Border | Icon |
-|---|---|---|---|
-| Success | `sage.500` @ 10% opacity | `sage.500` @ 40% | ✓ |
-| Error | `terracotta.500` @ 10% | `terracotta.500` @ 40% | × |
-| Warning | `gold.500` @ 10% | `gold.500` @ 40% | ! |
-| Info | `slate.400` @ 10% | `slate.400` @ 40% | i |
+| Type    | Background               | Border                 | Icon |
+| ------- | ------------------------ | ---------------------- | ---- |
+| Success | `sage.500` @ 10% opacity | `sage.500` @ 40%       | ✓    |
+| Error   | `terracotta.500` @ 10%   | `terracotta.500` @ 40% | ×    |
+| Warning | `gold.500` @ 10%         | `gold.500` @ 40%       | !    |
+| Info    | `slate.400` @ 10%        | `slate.400` @ 40%      | i    |
 
 ### Modals
 
@@ -447,14 +456,14 @@ Never use humor for errors. Never use cryptic codes as the primary message (code
 
 Semantic layers. Never arbitrary values like `9999`.
 
-| Token | Value | Layer |
-|---|---|---|
-| `--z-dropdown` | 100 | Dropdowns, selects, autocomplete |
-| `--z-sticky` | 200 | Sticky headers, floating toolbars |
-| `--z-modal-backdrop` | 300 | Modal dim overlay |
-| `--z-modal` | 400 | Modal content |
-| `--z-toast` | 500 | Toast notifications |
-| `--z-tooltip` | 600 | Tooltips (highest — must always win) |
+| Token                | Value | Layer                                |
+| -------------------- | ----- | ------------------------------------ |
+| `--z-dropdown`       | 100   | Dropdowns, selects, autocomplete     |
+| `--z-sticky`         | 200   | Sticky headers, floating toolbars    |
+| `--z-modal-backdrop` | 300   | Modal dim overlay                    |
+| `--z-modal`          | 400   | Modal content                        |
+| `--z-toast`          | 500   | Toast notifications                  |
+| `--z-tooltip`        | 600   | Tooltips (highest — must always win) |
 
 If you need a value outside this scale, the scale is wrong. Add a named layer with rationale in the decisions log.
 
@@ -470,11 +479,11 @@ If you need a value outside this scale, the scale is wrong. Add a named layer wi
 
 Let content dictate breakpoints. Default scale:
 
-| Token | Value | Target |
-|---|---|---|
-| `sm` | 640px | Small tablet, large phone landscape |
-| `md` | 768px | Tablet |
-| `lg` | 1024px | Laptop / desktop |
+| Token | Value  | Target                              |
+| ----- | ------ | ----------------------------------- |
+| `sm`  | 640px  | Small tablet, large phone landscape |
+| `md`  | 768px  | Tablet                              |
+| `lg`  | 1024px | Laptop / desktop                    |
 
 Three is usually enough. Add `xl` (1280px) only if design genuinely needs it.
 
@@ -493,7 +502,9 @@ Use `@container` for components that need to adapt to their container, not the v
 }
 
 @container (min-width: 400px) {
-  .card { grid-template-columns: auto 1fr; }
+  .card {
+    grid-template-columns: auto 1fr;
+  }
 }
 ```
 
@@ -502,12 +513,16 @@ Use `@container` for components that need to adapt to their container, not the v
 ```css
 /* Only apply hover on devices that support it */
 @media (hover: hover) {
-  .button:hover { background: var(--accent-hover); }
+  .button:hover {
+    background: var(--accent-hover);
+  }
 }
 
 /* Adjust touch targets for coarse pointers */
 @media (pointer: coarse) {
-  .button { min-height: 48px; }
+  .button {
+    min-height: 48px;
+  }
 }
 ```
 
@@ -539,6 +554,7 @@ For notched and rounded-corner devices:
 ### Contrast
 
 All text must meet WCAG AA:
+
 - **Normal text**: 4.5:1 against background
 - **Large text (18pt+ or 14pt+ bold)**: 3:1
 
@@ -682,15 +698,15 @@ See `tokens.md` for the token file structure in detail.
 
 ## Quick reference
 
-| Need | Answer |
-|---|---|
-| Change brand color | Edit `amber.*` primitives in `tokens.ts` |
-| Add a new color | Add primitive in `tokens.ts`, then a semantic token that references it |
-| Change spacing | Edit `space.*` in `tokens.ts` |
-| Add a motion preset | Add to `motion.*` in `tokens.ts`, update CSS custom props |
-| New component | `packages/ui/src/components/<name>/` + enforce 8 states |
-| Check a11y | Run `bun run pa11y` or axe extension |
-| Test contrast | OKLCH picker at oklch.com or Chrome DevTools |
+| Need                | Answer                                                                 |
+| ------------------- | ---------------------------------------------------------------------- |
+| Change brand color  | Edit `amber.*` primitives in `tokens.ts`                               |
+| Add a new color     | Add primitive in `tokens.ts`, then a semantic token that references it |
+| Change spacing      | Edit `space.*` in `tokens.ts`                                          |
+| Add a motion preset | Add to `motion.*` in `tokens.ts`, update CSS custom props              |
+| New component       | `packages/ui/src/components/<name>/` + enforce 8 states                |
+| Check a11y          | Run `bun run pa11y` or axe extension                                   |
+| Test contrast       | OKLCH picker at oklch.com or Chrome DevTools                           |
 
 ---
 
@@ -698,17 +714,18 @@ See `tokens.md` for the token file structure in detail.
 
 Every meaningful design decision dated, rationalized, and preserved.
 
-| Date | Decision | Rationale |
-|---|---|---|
-| 2026-04-02 | Initial aesthetic: Ethereal Warmth | Differentiates from cold-neutral SaaS defaults. Inspired by Intercom warmth + Stripe precision. Instrument Serif signals intellectual depth without stiffness. |
-| 2026-04-02 | No dark mode in v1 | Warm cream palette IS brand identity. Dark mode would flatten personality. Revisit for future tier (agent console may need dark variant). |
-| 2026-04-02 | Instrument Serif for display | Serif in a tech product signals depth. Differentiates from all-sans competitors (Linear, Vercel, etc.). |
-| 2026-04-02 | OKLCH over HSL | Perceptual uniformity → predictable contrast across hues. Wide-gamut P3 ready. sRGB fallback via `@supports`. Worth the browser compatibility overhead. |
-| 2026-04-19 | Three-tier token architecture | Primitive → semantic → component. Adopted to match W3C DTCG v1 standard + cross-tool compatibility. Component tokens only when semantic insufficient. |
-| 2026-04-19 | Tailwind v4 `@theme` for CSS framework | CSS-native tokens; no JS config. Agent-friendly (they know Tailwind). Alternative: UnoCSS; rejected for template-default because Tailwind's agent recognition is stronger. |
-| 2026-04-19 | 8 interaction states enforced at type level | Adding states to required list makes "did we handle loading?" a compile-time question, not review-time. |
+| Date       | Decision                                    | Rationale                                                                                                                                                                  |
+| ---------- | ------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| 2026-04-02 | Initial aesthetic: Ethereal Warmth          | Differentiates from cold-neutral SaaS defaults. Inspired by Intercom warmth + Stripe precision. Instrument Serif signals intellectual depth without stiffness.             |
+| 2026-04-02 | No dark mode in v1                          | Warm cream palette IS brand identity. Dark mode would flatten personality. Revisit for future tier (agent console may need dark variant).                                  |
+| 2026-04-02 | Instrument Serif for display                | Serif in a tech product signals depth. Differentiates from all-sans competitors (Linear, Vercel, etc.).                                                                    |
+| 2026-04-02 | OKLCH over HSL                              | Perceptual uniformity → predictable contrast across hues. Wide-gamut P3 ready. sRGB fallback via `@supports`. Worth the browser compatibility overhead.                    |
+| 2026-04-19 | Three-tier token architecture               | Primitive → semantic → component. Adopted to match W3C DTCG v1 standard + cross-tool compatibility. Component tokens only when semantic insufficient.                      |
+| 2026-04-19 | Tailwind v4 `@theme` for CSS framework      | CSS-native tokens; no JS config. Agent-friendly (they know Tailwind). Alternative: UnoCSS; rejected for template-default because Tailwind's agent recognition is stronger. |
+| 2026-04-19 | 8 interaction states enforced at type level | Adding states to required list makes "did we handle loading?" a compile-time question, not review-time.                                                                    |
 
 **Adding to the log:**
+
 - Every design-system change appended with date + rationale
 - Deprecations record the old choice + what replaced it + why
 - Major changes (aesthetic swap, color system change) require an ADR
@@ -724,4 +741,4 @@ Every meaningful design decision dated, rationalized, and preserved.
 - Frontend patterns: `docs/reference/frontend.md`
 - Accessibility tools: pa11y (CI), axe (dev), VoiceOver/NVDA (manual)
 
-*Design decisions are versioned. Changes that touch the aesthetic direction or primitive tokens require an ADR.*
+_Design decisions are versioned. Changes that touch the aesthetic direction or primitive tokens require an ADR._
