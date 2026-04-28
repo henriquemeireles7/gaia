@@ -159,6 +159,151 @@ for (const f of codeFiles) {
   ])
 }
 
+// 7. backend/no-hono-imports — Hono is the legacy stack; new code does not import from it.
+for (const f of codeFiles) {
+  scan(f, [
+    {
+      pattern: /from\s+['"]hono['"]|from\s+['"]@hono\//,
+      rule: 'backend/no-hono-imports',
+      message: 'Hono is the legacy stack — use Elysia. Remove the import.',
+      severity: 'error',
+    },
+  ])
+}
+
+// 8. backend/no-elysia-in-adapters — adapters are framework-independent.
+for (const f of codeFiles) {
+  if (!f.includes('/packages/adapters/')) continue
+  scan(f, [
+    {
+      pattern: /from\s+['"]elysia['"]|from\s+['"]@elysiajs\//,
+      rule: 'backend/no-elysia-in-adapters',
+      message: 'Adapters must not import from elysia/@elysiajs — keep them framework-independent.',
+      severity: 'error',
+    },
+  ])
+}
+
+// 9. testing/no-test-only — `it.only`/`describe.only`/`test.only` hide skipped tests.
+for (const f of tsFiles) {
+  if (!f.endsWith('.test.ts') && !f.endsWith('.test.tsx')) continue
+  scan(f, [
+    {
+      pattern: /\b(it|describe|test)\.only\s*\(/,
+      rule: 'testing/no-test-only',
+      message: 'Remove `.only` before committing — focused tests hide everything else as skipped.',
+      severity: 'error',
+    },
+  ])
+}
+
+// 10. database/no-raw-pg-bypass — direct postgres driver only allowed in packages/db/
+//    and migration/seed scripts (which legitimately need their own pool config).
+for (const f of codeFiles) {
+  if (
+    f.includes('/packages/db/') ||
+    f.includes('/apps/api/scripts/') ||
+    f.endsWith('drizzle.config.ts')
+  ) {
+    continue
+  }
+  scan(f, [
+    {
+      pattern: /from\s+['"]postgres['"]/,
+      rule: 'database/no-raw-pg-bypass',
+      message:
+        'Direct `postgres` import is restricted to packages/db/ and apps/api/scripts/. Import { db } from @gaia/db instead.',
+      severity: 'error',
+    },
+  ])
+}
+
+// 11. frontend/no-direct-fetch-in-routes — routes use the Eden Treaty client.
+for (const f of codeFiles) {
+  if (!f.includes('/apps/web/src/routes/')) continue
+  scan(f, [
+    {
+      pattern: /\bfetch\s*\(/,
+      rule: 'frontend/no-direct-fetch-in-routes',
+      message:
+        'apps/web/src/routes must not call fetch() directly — use the typed `api` from ~/lib/api.',
+      severity: 'error',
+    },
+  ])
+}
+
+// 12. frontend/no-vendor-sdk-on-client — vendor SDKs stay server-side.
+const FRONTEND_VENDOR_BAN =
+  /from\s+['"](@polar-sh\/sdk|@anthropic-ai\/sdk|stripe|resend|posthog-node|@aws-sdk\/client-s3)['"]/
+for (const f of codeFiles) {
+  if (!f.includes('/apps/web/src/')) continue
+  scan(f, [
+    {
+      pattern: FRONTEND_VENDOR_BAN,
+      rule: 'frontend/no-vendor-sdk-on-client',
+      message:
+        'apps/web must not import vendor SDKs — call the API via Eden Treaty so secrets stay server-side.',
+      severity: 'error',
+    },
+  ])
+}
+
+// 13. code/named-errors-no-bare-throw — feature/route code throws AppError, not Error.
+for (const f of codeFiles) {
+  if (!f.includes('/apps/api/features/') && !f.includes('/apps/web/src/')) continue
+  if (f.endsWith('.test.ts') || f.endsWith('.test.tsx')) continue
+  scan(f, [
+    {
+      pattern: /\bthrow\s+new\s+Error\s*\(/,
+      rule: 'code/named-errors-no-bare-throw',
+      message:
+        "Use `throw new AppError('CODE', details?)` from @gaia/errors — bare Error escapes the catalog.",
+      severity: 'error',
+    },
+  ])
+}
+
+// 14. errors/no-leak-secrets-in-messages — error strings must not interpolate secrets.
+for (const f of codeFiles) {
+  scan(f, [
+    {
+      pattern:
+        /(?:new\s+(?:Error|AppError|ProviderError)|throwError)\s*\([^)]*\$\{[^}]*\b(password|secret|token|apiKey|api_key|auth_token|private_key)\b/i,
+      rule: 'errors/no-leak-secrets-in-messages',
+      message:
+        'Error message interpolates a sensitive identifier — never put secrets in user-visible messages.',
+      severity: 'error',
+    },
+  ])
+}
+
+// 15. observability/no-pii-in-logs — log payloads must not include unredacted PII.
+for (const f of codeFiles) {
+  scan(f, [
+    {
+      pattern:
+        /\b(?:log|logger)\.(?:info|warn|error|debug)\s*\([^)]*\b(password|secret|token|api_key|email)\s*:/i,
+      rule: 'observability/no-pii-in-logs',
+      message:
+        'Logger payload includes a PII/secret key literally — redact or omit before emitting.',
+      severity: 'error',
+    },
+  ])
+}
+
+// 16. commands/use-bun-not-npm — Bun is the package manager.
+for (const f of tsFiles) {
+  scan(f, [
+    {
+      pattern: /\bnpm\s+(install|run|i|exec)\b/,
+      rule: 'commands/use-bun-not-npm',
+      message:
+        'Use Bun: `bun install` / `bun run X` / `bunx Y`. npm/pnpm/yarn invocations break the lockfile.',
+      severity: 'warn',
+    },
+  ])
+}
+
 const errors = findings.filter((f) => f.severity === 'error')
 const warnings = findings.filter((f) => f.severity === 'warn')
 

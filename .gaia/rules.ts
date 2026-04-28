@@ -268,9 +268,18 @@ export const rules: readonly Rule[] = [
   {
     id: 'harness/permissions-immutable',
     reference: 'harness',
-    description: '.gaia/protocols/permissions.md cannot be modified by hook or skill.',
-    tier: 'architecture',
-    mechanism: { kind: 'pending', note: 'protect-files.ts to add this path' },
+    description:
+      '.gaia/protocols/permissions.md and delegation.md cannot be modified by hook or skill.',
+    tier: 'hook',
+    mechanism: { kind: 'hook', hook: '.claude/hooks/protect-files.ts' },
+    blocked: ['.gaia/protocols/permissions.md', '.gaia/protocols/delegation.md'],
+  },
+  {
+    id: 'harness/manifest-coverage',
+    reference: 'harness',
+    description: '.gaia/MANIFEST.md lists every folder with a CLAUDE.md and vice versa.',
+    tier: 'lint',
+    mechanism: { kind: 'pending', note: 'scripts/check-manifest.ts' },
   },
 
   // ─── commands.md ─────────────────────────────────────────────
@@ -278,8 +287,249 @@ export const rules: readonly Rule[] = [
     id: 'commands/use-bun-not-npm',
     reference: 'commands',
     description: 'Bun is the package manager and runtime; npm/pnpm/yarn invocations are wrong.',
+    tier: 'hook',
+    mechanism: { kind: 'hook', hook: 'packages/security/harden-check.ts' },
+  },
+
+  // ─── code.md (additions) ─────────────────────────────────────
+  {
+    id: 'code/named-errors-no-bare-throw',
+    reference: 'code',
+    description:
+      'Feature/service code must not `throw new Error(...)` — use AppError from @gaia/errors.',
+    tier: 'hook',
+    mechanism: { kind: 'hook', hook: 'packages/security/harden-check.ts' },
+  },
+  {
+    id: 'code/one-schema-many-consumers',
+    reference: 'code',
+    description:
+      'Shapes flow from one source (Drizzle schema → drizzle-typebox → Eden Treaty types). No manual `type Foo = {...}` paralleling a schema.',
+    tier: 'lint',
+    mechanism: {
+      kind: 'pending',
+      note: 'GritQL rule detect-manual-shape-types-paralleling-schema',
+    },
+  },
+
+  // ─── backend.md (additions) ──────────────────────────────────
+  {
+    id: 'backend/no-hono-imports',
+    reference: 'backend',
+    description: 'Hono is the legacy stack; new code must not import from `hono` or `@hono/*`.',
+    tier: 'hook',
+    mechanism: { kind: 'hook', hook: 'packages/security/harden-check.ts' },
+  },
+  {
+    id: 'backend/no-elysia-in-adapters',
+    reference: 'backend',
+    description:
+      'Adapters (packages/adapters/) are framework-independent — no imports from `elysia` or `@elysiajs/*`.',
+    tier: 'hook',
+    mechanism: { kind: 'hook', hook: 'packages/security/harden-check.ts' },
+  },
+  {
+    id: 'backend/no-vendor-sdk-in-features',
+    reference: 'backend',
+    description:
+      'Feature code must not import vendor SDKs directly — go through @gaia/adapters/<capability>.',
+    tier: 'lint',
+    mechanism: {
+      kind: 'pending',
+      note: 'GritQL rule no-vendor-import-in-features (apps/api/features/**)',
+    },
+  },
+
+  // ─── frontend.md ─────────────────────────────────────────────
+  {
+    id: 'frontend/no-direct-fetch-in-routes',
+    reference: 'frontend',
+    description:
+      'apps/web/src/routes/** must not call `fetch()` directly — use the typed Eden Treaty client from ~/lib/api.',
+    tier: 'hook',
+    mechanism: { kind: 'hook', hook: 'packages/security/harden-check.ts' },
+  },
+  {
+    id: 'frontend/no-vendor-sdk-on-client',
+    reference: 'frontend',
+    description:
+      'apps/web/** must not import vendor SDKs (Polar, Stripe, Resend, Anthropic). Vendor calls go server-side via Eden Treaty.',
+    tier: 'hook',
+    mechanism: { kind: 'hook', hook: 'packages/security/harden-check.ts' },
+  },
+  {
+    id: 'frontend/no-hardcoded-colors',
+    reference: 'frontend',
+    description: 'apps/web/** must not embed hex/rgb colors — read from the design tokens.',
+    tier: 'hook',
+    mechanism: { kind: 'hook', hook: 'packages/security/harden-check.ts' },
+  },
+  {
+    id: 'frontend/routes-call-pass-render-only',
+    reference: 'frontend',
+    description:
+      'Route components do three things: call (service/resource/signal), pass (props), render (JSX). No business logic in routes.',
+    tier: 'lint',
+    mechanism: { kind: 'pending', note: 'GritQL route-operations rule' },
+  },
+
+  // ─── database.md (additions) ─────────────────────────────────
+  {
+    id: 'database/no-raw-pg-bypass',
+    reference: 'database',
+    description:
+      'Direct `postgres` driver imports are restricted to packages/db/. Everywhere else uses Drizzle via @gaia/db.',
+    tier: 'hook',
+    mechanism: { kind: 'hook', hook: 'packages/security/harden-check.ts' },
+  },
+  {
+    id: 'database/typebox-derivation-mandatory',
+    reference: 'database',
+    description:
+      'TypeBox schemas for tables must derive from Drizzle (drizzle-typebox createSelectSchema / createInsertSchema).',
+    tier: 'lint',
+    mechanism: { kind: 'pending', note: 'GritQL rule require-drizzle-typebox' },
+  },
+  {
+    id: 'database/audit-columns-required',
+    reference: 'database',
+    description:
+      'Business tables include createdAt and updatedAt; mutable rows track createdBy where applicable.',
+    tier: 'lint',
+    mechanism: { kind: 'pending', note: 'GritQL rule audit-columns' },
+  },
+
+  // ─── testing.md (additions) ──────────────────────────────────
+  {
+    id: 'testing/no-test-only',
+    reference: 'testing',
+    description:
+      '`it.only` / `describe.only` / `test.only` must not be committed — they hide skipped tests.',
+    tier: 'hook',
+    mechanism: { kind: 'hook', hook: 'packages/security/harden-check.ts' },
+  },
+  {
+    id: 'testing/integration-uses-eden-treaty',
+    reference: 'testing',
+    description:
+      '*.integration.test.ts uses Eden Treaty (treaty(app)) against the live app instance.',
+    tier: 'lint',
+    mechanism: { kind: 'pending', note: 'GritQL rule integration-via-treaty' },
+  },
+
+  // ─── errors.md (additions) ───────────────────────────────────
+  {
+    id: 'errors/no-leak-secrets-in-messages',
+    reference: 'errors',
+    description:
+      'Error messages must not interpolate password/secret/token/api_key into user-visible strings.',
+    tier: 'hook',
+    mechanism: { kind: 'hook', hook: 'packages/security/harden-check.ts' },
+  },
+  {
+    id: 'errors/no-bare-catch',
+    reference: 'errors',
+    description:
+      '`catch` blocks must rethrow, handle a specific error type, or call a typed handler.',
+    tier: 'lint',
+    mechanism: { kind: 'pending', note: 'Oxlint no-empty-catch (needs oxlint adoption)' },
+  },
+
+  // ─── security.md (additions) ─────────────────────────────────
+  {
+    id: 'security/cve-scan-ci',
+    reference: 'security',
+    description: 'osv-scanner runs on every PR; high/critical CVEs block merge.',
+    tier: 'hook',
+    mechanism: { kind: 'ci', job: 'deps' },
+  },
+  {
+    id: 'security/secret-scan-ci',
+    reference: 'security',
+    description: 'gitleaks runs on every PR; committed secrets block merge.',
+    tier: 'hook',
+    mechanism: { kind: 'ci', job: 'secrets' },
+  },
+  {
+    id: 'security/csrf-on-mutations',
+    reference: 'security',
+    description:
+      'POST/PUT/PATCH/DELETE routes apply CSRF middleware (better-auth provides it on protectedRoute).',
+    tier: 'lint',
+    mechanism: { kind: 'pending', note: 'GritQL rule require-csrf-on-mutation' },
+  },
+  {
+    id: 'security/rate-limit-on-public',
+    reference: 'security',
+    description: 'Public routes apply rate-limit middleware (publicRoute composes it).',
+    tier: 'lint',
+    mechanism: { kind: 'pending', note: 'GritQL rule require-rate-limit-on-public' },
+  },
+
+  // ─── observability.md (additions) ────────────────────────────
+  {
+    id: 'observability/no-pii-in-logs',
+    reference: 'observability',
+    description:
+      'Logger calls must not log objects keyed `password|secret|token|email` — redact first.',
+    tier: 'hook',
+    mechanism: { kind: 'hook', hook: 'packages/security/harden-check.ts' },
+  },
+
+  // ─── tokens.md ───────────────────────────────────────────────
+  {
+    id: 'tokens/single-source',
+    reference: 'tokens',
+    description:
+      'CSS variables and Tailwind tokens are generated from packages/ui/tokens.ts; never hand-edit generated outputs.',
     tier: 'architecture',
-    mechanism: { kind: 'pending', note: 'documented in commands.md' },
+    mechanism: { kind: 'pending', note: 'token-gen script + CI sync check' },
+  },
+
+  // ─── ax.md ───────────────────────────────────────────────────
+  {
+    id: 'ax/skill-md-frontmatter',
+    reference: 'ax',
+    description: 'Every SKILL.md ships with YAML frontmatter declaring `name:` and `description:`.',
+    tier: 'lint',
+    mechanism: { kind: 'pending', note: 'scripts/check-skills.ts' },
+  },
+
+  // ─── voice.md ────────────────────────────────────────────────
+  {
+    id: 'voice/no-marketing-vocabulary',
+    reference: 'voice',
+    description:
+      'Avoid marketing buzzwords (revolutionize, seamless, leverage, unlock, cutting-edge) in content/ and root README.md.',
+    tier: 'lint',
+    mechanism: { kind: 'pending', note: 'soft regex with allowlist; advisory only' },
+  },
+
+  // ─── workflow.md ─────────────────────────────────────────────
+  {
+    id: 'workflow/initiative-frontmatter-required',
+    reference: 'workflow',
+    description:
+      'Initiative .md files in .gaia/initiatives/*/ declare parent, hypothesis, and measurement fields.',
+    tier: 'lint',
+    mechanism: { kind: 'pending', note: 'scripts/validate-artifacts.ts' },
+  },
+  {
+    id: 'workflow/project-touches-required',
+    reference: 'workflow',
+    description: 'Project .md files declare `touches:` (files/modules) and `depends_on:` arrays.',
+    tier: 'lint',
+    mechanism: { kind: 'pending', note: 'scripts/validate-artifacts.ts' },
+  },
+
+  // ─── dx.md ───────────────────────────────────────────────────
+  {
+    id: 'dx/stdout-data-stderr-narration',
+    reference: 'dx',
+    description:
+      'CLI scripts print data to stdout and narration to stderr — enables piping without corruption.',
+    tier: 'lint',
+    mechanism: { kind: 'pending', note: 'GritQL rule scoped to scripts/ and apps/api/scripts/' },
   },
 ] as const
 

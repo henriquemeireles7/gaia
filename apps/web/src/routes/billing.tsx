@@ -1,36 +1,19 @@
-import { action, useSubmission } from '@solidjs/router'
-
-const checkout = action(async () => {
-  'use server'
-  const res = await fetch(`${import.meta.env.VITE_API_URL ?? ''}/billing/checkout`, {
-    method: 'POST',
-    credentials: 'include',
-  })
-  if (!res.ok) {
-    return { ok: false, message: 'Could not start checkout' }
-  }
-  const { url } = (await res.json()) as { url: string }
-  return { ok: true as const, url }
-}, 'checkout')
+// apps/web/src/routes/billing.tsx — placeholder until Polar checkout route ships.
+//
+// Per the no-direct-fetch-in-routes rule (.gaia/rules.ts), this page will
+// fetch its checkout URL via Eden Treaty (see apps/web/src/lib/api.ts) once
+// `POST /billing/checkout` is added to apps/api/server/app.ts.
 
 export default function Billing() {
-  const result = useSubmission(checkout)
-
   return (
     <main>
       <h1>Billing</h1>
       <p>Subscriptions are handled by Polar (merchant-of-record).</p>
-      <form action={checkout} method="post">
-        <button type="submit" disabled={result.pending}>
-          {result.pending ? 'Redirecting…' : 'Subscribe'}
-        </button>
-      </form>
-      {result.result?.ok && result.result.url && (
-        <p>
-          <a href={result.result.url}>Continue to Polar</a>
-        </p>
-      )}
-      {result.result && !result.result.ok && <p role="alert">{result.result.message}</p>}
+      <p>
+        The checkout button will land here once the API ships <code>POST /billing/checkout</code>.
+        The frontend will call it via the typed Eden Treaty client in <code>~/lib/api</code> — no
+        raw <code>fetch</code> from route components.
+      </p>
     </main>
   )
 }
