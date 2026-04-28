@@ -18,12 +18,12 @@ test quality, coherence, and adversarial thinking.
 Fix-first: every issue found is fixed immediately. Report leads with findings, not phases.
 
 ## Pipeline
-d-code → **d-review** → /ship
+d-tdd → **d-review** → /ship
 
 ## When to run
 - Before every commit
 - Before /ship
-- After d-code completes a project
+- After d-tdd completes a project
 
 ---
 

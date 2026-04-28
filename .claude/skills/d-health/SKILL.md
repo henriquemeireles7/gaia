@@ -17,7 +17,7 @@ Run this every few days, before major releases, or when the codebase "feels off.
 - Every few days as a health pulse
 - Before a major release or milestone
 - When the codebase "feels off" but nothing specific is broken
-- After a large implementation session (post d-code)
+- After a large implementation session (post d-tdd)
 
 ## Before Starting
 ```sh
@@ -398,7 +398,7 @@ Default (no argument): run all 10 sessions sequentially.
 ## Chaining
 This skill is called by:
 - **CLAUDE.md routing**: `/d-health` or triggers like "health audit", "codebase health"
-- **d-code**: Can reference health report findings for cleanup work
+- **d-tdd**: Can reference health report findings for cleanup work
 
 Standalone usage: `/d-health` for full audit.
-After the report: use d-review or d-code to fix the prioritized items.
+After the report: use d-review or d-tdd to fix the prioritized items.

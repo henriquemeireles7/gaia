@@ -11,7 +11,7 @@ for blog posts, handbook entries, methodology docs, social posts, and video clip
 Professional writer phases with adversarial voice.md compliance review.
 
 ## Pipeline
-d-strategy → d-roadmap → **d-content** (for content projects) or d-code (for code projects)
+d-strategy → d-roadmap → **d-content** (for content projects) or d-tdd (for code projects)
 
 ## When to use
 - A project's roadmap.md specifies content deliverables (not code)

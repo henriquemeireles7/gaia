@@ -1,95 +1,101 @@
-# Douala
+# Gaia
 
-The maximal SaaS template. Clone it, describe your product to AI, and let AI remove what you don't need.
+Open-source SaaS template for the agent-native era. **Idea to deployment in minutes.**
 
-Built with **Hono + Bun + Preact SSR + Drizzle + PostgreSQL**.
+The Rails of TypeScript, redesigned for a world where agents write most of the code.
 
-## What's Included
+> **Status:** v6 — pre-MVP. See [`.gaia/vision.md`](./.gaia/vision.md) for the locked spec.
 
-- **Auth** — Email/password + OAuth via [better-auth](https://www.better-auth.com/)
-- **Payments** — Stripe subscriptions (checkout, webhooks, customer portal)
-- **Email** — Transactional email via [Resend](https://resend.com/)
-- **Database** — PostgreSQL with [Drizzle ORM](https://orm.drizzle.team/) (migrations, type-safe queries)
-- **AI** — Anthropic Claude integration
-- **Storage** — S3/R2 file uploads with signed URLs
-- **Analytics** — PostHog (optional, degrades gracefully)
-- **SEO** — Meta tags, JSON-LD, sitemap generation
-- **Security** — Secure headers, rate limiting, input validation, harden checks
-- **CI/CD** — GitHub Actions, Dockerfile, Railway deployment
-- **AI Harness** — Hooks and skills for Claude Code development
+## What this is
 
-## Quick Start
+Gaia is an MIT-licensed template for shipping production-grade SaaS as a solo operator. Clone it, `bun install`, deploy. Everything needed to go from zero to paying customer is wired, tested, documented, and enforceable by AI agents.
+
+The template is the product. The course, the orchestrator, and the deployment platform are future tiers — explicitly out of scope for v1.
+
+## Who it's for
+
+The one-person unicorn — a solo founder who wants to build and scale a software company without a team, using AI agents as collaborators. Not indie hackers chasing $5K MRR. Operators shipping serious software alone with agent leverage.
+
+## Stack (locked, v6)
+
+| Layer | Choice |
+|---|---|
+| Runtime | [Bun](https://bun.sh) |
+| Backend | [Elysia](https://elysiajs.com) *(swap in progress)* |
+| Frontend | [SolidStart](https://start.solidjs.com) *(swap in progress)* |
+| Type bridge | [Eden Treaty](https://elysiajs.com/eden/treaty/overview.html) |
+| Validation | [TypeBox](https://github.com/sinclairzx81/typebox) via Standard Schema |
+| Database | [Neon](https://neon.tech) (serverless Postgres) + [Drizzle ORM](https://orm.drizzle.team) |
+| Cache / KV | [Dragonfly](https://www.dragonflydb.io) |
+| Auth | [better-auth](https://www.better-auth.com) |
+| Payments | [Polar](https://polar.sh) (merchant-of-record, solo-friendly) |
+| Email | [Resend](https://resend.com) |
+| Background jobs | [Inngest](https://www.inngest.com) |
+| Analytics | [PostHog](https://posthog.com) |
+| Errors | [Sentry](https://sentry.io) |
+| Logs/traces | [Axiom](https://axiom.co) + [OpenTelemetry](https://opentelemetry.io) |
+| API docs | [Scalar](https://scalar.com) |
+| Linter | [Oxlint](https://oxc.rs) + Biome GritQL rules |
+| Formatter | [oxfmt](https://oxc.rs) |
+| Test | Bun test + [Playwright](https://playwright.dev) + [Stryker](https://stryker-mutator.io) |
+| Monorepo | [Moon](https://moonrepo.dev) + [proto](https://moonrepo.dev/proto) + Bun workspaces |
+| Deploy | [Railway](https://railway.app) (default) |
+
+Full vendor reasoning lives in [`.gaia/vision.md`](./.gaia/vision.md#the-stack).
+
+## Quick start
+
+> **Migration in progress.** Phases 1–6 of the kaz-setup → gaia migration are landing. The current snapshot still runs on Hono/Preact while the rebuild is staged. See [`.gaia/initiatives/roadmap.md`](./.gaia/initiatives/roadmap.md) for status.
 
 ```bash
-git clone <your-repo-url> && cd douala
+git clone https://github.com/henriquemeireles7/gaia
+cd gaia
 bun install
-docker compose up -d
+docker compose up -d  # local Postgres + (eventually) Dragonfly
 cp .env.example .env  # then fill in your API keys
 bun run db:migrate
 bun run dev
 ```
 
-Open http://localhost:3000
+Open http://localhost:3000.
 
-## The Maximal Template Philosophy
-
-Traditional templates ship minimal boilerplate. Douala ships **everything a SaaS needs** — auth, payments, email, database, AI, storage, analytics, security, CI/CD. When you start a new project:
-
-1. Clone Douala
-2. Describe your product to an AI agent
-3. AI removes what you don't need
-4. Build your unique features on top
-
-AI makes deletion near-free. See [docs/ai-workflow.md](./docs/ai-workflow.md) for details.
-
-## Project Structure
+## Repository layout
 
 ```
-platform/       Shared infrastructure (env, auth, db, server, errors)
-providers/      Thin SDK wrappers (AI, email, payments, storage, analytics)
-features/       Business logic grouped by domain
-styles/         Global CSS with design tokens
-docs/           Project documentation
-decisions/      Strategy documents and reference files
+.
+├── CLAUDE.md            # Root resolver — skills routing, docs routing, disciplines
+├── .gaia/               # Methodology — vision, reference (constitution),
+│                          initiatives (current bets), memory, protocols, audit
+├── .claude/             # Claude Code home — settings, hooks, skills (gaia + gstack)
+├── apps/                # api/, web/  *(arriving in Phase 3)*
+├── packages/            # core/, config/, errors/, db/, adapters/, auth/, api/,
+│                          ui/, security/, workflows/  *(arriving in Phase 3)*
+├── content/             # Human-authored, git-tracked (blog, legal, emails)
+├── tools/               # GritQL rules, custom scripts  *(arriving in Phase 6)*
+├── .github/             # CI workflows
+└── decisions/           # Legacy reference notes (health, maturity, deploy)
 ```
 
-See [docs/architecture.md](./docs/architecture.md) for the full breakdown.
+The visible split: **everything Gaia-methodology lives under `.gaia/`. `.claude/` holds only what Claude Code natively reads.** Root contains only `CLAUDE.md` and the actual project.
+
+## Documentation
+
+- [Vision](./.gaia/vision.md) — the locked v6 spec.
+- [Reference](./.gaia/reference) — the 17-file constitution (code, backend, frontend, db, testing, errors, security, observability, commands, design, tokens, ux, dx, ax, voice, workflow, harness).
+- [Roadmap](./.gaia/initiatives/roadmap.md) — current period commitments.
+- [Manifest](./.gaia/MANIFEST.md) — index of folders with `CLAUDE.md`s.
 
 ## Scripts
 
 | Command | Description |
 |---|---|
-| `bun run dev` | Dev server with hot reload |
-| `bun run check` | Full CI pipeline (lint + types + harden + test) |
-| `bun run check:lint` | Biome lint only |
-| `bun run check:types` | TypeScript typecheck only |
-| `bun run check:test` | Tests only |
-| `bun run lint` | Auto-fix lint issues |
-| `bun run db:migrate` | Run database migrations |
-| `bun run db:generate` | Generate new migration |
-| `bun run db:studio` | Open Drizzle Studio |
-
-## Documentation
-
-- [Getting Started](./docs/getting-started.md) — setup guide with env var reference
-- [Architecture](./docs/architecture.md) — codebase structure and patterns
-- [AI Workflow](./docs/ai-workflow.md) — how to customize using AI
-
-## Tech Stack
-
-| Layer | Technology |
-|---|---|
-| Runtime | [Bun](https://bun.sh) |
-| Framework | [Hono](https://hono.dev) |
-| UI | [Preact](https://preactjs.com) SSR |
-| Database | PostgreSQL + [Drizzle ORM](https://orm.drizzle.team) |
-| Auth | [better-auth](https://www.better-auth.com) |
-| Payments | [Stripe](https://stripe.com) |
-| Email | [Resend](https://resend.com) |
-| AI | [Anthropic](https://anthropic.com) |
-| Linting | [Biome](https://biomejs.dev) |
-| Styling | [Tailwind CSS](https://tailwindcss.com) |
+| `bun run dev` | Dev server with hot reload. |
+| `bun run check` | Full pipeline (lint + types + harden + test). Run before every commit. |
+| `bun run lint` | Auto-fix lint issues. |
+| `bun run db:migrate` | Run database migrations. |
+| `bun run db:generate` | Generate a new migration. |
+| `bun run db:studio` | Open Drizzle Studio. |
 
 ## License
 
-MIT
+MIT. See [LICENSE](./LICENSE).

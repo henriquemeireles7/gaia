@@ -155,7 +155,7 @@ Increment by 1. Create the folder.
 
 Items deferred from this initiative for future consideration.
 
-(empty — populated by d-code as projects complete)
+(empty — populated by d-tdd as projects complete)
 ```
 
 ### Step 4: Suggest Next Steps
@@ -165,7 +165,7 @@ Initiative created: decisions/{domain}/NN-name/
 Next steps:
 1. Run gstack reviews to refine: /plan-ceo-review, /plan-eng-review, /plan-design-review
 2. After reviews settle the project breakdown: /d-roadmap
-3. Then execute per-project: d-code or d-content
+3. Then execute per-project: d-tdd or d-content
 ```
 
 ---

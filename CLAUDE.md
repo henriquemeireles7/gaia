@@ -1,177 +1,117 @@
-# Project Name — Agent Instructions
+# Gaia
 
-## What is this
-<!-- CUSTOMIZE: 1-2 sentence project description -->
-<!-- Example: "MyApp is a SaaS platform. Solo developer + AI agents." -->
-<!-- Example: "Stack: Bun, Hono, Preact, Drizzle, Zod, PostgreSQL." -->
+Open-source SaaS template for the agent-native era. Solo operator → production in minutes.
 
-## Architecture: Domain-Spec Architecture (DSA)
-Every folder with code has a nested CLAUDE.md. Each has a human-authored header
-(purpose, rules, imports, recipe) and an auto-generated footer (files, exports, deps).
-The footer is refreshed automatically by the Stop hook whenever code in the folder changes.
+The full vision lives in `.gaia/vision.md`. **This file is the resolver** — it routes the agent to where the answer lives, not the answer itself.
 
-When creating a new folder, create its CLAUDE.md FIRST using this template:
-```markdown
-# {folder-name}
+## Four engineering disciplines
 
-## Purpose
-{1-2 sentences: WHAT this does + WHY it matters architecturally}
+These shape the agent's behavior at the point of work (vision §Harness):
 
-## Critical Rules
-- NEVER {most common mistake in this domain}
-- ALWAYS {pattern that prevents the biggest class of errors}
-- {3-5 more domain-specific NEVER/ALWAYS rules}
+1. **Think before** — read the relevant `.gaia/reference/*.md` and the local `CLAUDE.md` before writing code. The constitution exists so you don't reason from first principles every time.
+2. **Simplify** — every abstraction earns its place by being more legible than what it replaces (vision §10).
+3. **Surgical** — change the smallest scope that solves the problem. Bug fixes don't need cleanup; one-shots don't need helpers.
+4. **Goal-driven** — every change ties to an active commitment in `.gaia/initiatives/roadmap.md`. If it doesn't, ask why we're doing it.
 
-## Imports (use from other modules)
-\```ts
-import { myExport } from '@/this-module/file'
-\```
+## Docs resolver — read on demand
 
-## Recipe: New {most common operation}
-\```ts
-// minimal skeleton showing the correct shape
-\```
+| Question | File |
+|---|---|
+| What is Gaia? Who is it for? | `.gaia/vision.md` |
+| How do I write code? | `.gaia/reference/code.md` |
+| Backend conventions | `.gaia/reference/backend.md` |
+| Frontend conventions | `.gaia/reference/frontend.md` |
+| DB / migrations | `.gaia/reference/database.md` |
+| Tests, coverage, mutation | `.gaia/reference/testing.md` |
+| Error model | `.gaia/reference/errors.md` |
+| Security baseline | `.gaia/reference/security.md` |
+| Logs / metrics / traces | `.gaia/reference/observability.md` |
+| CLI commands | `.gaia/reference/commands.md` |
+| Design system | `.gaia/reference/design.md`, `.gaia/reference/tokens.md` |
+| UX patterns | `.gaia/reference/ux.md` |
+| Developer experience | `.gaia/reference/dx.md` |
+| Agent experience | `.gaia/reference/ax.md` |
+| Brand voice | `.gaia/reference/voice.md` |
+| Workflow loops | `.gaia/reference/workflow.md` |
+| Harness mechanics | `.gaia/reference/harness.md` |
+| Currently being worked on | `.gaia/initiatives/roadmap.md` |
+| Latest data snapshot | `.gaia/initiatives/context.md` |
+| What's allowed/blocked | `.gaia/protocols/permissions.md` |
+| Index of folder CLAUDE.mds | `.gaia/MANIFEST.md` |
 
-## Verify
-\```sh
-{exact command to verify changes in this module}
-\```
-```
+## Skills resolver — invoke as your first action
 
-## Build Order (NEVER skip steps)
-<!-- CUSTOMIZE: Define your project's build order -->
-1. Write/update folder CLAUDE.md
-2. Write/update schema (if applicable)
-3. Update error definitions (if needed)
-4. Update env config (if new env vars needed)
-5. Write tests (MUST FAIL first)
-6. Write code to pass tests
-7. Refactor while tests stay green
-8. Wire into UI/pages last
+When the user's request matches one of these, invoke the skill BEFORE any other tool.
 
-## Key Files You Must Know
-<!-- CUSTOMIZE: List the 5-10 most important files in your project -->
-<!-- Example:
-1. config/env.ts — all environment variables
-2. config/errors.ts — all error codes
-3. db/schema.ts — all database tables
-4. server/routes.ts — all API endpoints
--->
+### Workflow loop (Gaia)
 
-## Rules
-<!-- CUSTOMIZE: Add your project rules -->
-- ALWAYS run `bun run check` before committing
-- 100% test coverage, no exceptions
-- Tests colocated: foo.ts → foo.test.ts same folder
-- No abstraction until the 3rd duplication
+| Trigger | Skill |
+|---|---|
+| Start an initiative, brainstorm a bet | `d-strategy` |
+| Extract projects from an initiative | `d-roadmap` |
+| Implement a project (TDD) | `d-tdd` |
+| Write blog/handbook/social/clip content | `d-content` |
+| Pre-commit principles review | `d-review` |
+| Deep audit, scoring, trend tracking | `d-health` |
+| Build/deploy error → prevention rule | `d-harness` |
+| Deploy failed → recover | `d-fail` |
 
-## Commands
-<!-- CUSTOMIZE: Your project commands -->
-- `bun run check` — lint + typecheck + test (run before every commit)
-- `bun run dev` — start dev server
-- `bun test` — run tests
+### Foundation (gstack, vendored under `.claude/skills/gstack/`)
 
-## CLI & Tooling Rules
-- NEVER use grep in Bash — use the Grep tool or `rg` (ripgrep)
-- NEVER use find in Bash — use the Glob tool or `fd`
-- NEVER use cat/head/tail in Bash to read files — use the Read tool
-- Never run dev server inside Claude Code sessions — use a separate terminal
+| Trigger | Skill |
+|---|---|
+| Plan an implementation strategy | `plan` |
+| Review a PR diff | `review` |
+| QA test a web app | `qa` |
 
-## Token Efficiency Rules
-- NEVER read entire files — use Grep to find line numbers, then Read with offset/limit
-- NEVER run unbounded commands — always constrain output
-- NEVER run full test suite when working on one module — scope tests
-- Use subagents for multi-file exploration — keeps main context clean
+## Build order — never skip steps
 
-## Hooks System (auto-enforced)
-Hooks are defined in .claude/settings.json and run automatically:
-- **PreToolUse:** block dangerous commands, protect .env/secrets, protect config files
-- **PostToolUse:** warn on console.log in production code, real-time security checks
-- **Stop:** batch lint + typecheck on all changed files, auto-update CLAUDE.md footers, macOS notification
-- **SessionStart (compact):** re-inject stack rules after context compaction
+1. Read `.gaia/reference/<domain>.md` for the area you're touching.
+2. Read the folder's local `CLAUDE.md` if it has one (`.gaia/MANIFEST.md` is the index).
+3. Update schema (if applicable).
+4. Update error definitions (if needed).
+5. Update env config (if new env vars).
+6. Write tests (must fail first).
+7. Write code to pass tests.
+8. Refactor while tests stay green.
+9. Wire into UI/pages last.
 
-## Commit & Push Discipline
-When work is done and the user confirms, run `bun run check`, then commit and push.
-Do not commit after every edit — commit at logical completion points.
+## Always-on rules
 
-## Universal Reference Files (decisions/*.md)
-Read the files that match your task:
-- Maturity framework, principles, scoring → decisions/maturity.md
-- AI harness methodology → decisions/harness.md
-- Current maturity scores, bottlenecks → decisions/health.md
-- Human tasks (AI-to-human) → decisions/humantasks.md
-<!-- CUSTOMIZE: Add your project-specific reference files -->
-<!-- Example:
-- Company identity, ICP, pricing → decisions/company.md
-- Content for end users → decisions/voice.md
-- Architecture patterns → decisions/architecture.md
-- Visual/UI/CSS/components → decisions/design.md
-- Deploy, CI/CD, infrastructure → decisions/deploy.md
--->
+- ALWAYS run `bun run check` before committing (lint + typecheck + test).
+- 100% test coverage at boundaries; mutation testing in the middle (vision §11).
+- Tests colocated: `foo.ts` → `foo.test.ts` in the same folder.
+- No abstraction until the third duplication.
+- ALWAYS load `.gaia/reference/<domain>.md` when working in that domain.
+- NEVER force-push to `master`. NEVER skip hooks. See `.gaia/protocols/permissions.md`.
 
-## Contradiction Resolution
-If you find contradictions between universal files, folder CLAUDE.md, or strategy docs:
-1. STOP. Do not proceed with contradictory information.
-2. Point out the specific contradiction and where each version lives.
-3. Ask the user which is correct.
-4. Update the wrong file immediately so the contradiction is gone.
+## CLI rules
 
-## Decisions Folder (Three-Domain Structure)
-```
-decisions/
-├── *.md                    # Universal reference files
-├── product/                # Generate value
-│   ├── context.md
-│   └── NN-initiative/
-├── growth/                 # Capture value as money
-│   ├── context.md
-│   └── NN-initiative/
-└── harness/                # Self-evolving AI system
-    ├── context.md
-    └── NN-initiative/
-```
+- NEVER use `grep` in Bash — use the Grep tool or `rg`.
+- NEVER use `find` in Bash — use the Glob tool or `fd`.
+- NEVER use `cat`/`head`/`tail` in Bash to read files — use the Read tool.
+- Never run the dev server inside Claude Code sessions — use a separate terminal.
 
-## Two Session Types
+## Token efficiency
 
-### Strategy Session (1 workspace per initiative)
-```
-d-strategy → reviews → d-roadmap → ship
-```
-Interactive Q&A → initiative document → project breakdown → roadmaps.
+- NEVER read entire files — Grep for line numbers, then Read with `offset`/`limit`.
+- NEVER run unbounded commands — always constrain output.
+- Prefer subagents (Explore) for multi-file reconnaissance.
 
-### Execution Session (1 workspace per project)
-```
-Read project/roadmap.md → d-code or d-content → d-review → ship
-```
-TDD implementation from roadmap (d-code) or content creation (d-content).
+## Hooks (auto-enforced, Bun TypeScript)
 
-## Skill Routing
-When the user's request matches an available skill, ALWAYS invoke it:
-- Strategy session, new initiative → d-strategy
-- Extract projects from initiative → d-roadmap
-- Implement from roadmap, start coding → d-code
-- Write content (blog, handbook, social) → d-content
-- Pre-commit review, check quality → d-review
-- Codebase health, full audit → d-health
-- Build/deploy error, learn from error → d-harness
-- Deploy failed, fix the deploy → d-fail
+Defined in `.claude/settings.json`. Hooks enforce facts; CLAUDE.mds describe judgment (vision §4).
 
-## Skill routing
+- **PreToolUse** — block destructive shell commands, protect secrets, protect locked configs.
+- **PostToolUse** — warn on `console.log` in prod paths, real-time security checks.
+- **Stop** — batch lint + typecheck on changed files, regenerate auto-footers, notify.
+- **SessionStart:compact** — re-inject critical rules after context compaction.
 
-When the user's request matches an available skill, ALWAYS invoke it using the Skill
-tool as your FIRST action. Do NOT answer directly, do NOT use other tools first.
-The skill has specialized workflows that produce better results than ad-hoc answers.
+## Contradiction protocol
 
-Key routing rules:
-- Product ideas, "is this worth building", brainstorming → invoke office-hours
-- Bugs, errors, "why is this broken", 500 errors → invoke investigate
-- Ship, deploy, push, create PR → invoke ship
-- QA, test the site, find bugs → invoke qa
-- Code review, check my diff → invoke review
-- Update docs after shipping → invoke document-release
-- Weekly retro → invoke retro
-- Design system, brand → invoke design-consultation
-- Visual audit, design polish → invoke design-review
-- Architecture review → invoke plan-eng-review
-- Save progress, checkpoint, resume → invoke checkpoint
-- Code quality, health check → invoke health
+If `vision.md`, a `reference/*.md`, a `CLAUDE.md`, or an initiative file disagree:
+
+1. STOP.
+2. State the contradiction with file paths.
+3. Ask which is correct.
+4. Update the wrong file the same turn so the contradiction is gone.
