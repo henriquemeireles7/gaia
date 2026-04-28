@@ -37,6 +37,11 @@ const SubscriptionResponse = t.Object({
 
 // ── Service ─────────────────────────────────────────────────────
 
+/**
+ * Read the current subscription row for a user.
+ * @public Template helper — used by template consumers wiring billing
+ * into their own routes.
+ */
 export async function getSubscription(userId: string) {
   const rows = await db
     .select()
@@ -46,6 +51,11 @@ export async function getSubscription(userId: string) {
   return rows[0] ?? null
 }
 
+/**
+ * Check whether the user has an active paid subscription.
+ * @public Template helper — used by template consumers gating premium
+ * routes/features.
+ */
 export async function hasActiveSubscription(userId: string): Promise<boolean> {
   const sub = await getSubscription(userId)
   if (!sub) return false

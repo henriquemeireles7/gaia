@@ -63,9 +63,9 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - uses: google/osv-scanner-action/osv-scanner-action@v1
+      - uses: google/osv-scanner-action/osv-scanner-action@v2.2.4
         with:
-          scan-args: |
+          scan-args: |-
             --recursive
             --skip-git
             ./
@@ -104,15 +104,22 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - name: Assert preview-env URL annotated on PR (skipped until preview infra exists)
+        shell: bash
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           set -euo pipefail
-          # Activate only once preview-env infra is wired (railway.toml or
-          # a deploy workflow). Until then, the rule is documented but
-          # not gating — analogous to the product scripts that skip until
-          # their target features exist.
-          if [ ! -f railway.toml ] && [ ! -f fly.toml ] && ! ls .github/workflows/*deploy* 2>/dev/null; then
+          # Activate only once preview-env infra is wired (railway.toml,
+          # fly.toml, or a deploy workflow). Until then, the rule is
+          # documented but not gating — analogous to the product scripts
+          # that skip until their target features exist.
+          has_infra=0
+          [ -f railway.toml ] && has_infra=1
+          [ -f fly.toml ] && has_infra=1
+          if compgen -G ".github/workflows/*deploy*" > /dev/null; then
+            has_infra=1
+          fi
+          if [ "$has_infra" -eq 0 ]; then
             echo "preview-env: no preview infra configured (railway.toml / fly.toml / deploy workflow); skipping."
             exit 0
           fi
