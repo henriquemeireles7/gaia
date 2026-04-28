@@ -1,6 +1,7 @@
 import { createHandler, StartServer } from '@solidjs/start/server'
 import '@gaia/ui/fonts.css'
 import '@gaia/ui/styles.css'
+import '@gaia/ui/components.css'
 
 export default createHandler(() => (
   <StartServer

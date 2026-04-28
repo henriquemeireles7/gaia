@@ -1,0 +1,434 @@
+/* components.css — universal component styles for the Gaia design system.
+ *
+ * Hand-written global classes referenced by Solid wrappers in
+ * apps/web/src/components/. All values come from semantic tokens in
+ * styles.css (which is generated from tokens.ts). No hex literals here —
+ * audit with the `frontend/no-hardcoded-colors` rule.
+ *
+ * Each component covers all 8 interaction states from design.md
+ * §"Interaction states": default, hover, focus, active, disabled,
+ * loading, error, success.
+ *
+ * Import order in app entry:
+ *   import '@gaia/ui/fonts.css'
+ *   import '@gaia/ui/styles.css'        // tokens + base
+ *   import '@gaia/ui/components.css'    // this file
+ */
+
+/* ─── Button ─────────────────────────────────────────────────── */
+
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-xs);
+  min-height: 44px; /* design.md §a11y — touch target */
+  padding: var(--space-sm) var(--space-md);
+  font-family: var(--font-sans);
+  font-size: var(--font-size-base);
+  font-weight: var(--font-weight-medium);
+  line-height: 1;
+  border: 1px solid transparent;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  user-select: none;
+  transition:
+    background var(--duration-micro) var(--easing-enter),
+    color var(--duration-micro) var(--easing-enter),
+    border-color var(--duration-micro) var(--easing-enter),
+    transform var(--duration-micro) var(--easing-enter);
+}
+
+.btn:active:not(:disabled):not(.is-loading) {
+  transform: scale(0.98);
+}
+
+.btn:disabled,
+.btn[aria-disabled='true'] {
+  opacity: var(--opacity-disabled);
+  cursor: not-allowed;
+}
+
+/* Variant: primary */
+.btn-primary {
+  background: var(--accent);
+  color: var(--bg-surface);
+}
+@media (hover: hover) {
+  .btn-primary:hover:not(:disabled):not(.is-loading) {
+    background: var(--accent-hover);
+  }
+}
+
+/* Variant: secondary */
+.btn-secondary {
+  background: var(--bg-secondary);
+  color: var(--text-primary);
+}
+@media (hover: hover) {
+  .btn-secondary:hover:not(:disabled):not(.is-loading) {
+    background: var(--bg-tertiary);
+  }
+}
+
+/* Variant: ghost */
+.btn-ghost {
+  background: transparent;
+  color: var(--text-primary);
+  border-color: var(--border-subtle);
+}
+@media (hover: hover) {
+  .btn-ghost:hover:not(:disabled):not(.is-loading) {
+    background: var(--bg-secondary);
+  }
+}
+
+/* State: loading */
+.btn.is-loading {
+  cursor: wait;
+  color: transparent;
+  position: relative;
+}
+.btn.is-loading::after {
+  content: '';
+  position: absolute;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  border: 2px solid currentColor;
+  border-top-color: transparent;
+  color: var(--bg-surface);
+  animation: spin var(--duration-long) linear infinite;
+}
+.btn-secondary.is-loading::after,
+.btn-ghost.is-loading::after {
+  color: var(--text-primary);
+}
+
+/* States: error / success — for transient feedback after an action */
+.btn.is-error {
+  background: var(--error);
+  color: var(--bg-surface);
+  border-color: var(--error);
+}
+.btn.is-success {
+  background: var(--success);
+  color: var(--bg-surface);
+  border-color: var(--success);
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* ─── Input ──────────────────────────────────────────────────── */
+
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-xs);
+}
+
+.field-label {
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-medium);
+  color: var(--text-primary);
+}
+
+.field-helper {
+  font-size: var(--font-size-sm);
+  color: var(--text-secondary);
+}
+
+.field-error-text {
+  font-size: var(--font-size-sm);
+  color: var(--error);
+}
+
+.input {
+  width: 100%;
+  min-height: 44px;
+  padding: var(--space-sm) var(--space-md);
+  font-family: inherit;
+  font-size: var(--font-size-base);
+  color: var(--text-primary);
+  background: var(--bg-surface);
+  border: 1px solid var(--border-default);
+  border-radius: var(--radius-sm);
+  transition: border-color var(--duration-micro) var(--easing-enter);
+}
+
+.input::placeholder {
+  color: var(--text-muted);
+}
+
+.input:hover:not(:disabled) {
+  border-color: var(--border-emphasis);
+}
+
+.input:disabled {
+  opacity: var(--opacity-disabled);
+  cursor: not-allowed;
+  background: var(--bg-secondary);
+}
+
+.input.is-error {
+  border-color: var(--error);
+}
+.input.is-success {
+  border-color: var(--success);
+}
+.input.is-loading {
+  background-image: linear-gradient(
+    90deg,
+    var(--bg-secondary) 0%,
+    var(--bg-tertiary) 50%,
+    var(--bg-secondary) 100%
+  );
+  background-size: 200% 100%;
+  animation: shimmer var(--duration-long) ease-in-out infinite;
+}
+
+@keyframes shimmer {
+  0% {
+    background-position: 200% 0;
+  }
+  100% {
+    background-position: -200% 0;
+  }
+}
+
+/* ─── Card ───────────────────────────────────────────────────── */
+
+.card {
+  background: var(--bg-surface);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-md);
+  padding: var(--space-lg);
+  transition:
+    border-color var(--duration-micro) var(--easing-enter),
+    box-shadow var(--duration-micro) var(--easing-enter);
+}
+
+@media (hover: hover) {
+  .card-interactive:hover {
+    border-color: var(--border-emphasis);
+    box-shadow: var(--shadow-md);
+  }
+}
+
+.card-elevated {
+  box-shadow: var(--shadow-md);
+}
+
+.card-header {
+  font-family: var(--font-serif);
+  font-size: var(--font-size-xl);
+  margin-bottom: var(--space-md);
+}
+
+.card-footer {
+  margin-top: var(--space-md);
+  padding-top: var(--space-md);
+  border-top: 1px solid var(--border-subtle);
+  display: flex;
+  gap: var(--space-sm);
+}
+
+/* ─── Alert ──────────────────────────────────────────────────── */
+
+.alert {
+  display: flex;
+  gap: var(--space-md);
+  align-items: flex-start;
+  padding: var(--space-md);
+  border-radius: var(--radius-md);
+  border: 1px solid;
+}
+
+.alert-icon {
+  flex: 0 0 auto;
+  font-weight: var(--font-weight-bold);
+  width: 1.5em;
+  text-align: center;
+}
+
+.alert-body {
+  flex: 1;
+}
+
+.alert-title {
+  font-weight: var(--font-weight-semibold);
+  margin-bottom: var(--space-xs);
+}
+
+.alert-success {
+  background: color-mix(in oklch, var(--success) 10%, transparent);
+  border-color: color-mix(in oklch, var(--success) 40%, transparent);
+  color: var(--text-primary);
+}
+.alert-error {
+  background: color-mix(in oklch, var(--error) 10%, transparent);
+  border-color: color-mix(in oklch, var(--error) 40%, transparent);
+  color: var(--text-primary);
+}
+.alert-warning {
+  background: color-mix(in oklch, var(--warning) 10%, transparent);
+  border-color: color-mix(in oklch, var(--warning) 40%, transparent);
+  color: var(--text-primary);
+}
+.alert-info {
+  background: color-mix(in oklch, var(--info) 10%, transparent);
+  border-color: color-mix(in oklch, var(--info) 40%, transparent);
+  color: var(--text-primary);
+}
+
+/* ─── Modal — wraps native <dialog> ──────────────────────────── */
+
+.modal {
+  border: none;
+  border-radius: var(--radius-lg);
+  padding: var(--space-lg);
+  max-width: 600px;
+  width: calc(100% - 2 * var(--space-lg));
+  background: var(--bg-surface);
+  color: var(--text-primary);
+  box-shadow: var(--shadow-xl);
+}
+
+.modal::backdrop {
+  background: color-mix(in oklch, var(--ink-900) 50%, transparent);
+}
+
+.modal-header {
+  font-family: var(--font-serif);
+  font-size: var(--font-size-2xl);
+  margin-bottom: var(--space-md);
+}
+
+.modal-footer {
+  margin-top: var(--space-lg);
+  display: flex;
+  gap: var(--space-sm);
+  justify-content: flex-end;
+}
+
+/* ─── Skeleton ───────────────────────────────────────────────── */
+
+.skeleton {
+  background: linear-gradient(
+    90deg,
+    var(--bg-secondary) 0%,
+    var(--bg-tertiary) 50%,
+    var(--bg-secondary) 100%
+  );
+  background-size: 200% 100%;
+  animation: shimmer 1.4s ease-in-out infinite;
+  border-radius: var(--radius-sm);
+  display: block;
+}
+
+.skeleton-text {
+  height: 1em;
+  width: 100%;
+  border-radius: var(--radius-sm);
+}
+
+.skeleton-circle {
+  border-radius: var(--radius-full);
+}
+
+/* ─── Empty state ────────────────────────────────────────────── */
+
+.empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  padding: var(--space-2xl) var(--space-lg);
+  gap: var(--space-md);
+}
+
+.empty-state-icon {
+  font-size: var(--font-size-3xl);
+  color: var(--text-muted);
+}
+
+.empty-state-title {
+  font-family: var(--font-serif);
+  font-size: var(--font-size-xl);
+}
+
+.empty-state-description {
+  color: var(--text-secondary);
+  max-width: 40ch;
+}
+
+/* ─── Toast ──────────────────────────────────────────────────── */
+
+.toast-container {
+  position: fixed;
+  top: var(--space-lg);
+  right: var(--space-lg);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-sm);
+  z-index: var(--z-toast);
+  pointer-events: none;
+}
+
+.toast {
+  pointer-events: auto;
+  min-width: 280px;
+  max-width: 420px;
+  padding: var(--space-md);
+  border-radius: var(--radius-md);
+  border: 1px solid;
+  background: var(--bg-surface);
+  box-shadow: var(--shadow-lg);
+  display: flex;
+  gap: var(--space-sm);
+  align-items: flex-start;
+  animation: toast-slide-in var(--duration-short) var(--easing-enter);
+}
+
+.toast-success {
+  border-color: var(--success);
+}
+.toast-error {
+  border-color: var(--error);
+}
+.toast-warning {
+  border-color: var(--warning);
+}
+.toast-info {
+  border-color: var(--info);
+}
+
+.toast-message {
+  flex: 1;
+}
+
+.toast-dismiss {
+  flex: 0 0 auto;
+  background: none;
+  border: none;
+  color: var(--text-muted);
+  cursor: pointer;
+  font-size: var(--font-size-lg);
+  line-height: 1;
+  padding: 0;
+}
+
+@keyframes toast-slide-in {
+  from {
+    transform: translateX(110%);
+    opacity: 0;
+  }
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}

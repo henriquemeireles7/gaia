@@ -7,6 +7,7 @@
     ".": "./tokens.ts",
     "./tokens": "./tokens.ts",
     "./styles.css": "./styles.css",
-    "./fonts.css": "./fonts.css"
+    "./fonts.css": "./fonts.css",
+    "./components.css": "./components.css"
   }
 }
