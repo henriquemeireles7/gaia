@@ -1,9 +1,10 @@
-// CUSTOMIZE: Extend with your user shape
+// Core domain types. Framework-agnostic — no Hono, no Elysia, no Solid.
+
 export type AppUser = {
   id: string
   email: string
   name: string | null
-  role: 'free' | 'pro' | 'admin' // CUSTOMIZE: your roles
+  role: 'free' | 'pro' | 'admin'
 }
 
 export type AppOrg = {
@@ -15,12 +16,7 @@ export type AppOrg = {
 
 export type OrgMemberRole = 'owner' | 'admin' | 'member'
 
-export type AppEnv = {
-  Variables: {
-    user: AppUser
-    session: { id: string; userId: string }
-    requestId: string
-    org: AppOrg
-    orgRole: OrgMemberRole
-  }
+export type AppSession = {
+  id: string
+  userId: string
 }

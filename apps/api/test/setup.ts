@@ -1,34 +1,21 @@
-import { sql } from 'drizzle-orm'
-import { drizzle } from 'drizzle-orm/postgres-js'
-import { migrate } from 'drizzle-orm/postgres-js/migrator'
-import postgres from 'postgres'
-import * as schema from '@/packages/db/schema'
+// apps/api/test/setup.ts — preload for `bun test`.
+//
+// Fills in safe placeholders for required env vars so adapter modules
+// can initialize at import time during tests. Real values come from .env
+// in dev and from the CI workflow secrets in CI.
 
-const TEST_DATABASE_URL = process.env.DATABASE_URL ?? 'postgresql://test:test@localhost:5432/test' // harden:ignore — test infra needs direct env access
-
-const client = postgres(TEST_DATABASE_URL)
-export const testDb = drizzle(client, { schema })
-
-/**
- * Run migrations on the test database. Call in beforeAll().
- */
-export async function setupTestDb() {
-  await migrate(testDb, { migrationsFolder: './platform/db/migrations' })
+const defaults: Record<string, string> = {
+  NODE_ENV: 'test',
+  DATABASE_URL: 'postgresql://test:test@localhost:5432/test',
+  BETTER_AUTH_SECRET: 'test-secret-min-32-chars-for-validation-pad',
+  POLAR_ACCESS_TOKEN: 'polar_test_token',
+  POLAR_WEBHOOK_SECRET: 'polar_whsec_test',
+  POLAR_PRODUCT_ID: 'product_test_123',
+  RESEND_API_KEY: 're_test_key',
+  ANTHROPIC_API_KEY: 'sk-ant-test-key',
+  PUBLIC_APP_URL: 'http://localhost:3000',
 }
 
-/**
- * Truncate all application tables (preserving schema). Call in afterEach() or afterAll().
- */
-export async function teardownTestDb() {
-  await testDb.execute(sql`
-    DO $$ DECLARE
-      tbl text;
-    BEGIN
-      FOR tbl IN
-        SELECT tablename FROM pg_tables WHERE schemaname = 'public'
-      LOOP
-        EXECUTE format('TRUNCATE TABLE %I CASCADE', tbl);
-      END LOOP;
-    END $$;
-  `)
+for (const [k, v] of Object.entries(defaults)) {
+  if (!process.env[k]) process.env[k] = v // harden:ignore — test setup seeds env
 }

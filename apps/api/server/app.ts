@@ -1,122 +1,61 @@
-import { sql } from 'drizzle-orm'
-import { Hono } from 'hono'
-import { cors } from 'hono/cors'
-import { secureHeaders } from 'hono/secure-headers'
-import { captureException } from '@/packages/adapters/error-tracking'
+// apps/api/server/app.ts — Elysia entry point (vision §Stack)
+//
+// One app, mounted on the configured PORT. Better Auth handles all
+// /auth/* routes; everything else is typed Elysia routes with TypeBox
+// schemas so Eden Treaty can derive end-to-end client types.
+
+import { Elysia, t } from 'elysia'
+import { verifyWebhook } from '@/packages/adapters/payments'
+import { auth } from '@/packages/auth'
 import { env } from '@/packages/config/env'
-import type { AppEnv } from '@/packages/config/types'
-import { createLogger } from '@/packages/core/logger'
-import { db } from '@/packages/db/client'
-import { mountRoutes } from './routes'
+import { getLogger } from '@/packages/core/logger'
+import { AppError } from '@/packages/errors'
 
-const log = createLogger({
-  level: env.NODE_ENV === 'production' ? 'info' : 'debug',
-  pretty: env.NODE_ENV !== 'production',
-})
+const log = getLogger()
 
-const app = new Hono<AppEnv>()
-
-// Health check — only status for public, detailed info omitted
-app.get('/health', async (c) => {
-  let dbStatus: 'connected' | 'error' = 'error'
-  try {
-    await db.execute(sql`SELECT 1`)
-    dbStatus = 'connected'
-  } catch {
-    dbStatus = 'error'
-  }
-
-  const status = dbStatus === 'connected' ? 'healthy' : 'degraded'
-  const statusCode = status === 'healthy' ? 200 : 503
-
-  return c.json(
-    {
-      status,
-      timestamp: new Date().toISOString(),
-    },
-    statusCode,
-  )
-})
-
-// ─── Request ID Middleware ───
-app.use('*', async (c, next) => {
-  const requestId = c.req.header('x-request-id') ?? crypto.randomUUID()
-  c.header('X-Request-Id', requestId)
-  c.set('requestId', requestId)
-  await next()
-})
-
-// ─── Request Logging Middleware ───
-app.use('*', async (c, next) => {
-  const start = Date.now()
-  await next()
-  const duration = Date.now() - start
-  const requestId = c.get('requestId')
-  log.info(`${c.req.method} ${c.req.path}`, {
-    status: c.res.status,
-    duration,
-    ...(requestId ? { requestId } : {}),
-  })
-})
-
-app.use('*', secureHeaders())
-
-// CORS: accept main domain + org subdomains
-function isAllowedOrigin(origin: string): boolean {
-  if (origin === env.PUBLIC_APP_URL) return true
-  try {
-    const mainUrl = new URL(env.PUBLIC_APP_URL)
-    const requestUrl = new URL(origin)
-    // Allow *.domain.com subdomains (org subdomains)
-    if (
-      requestUrl.hostname.endsWith(`.${mainUrl.hostname}`) &&
-      requestUrl.protocol === mainUrl.protocol
-    ) {
-      return true
+export const app = new Elysia()
+  .onError(({ error, set }) => {
+    if (error instanceof AppError) {
+      set.status = error.status
+      return error.toJSON()
     }
-  } catch {
-    return false
-  }
-  return false
-}
-
-app.use(
-  '*',
-  cors({
-    origin: (origin) => (isAllowedOrigin(origin) ? origin : env.PUBLIC_APP_URL),
-    credentials: true,
-  }),
-)
-
-// Mount routes
-const routes = mountRoutes(app)
-
-// Global error handler
-app.onError(async (err, c) => {
-  const requestId = c.get('requestId')
-  log.error(`${c.req.method} ${c.req.path} — ${err.message}`, {
-    ...(requestId ? { requestId } : {}),
-    stack: env.NODE_ENV !== 'production' ? err.stack : undefined,
+    log.error('unhandled error', { error: String(error) })
+    set.status = 500
+    return { ok: false, code: 'INTERNAL_ERROR', message: 'Internal server error' }
   })
 
-  // Send to error tracking (non-blocking)
-  captureException(err, {
-    requestId,
-    method: c.req.method,
-    path: c.req.path,
-  }).catch(() => {})
+  // ── Health ─────────────────────────────────────────────────────
+  .get('/health', () => ({ ok: true as const }), {
+    response: t.Object({ ok: t.Literal(true) }),
+  })
 
-  return c.json(
-    { ok: false, error: { code: 'INTERNAL_ERROR', message: 'Internal server error' } },
-    500,
-  )
-})
+  // ── Auth (better-auth) ────────────────────────────────────────
+  .all('/auth/*', ({ request }) => auth.handler(request))
 
-// Export type for RPC
-export type AppRoutes = typeof routes
+  // ── Authenticated session probe ───────────────────────────────
+  .derive(async ({ request }) => {
+    const session = await auth.api.getSession({ headers: request.headers })
+    return {
+      user: session?.user ?? null,
+      session: session?.session ?? null,
+    }
+  })
+  .get('/me', ({ user }) => {
+    if (!user) throw new AppError('UNAUTHORIZED')
+    return { user }
+  })
 
-// Start server
-export default {
-  port: env.PORT,
-  fetch: app.fetch,
+  // ── Polar webhook ─────────────────────────────────────────────
+  .post('/webhooks/polar', async ({ request }) => {
+    const body = await request.text()
+    const event = await verifyWebhook(request.headers, body)
+    log.info('polar.webhook', { event })
+    return { ok: true as const }
+  })
+
+export type App = typeof app
+
+if (import.meta.main) {
+  app.listen(env.PORT)
+  log.info('api.started', { port: env.PORT, env: env.NODE_ENV })
 }

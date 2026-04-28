@@ -1,60 +1,32 @@
-/**
- * Seed script — populates the database with test data for local development.
- *
- * Usage: bun platform/scripts/seed.ts
- *
- * Prerequisites: DATABASE_URL must be set and migrations must be run first.
- */
+// Seed script — populates the database with test data for local development.
+//
+// Usage: bun run db:seed
+// Prerequisites: DATABASE_URL set, migrations applied.
+
 import { drizzle } from 'drizzle-orm/postgres-js'
 import postgres from 'postgres'
+import { env } from '@/packages/config/env'
 import * as schema from '@/packages/db/schema'
 
-const url = process.env.DATABASE_URL
-if (!url) {
-  console.error('DATABASE_URL is required')
-  process.exit(1)
-}
-
-const client = postgres(url, { max: 1 })
+const client = postgres(env.DATABASE_URL, { max: 1 })
 const db = drizzle(client, { schema })
 
-// ─── Seed Data ───────────────────────────────────────────────────────────────
+const seedUsers = [
+  { email: 'admin@example.com', name: 'Admin User', emailVerified: true, role: 'admin' as const },
+  { email: 'user@example.com', name: 'Test User', emailVerified: true, role: 'free' as const },
+  { email: 'pro@example.com', name: 'Pro User', emailVerified: true, role: 'pro' as const },
+]
 
-const adminUser = {
-  email: 'admin@example.com',
-  name: 'Admin User',
-  emailVerified: true,
-  role: 'admin' as const,
-}
+console.log('Seeding database…')
 
-const testUser = {
-  email: 'user@example.com',
-  name: 'Test User',
-  emailVerified: true,
-  role: 'free' as const,
-}
-
-const proUser = {
-  email: 'pro@example.com',
-  name: 'Pro User',
-  emailVerified: true,
-  role: 'pro' as const,
-}
-
-// ─── Insert ──────────────────────────────────────────────────────────────────
-
-console.log('Seeding database...')
-
-const users = await db
+const inserted = await db
   .insert(schema.users)
-  .values([adminUser, testUser, proUser])
+  .values(seedUsers)
   .onConflictDoNothing({ target: schema.users.email })
   .returning()
 
-console.log(`Created ${users.length} users`)
-
-// ─── Done ────────────────────────────────────────────────────────────────────
+console.log(`Inserted ${inserted.length} users.`)
 
 await client.end()
-console.log('Seed complete')
+console.log('Seed complete.')
 process.exit(0)

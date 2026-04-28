@@ -1,18 +1,19 @@
 // packages/api/index.ts — Eden Treaty client (vision §Stack)
 //
-// End-to-end types from server to client. Import the Elysia app's type
-// (apps/api/server/elysia-app.ts → ElysiaApp) and expose a typed client
-// that any consumer can call without a separate API client SDK.
+// End-to-end types from server to client. Imports the Elysia app's type
+// (apps/api/server/app.ts → App) and exposes a typed client that any
+// consumer can call without a separate API client SDK.
 //
-// Usage in apps/web/ (once SolidStart lands in Phase 5):
-//   import { api } from '@/packages/api'
-//   const { data, error } = await api.v2.health.get()
+// Usage in apps/web/:
+//   import { createApiClient } from '@/packages/api'
+//   const api = createApiClient(import.meta.env.VITE_API_URL)
+//   const { data, error } = await api.health.get()
 
 import { treaty } from '@elysiajs/eden'
-import type { ElysiaApp } from '@/apps/api/server/elysia-app'
+import type { App } from '@/apps/api/server/app'
 
-export type { ElysiaApp }
+export type { App }
 
 export function createApiClient(baseUrl: string) {
-  return treaty<ElysiaApp>(baseUrl)
+  return treaty<App>(baseUrl)
 }

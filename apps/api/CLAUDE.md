@@ -1,44 +1,35 @@
 # api/
 
 ## Purpose
-The HTTP API. Currently runs on Hono (`server/app.ts`) with Elysia (`server/elysia-app.ts`) coming online incrementally. Once parity is reached, Hono is deleted and Elysia is the only entry point. Vision §Stack: Elysia + TypeBox + Eden Treaty.
+The Elysia HTTP API. Single entry at `server/app.ts`. Better Auth handles `/auth/*`; everything else is typed Elysia routes with TypeBox schemas so Eden Treaty derives end-to-end client types in `packages/api/`.
 
 ## Critical Rules
-- NEVER add new routes to `server/app.ts` (Hono). Add them to `server/elysia-app.ts` (Elysia) instead.
-- NEVER import a feature's internals from another feature; cross-feature reuse goes through `packages/`.
-- ALWAYS validate request input with TypeBox schemas in Elysia routes (`body`, `query`, `params` keys).
-- ALWAYS shape responses with TypeBox `response` schemas so Eden Treaty types reach the client.
-- ALWAYS run `bun run check` before committing.
-
-## Migration status (Phase 4)
-
-| Concern | Today | Target |
-|---|---|---|
-| Framework | Hono (`server/app.ts`) | Elysia (`server/elysia-app.ts`) |
-| Validation | Zod (`@hono/zod-validator`) | TypeBox (`@sinclair/typebox`, native to Elysia) |
-| Type bridge | none | Eden Treaty (`packages/api/`) |
-| Workflows | none | Inngest (`packages/workflows/`) |
-| Payments | Stripe (`packages/adapters/payments.ts`) | Polar (`@polar-sh/sdk`) |
-
-Hono and Elysia run side-by-side on different prefixes during the swap (`/api/*` Hono, `/v2/*` Elysia). Each route is ported individually; Hono entries are deleted when their Elysia counterpart passes parity tests.
+- NEVER add a `/api/...` route by hand-rolling fetch handlers — define on the Elysia `app` so the type flows to clients.
+- ALWAYS validate request input with TypeBox (`body`, `query`, `params`) and shape responses with TypeBox (`response`).
+- NEVER import vendor SDKs (Resend, Polar, Anthropic, S3, PostHog) directly. Go through `packages/adapters/`.
+- NEVER write authorization checks inline. Use `auth.api.getSession({ headers })` from `packages/auth/`.
+- ALWAYS `bun run check` before committing.
 
 ## Imports (use from other modules)
 ```ts
-import { app } from '@/apps/api/server/app'           // Hono (legacy)
-import { elysiaApp } from '@/apps/api/server/elysia-app' // Elysia (target)
+import { app } from '@/apps/api/server/app'
 ```
 
 ## Recipe: New endpoint
-1. Add to `server/elysia-app.ts`:
-   ```ts
-   .get('/things', () => list(), {
-     response: t.Array(thingSchema),
-   })
-   ```
-2. The `ElysiaApp` type updates automatically; clients get it via `packages/api/`.
-3. Add a colocated test in the same folder.
+```ts
+import { Elysia, t } from 'elysia'
+import { app } from './app'
+
+app.get('/things/:id', ({ params }) => fetchThing(params.id), {
+  params: t.Object({ id: t.String({ format: 'uuid' }) }),
+  response: t.Object({ id: t.String(), name: t.String() }),
+})
+```
+
+The route's body/query/params/response types automatically reach the client via `packages/api/`.
 
 ## Verify
 ```sh
 bun run check
+bun run dev
 ```

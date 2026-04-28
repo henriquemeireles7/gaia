@@ -1,42 +1,39 @@
 import { describe, expect, it } from 'bun:test'
-import { intervalFromPriceId, plans } from './payments'
+import { verifyWebhook } from './payments'
 
-describe('plans', () => {
-  it('has yearly and monthly plans', () => {
-    expect(plans.yearly).toBeDefined()
-    expect(plans.monthly).toBeDefined()
+async function sign(secret: string, body: string): Promise<string> {
+  const key = await crypto.subtle.importKey(
+    'raw',
+    new TextEncoder().encode(secret),
+    { name: 'HMAC', hash: 'SHA-256' },
+    false,
+    ['sign'],
+  )
+  const sig = await crypto.subtle.sign('HMAC', key, new TextEncoder().encode(body))
+  return [...new Uint8Array(sig)].map((b) => b.toString(16).padStart(2, '0')).join('')
+}
+
+describe('verifyWebhook (Polar)', () => {
+  it('rejects when signature header is missing', async () => {
+    await expect(verifyWebhook(new Headers(), '{}')).rejects.toMatchObject({
+      provider: 'polar',
+      operation: 'verifyWebhook',
+      statusCode: 401,
+    })
   })
 
-  it('yearly plan has correct shape', () => {
-    expect(plans.yearly.interval).toBe('year')
-    expect(plans.yearly.amount).toBe(9900)
-    expect(plans.yearly.currency).toBe('usd')
-    expect(plans.yearly.name).toContain('Yearly')
+  it('rejects when signature does not match', async () => {
+    const headers = new Headers({ 'polar-signature': 'deadbeef' })
+    await expect(verifyWebhook(headers, '{"type":"sub.created"}')).rejects.toMatchObject({
+      statusCode: 401,
+    })
   })
 
-  it('monthly plan has correct shape', () => {
-    expect(plans.monthly.interval).toBe('month')
-    expect(plans.monthly.amount).toBe(990)
-    expect(plans.monthly.currency).toBe('usd')
-    expect(plans.monthly.name).toContain('Monthly')
-  })
-})
-
-describe('intervalFromPriceId', () => {
-  it('returns month for monthly price ID', () => {
-    expect(intervalFromPriceId(plans.monthly.priceId)).toBe('month')
-  })
-
-  it('returns year for yearly price ID when different from monthly', () => {
-    // When price IDs are identical (dev env), monthly wins since it's checked first
-    if (plans.yearly.priceId === plans.monthly.priceId) {
-      expect(intervalFromPriceId(plans.yearly.priceId)).toBe('month')
-    } else {
-      expect(intervalFromPriceId(plans.yearly.priceId)).toBe('year')
-    }
-  })
-
-  it('defaults to year for unknown price ID', () => {
-    expect(intervalFromPriceId('price_unknown')).toBe('year')
+  it('returns parsed body when signature is valid', async () => {
+    const body = '{"type":"sub.created","id":"sub_1"}'
+    const sig = await sign(process.env.POLAR_WEBHOOK_SECRET ?? 'polar_whsec_test', body)
+    const headers = new Headers({ 'polar-signature': sig })
+    const event = await verifyWebhook(headers, body)
+    expect(event).toEqual({ type: 'sub.created', id: 'sub_1' })
   })
 })

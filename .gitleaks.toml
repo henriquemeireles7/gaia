@@ -16,10 +16,16 @@ paths = [
 
 # Permit obviously-fake test secrets used in unit tests.
 regexes = [
-  '''sk_test_ci_placeholder''',
   '''sk-ant-test_ci_placeholder''',
   '''re_test_ci_placeholder''',
-  '''whsec_test_ci_placeholder''',
-  '''pk_test_ci_placeholder''',
+  '''polar_test_ci_placeholder''',
+  '''polar_whsec_test_ci_placeholder''',
+  '''prod_test_ci_placeholder''',
   '''test-secret-min-32-chars-for-ci-validation''',
+  '''test-secret-min-32-chars-for-validation-pad''',
+  '''polar_test_token''',
+  '''polar_whsec_test''',
+  '''product_test_123''',
+  '''sk-ant-test-key''',
+  '''re_test_key''',
 ]

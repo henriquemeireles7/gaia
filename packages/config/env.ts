@@ -1,50 +1,76 @@
-import { createEnv } from '@t3-oss/env-core'
-import { z } from 'zod'
+// packages/config/env.ts — TypeBox env validation (vision §Stack)
+//
+// Single source of truth for runtime configuration. Everything that reads
+// from process.env imports `env` from here; raw process.env access is
+// blocked by harden-check.
 
-export const env = createEnv({
-  server: {
-    NODE_ENV: z.enum(['development', 'test', 'production']).default('development'),
-    DATABASE_URL: z.string().min(1),
-    PORT: z.coerce.number().default(3000),
-    BETTER_AUTH_SECRET: z.string().min(1),
+import { type Static, Type } from '@sinclair/typebox'
+import { Value } from '@sinclair/typebox/value'
 
-    // ─── Payments: Stripe ───
-    STRIPE_SECRET_KEY: z.string().startsWith('sk_'),
-    STRIPE_WEBHOOK_SECRET: z.string().startsWith('whsec_'),
-    STRIPE_PRICE_ID: z.string().startsWith('price_'),
-    STRIPE_MONTHLY_PRICE_ID: z.string().startsWith('price_'),
+export const EnvSchema = Type.Object({
+  // ─── Core ───────────────────────────────────────────────────────
+  NODE_ENV: Type.Union(
+    [Type.Literal('development'), Type.Literal('test'), Type.Literal('production')],
+    { default: 'development' },
+  ),
+  DATABASE_URL: Type.String({ minLength: 1 }),
+  PORT: Type.Integer({ minimum: 1, maximum: 65535, default: 3000 }),
+  BETTER_AUTH_SECRET: Type.String({ minLength: 32 }),
+  PUBLIC_APP_URL: Type.String({ minLength: 1, default: 'http://localhost:3000' }),
 
-    // ─── Email: Resend ───
-    RESEND_API_KEY: z.string().min(1),
+  // ─── Payments: Polar ───────────────────────────────────────────
+  POLAR_ACCESS_TOKEN: Type.String({ minLength: 1 }),
+  POLAR_WEBHOOK_SECRET: Type.String({ minLength: 1 }),
+  POLAR_PRODUCT_ID: Type.String({ minLength: 1 }),
 
-    // ─── AI: Anthropic ───
-    ANTHROPIC_API_KEY: z.string().startsWith('sk-ant-'),
+  // ─── Email: Resend ─────────────────────────────────────────────
+  RESEND_API_KEY: Type.String({ minLength: 1 }),
 
-    // ─── Analytics: PostHog (optional) ───
-    POSTHOG_API_KEY: z.string().min(1).optional(),
-    POSTHOG_HOST: z.string().url().default('https://us.i.posthog.com'),
+  // ─── AI: Anthropic ─────────────────────────────────────────────
+  ANTHROPIC_API_KEY: Type.String({ pattern: '^sk-ant-' }),
 
-    // ─── Storage: S3/R2 (optional) ───
-    R2_ENDPOINT: z.string().url().optional(),
-    R2_ACCESS_KEY_ID: z.string().min(1).optional(),
-    R2_SECRET_ACCESS_KEY: z.string().min(1).optional(),
-    R2_BUCKET_NAME: z.string().min(1).optional(),
+  // ─── Optional: Analytics ───────────────────────────────────────
+  POSTHOG_API_KEY: Type.Optional(Type.String({ minLength: 1 })),
+  POSTHOG_HOST: Type.String({ minLength: 1, default: 'https://us.i.posthog.com' }),
+  PUBLIC_POSTHOG_KEY: Type.Optional(Type.String({ minLength: 1 })),
 
-    // ─── OAuth: Google (optional) ───
-    GOOGLE_CLIENT_ID: z.string().min(1).optional(),
-    GOOGLE_CLIENT_SECRET: z.string().min(1).optional(),
+  // ─── Optional: Storage (S3-compatible — Railway Buckets / R2) ─
+  R2_ENDPOINT: Type.Optional(Type.String({ minLength: 1 })),
+  R2_ACCESS_KEY_ID: Type.Optional(Type.String({ minLength: 1 })),
+  R2_SECRET_ACCESS_KEY: Type.Optional(Type.String({ minLength: 1 })),
+  R2_BUCKET_NAME: Type.Optional(Type.String({ minLength: 1 })),
 
-    // ─── Error Tracking: Sentry (optional) ───
-    SENTRY_DSN: z.string().url().optional(),
+  // ─── Optional: OAuth ───────────────────────────────────────────
+  GOOGLE_CLIENT_ID: Type.Optional(Type.String({ minLength: 1 })),
+  GOOGLE_CLIENT_SECRET: Type.Optional(Type.String({ minLength: 1 })),
 
-    // CUSTOMIZE: Add your env vars above
-  },
-  clientPrefix: 'PUBLIC_',
-  client: {
-    PUBLIC_APP_URL: z.string().url().default('http://localhost:3000'),
-    PUBLIC_STRIPE_KEY: z.string().startsWith('pk_'),
-    PUBLIC_POSTHOG_KEY: z.string().min(1).optional(),
-  },
-  runtimeEnv: process.env,
-  emptyStringAsUndefined: true,
+  // ─── Optional: Observability ──────────────────────────────────
+  SENTRY_DSN: Type.Optional(Type.String({ minLength: 1 })),
+  AXIOM_TOKEN: Type.Optional(Type.String({ minLength: 1 })),
+  AXIOM_ORG_ID: Type.Optional(Type.String({ minLength: 1 })),
+  OTEL_EXPORTER_OTLP_ENDPOINT: Type.Optional(Type.String({ minLength: 1 })),
+
+  // ─── Optional: Workflows (Inngest) ────────────────────────────
+  INNGEST_EVENT_KEY: Type.Optional(Type.String({ minLength: 1 })),
+  INNGEST_SIGNING_KEY: Type.Optional(Type.String({ minLength: 1 })),
 })
+
+export type Env = Static<typeof EnvSchema>
+
+export function parseEnv(raw: Record<string, string | undefined>): Env {
+  const cleaned: Record<string, unknown> = {}
+  for (const [k, v] of Object.entries(raw)) {
+    if (v === undefined || v === '') continue
+    cleaned[k] = v
+  }
+  const candidate = Value.Parse(['Convert', 'Clean', 'Default'], EnvSchema, cleaned)
+  if (Value.Check(EnvSchema, candidate)) {
+    return candidate
+  }
+  const errors = [...Value.Errors(EnvSchema, candidate)]
+    .map((e) => `  - ${e.path}: ${e.message}`)
+    .join('\n')
+  throw new Error(`Invalid environment variables:\n${errors}`)
+}
+
+export const env = parseEnv(process.env as Record<string, string | undefined>)

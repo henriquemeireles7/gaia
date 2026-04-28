@@ -20,13 +20,13 @@ Index of folders that have a `CLAUDE.md` and why. Vision §H6: every CLAUDE.md e
 
 | Folder | Why a CLAUDE.md |
 |---|---|
-| `apps/api/` | Hono API app *(Elysia swap in Phase 4)*. |
-| `apps/api/features/<domain>/` | Each domain's local rules (account, admin, blog, email, organizations, pages, seo, subscription). |
-| `packages/adapters/` | Vendor adapters. One file per capability, named by what not who. |
-| `packages/auth/`, `packages/db/` | Auth and DB packages. |
-| `packages/security/` | CSRF, rate-limit, harden-check. |
-| `packages/ui/` | Preact components, layouts, styles *(SolidStart in Phase 5)*. |
-| `packages/config/`, `packages/errors/`, `packages/core/` | Foundation packages. |
+| `apps/api/` | Elysia HTTP API. Single entry, TypeBox routes, Eden Treaty types. |
+| `apps/web/` | SolidStart frontend (file-based routing, Bun runtime). |
+| `packages/adapters/` | Vendor wrappers. One file per capability (payments, email, ai, storage, analytics, error-tracking). |
+| `packages/auth/` | Better Auth wired to Drizzle. Mounted into Elysia. |
+| `packages/api/` | Eden Treaty client (server→client type bridge). |
+| `packages/workflows/` | Inngest client. |
+| `packages/config/`, `packages/errors/`, `packages/db/`, `packages/core/`, `packages/ui/`, `packages/security/` | Foundation packages. |
 
 ## Out of scope for the manifest
 

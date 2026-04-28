@@ -2,13 +2,13 @@ import { describe, expect, it } from 'bun:test'
 import { ProviderError } from './errors'
 
 describe('ProviderError', () => {
-  it('creates error with correct message format', () => {
-    const err = new ProviderError('stripe', 'createCheckout', 400, { raw: 'data' })
-    expect(err.message).toBe('stripe.createCheckout failed (400)')
+  it('formats the message as `provider.operation failed (status)`', () => {
+    const err = new ProviderError('polar', 'createCheckout', 400, { raw: 'data' })
+    expect(err.message).toBe('polar.createCheckout failed (400)')
     expect(err.name).toBe('ProviderError')
   })
 
-  it('stores provider, operation, statusCode, and rawResponse', () => {
+  it('exposes provider, operation, statusCode, rawResponse', () => {
     const raw = { error: 'bad request' }
     const err = new ProviderError('resend', 'sendEmail', 422, raw)
     expect(err.provider).toBe('resend')
@@ -17,13 +17,9 @@ describe('ProviderError', () => {
     expect(err.rawResponse).toBe(raw)
   })
 
-  it('is an instance of Error', () => {
+  it('is an instanceof Error and has a stack trace', () => {
     const err = new ProviderError('s3', 'upload', 500, null)
     expect(err).toBeInstanceOf(Error)
-  })
-
-  it('has a stack trace', () => {
-    const err = new ProviderError('s3', 'upload', 500, null)
     expect(err.stack).toBeDefined()
   })
 })

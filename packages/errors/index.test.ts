@@ -1,67 +1,58 @@
 import { describe, expect, it } from 'bun:test'
-import { Hono } from 'hono'
-import type { ErrorCode } from '.'
-import { errors, throwError } from '.'
+import { AppError, type ErrorCode, errors } from '.'
 
-describe('errors', () => {
-  it('has correct shape for all error codes', () => {
-    for (const [key, error] of Object.entries(errors)) {
-      expect(error).toHaveProperty('status')
-      expect(error).toHaveProperty('code')
-      expect(error).toHaveProperty('message')
-      expect(typeof error.status).toBe('number')
-      expect(typeof error.code).toBe('string')
-      expect(typeof error.message).toBe('string')
-      expect(error.code as string).toBe(key)
+describe('errors catalog', () => {
+  it('every entry has a numeric status, string code, and string message', () => {
+    for (const [key, entry] of Object.entries(errors)) {
+      expect(typeof entry.status).toBe('number')
+      expect(typeof entry.code).toBe('string')
+      expect(typeof entry.message).toBe('string')
+      expect(entry.code as string).toBe(key)
     }
   })
 
-  it('has status codes in valid HTTP range', () => {
-    for (const error of Object.values(errors)) {
-      expect(error.status).toBeGreaterThanOrEqual(400)
-      expect(error.status).toBeLessThanOrEqual(599)
+  it('status codes are in valid HTTP error range', () => {
+    for (const entry of Object.values(errors)) {
+      expect(entry.status).toBeGreaterThanOrEqual(400)
+      expect(entry.status).toBeLessThanOrEqual(599)
     }
   })
 })
 
-describe('throwError', () => {
-  const app = new Hono()
-
-  app.get('/test/:code', (c) => {
-    const code = c.req.param('code') as ErrorCode
-    return throwError(c, code)
+describe('AppError', () => {
+  it('exposes code, status, details', () => {
+    const err = new AppError('UNAUTHORIZED')
+    expect(err.code).toBe('UNAUTHORIZED')
+    expect(err.status).toBe(401)
+    expect(err.details).toBeUndefined()
   })
 
-  app.get('/test-details', (c) => {
-    return throwError(c, 'NOT_FOUND', 'User with id 123')
+  it('captures details when provided', () => {
+    const err = new AppError('NOT_FOUND', 'user 42')
+    expect(err.details).toBe('user 42')
   })
 
-  it('returns correct JSON shape', async () => {
-    const res = await app.request('/test/UNAUTHORIZED')
-    const body = await res.json()
-    expect(res.status).toBe(401)
-    expect(body).toEqual({
+  it('serializes to the v1 wire shape', () => {
+    const err = new AppError('RATE_LIMITED', 'limit=10/m')
+    expect(err.toJSON()).toEqual({
       ok: false,
-      code: 'UNAUTHORIZED',
-      message: 'Authentication required',
-      details: undefined,
+      code: 'RATE_LIMITED',
+      message: 'Too many requests',
+      details: 'limit=10/m',
     })
   })
 
-  it('includes details when provided', async () => {
-    const res = await app.request('/test-details')
-    const body = await res.json()
-    expect(res.status).toBe(404)
-    expect(body.details).toBe('User with id 123')
+  it('omits details from JSON when not provided', () => {
+    const err = new AppError('INTERNAL_ERROR')
+    expect(err.toJSON()).toEqual({
+      ok: false,
+      code: 'INTERNAL_ERROR',
+      message: 'Internal server error',
+    })
   })
 
-  it('returns 429 for rate limited', async () => {
-    const res = await app.request('/test/RATE_LIMITED')
-    expect(res.status).toBe(429)
-  })
-
-  it('returns 500 for internal error', async () => {
-    const res = await app.request('/test/INTERNAL_ERROR')
-    expect(res.status).toBe(500)
+  it('is instanceof Error', () => {
+    const err = new AppError('FORBIDDEN' satisfies ErrorCode)
+    expect(err).toBeInstanceOf(Error)
   })
 })
