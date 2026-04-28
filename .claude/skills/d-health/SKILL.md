@@ -5,6 +5,21 @@ description: "Comprehensive codebase health audit: 10 sessions covering security
 
 # d-health — Comprehensive Codebase Health Audit
 
+> **Path translation (gaia v6):** the body below references kaz-setup paths; the gaia equivalents are:
+>
+> - `platform/scripts/harden-check.ts` → `packages/security/harden-check.ts`
+> - `platform/db/schema.ts` → `packages/db/schema.ts`
+> - `platform/server/routes.ts` → `apps/api/server/app.ts` (+ feature modules under `apps/api/server/`)
+> - `platform/errors.ts` → `packages/errors/index.ts`
+> - `platform/env.ts` → `packages/config/env.ts`
+> - `platform/auth/permissions.ts` → `packages/auth/index.ts`
+> - `providers/<x>.ts` → `packages/adapters/<x>.ts`
+> - `zValidator()` / Zod → TypeBox via Elysia route schemas
+> - `throwError('CODE')` → `throw new AppError('CODE')` (from `@gaia/errors`)
+> - `c.req.json()` → Elysia `body` with TypeBox schema
+> - Stripe → Polar (`packages/adapters/payments.ts`)
+>   A full rewrite of this skill is tracked as a future project; the audit logic still applies, just translate paths as you read.
+
 ## What this does
 
 Deep periodic audit of the entire codebase across 10 sessions. Report-only — never fixes code,

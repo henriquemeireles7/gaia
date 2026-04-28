@@ -32,14 +32,15 @@ If not provided, ask the user which project to implement.
 
 Understand what exists before coding. Read these files using the Read tool (not cat):
 
-- `platform/db/schema.ts` — What tables exist?
-- `platform/server/routes.ts` — What routes exist?
-- `platform/errors.ts` — What errors exist?
-- `platform/env.ts` — What env vars exist?
+- `packages/db/schema.ts` — What tables exist?
+- `apps/api/server/app.ts` — What routes are mounted? (Plus any `apps/api/server/<feature>.ts` modules.)
+- `packages/errors/index.ts` — What error codes exist?
+- `packages/config/env.ts` — What env vars exist?
 
-Read root CLAUDE.md (build order, rules, seven key files).
-Read `decisions/code.md` (patterns, TDD, dependency rules).
-Read the CLAUDE.md of EVERY folder you're about to modify.
+Read root `CLAUDE.md` (build order, rules, docs resolver).
+Read `.gaia/reference/code.md` (the 10 coding principles).
+Read the relevant `.gaia/reference/<domain>.md` for the area you're touching.
+Read the CLAUDE.md of every folder you're about to modify (`.gaia/MANIFEST.md` indexes them).
 
 ---
 

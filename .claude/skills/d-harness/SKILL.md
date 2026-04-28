@@ -102,7 +102,7 @@ Update the relevant config:
 
 #### Layer: Script (complex check)
 
-Add a check to `platform/scripts/harden-check.ts` or create a new script:
+Add a pattern to `packages/security/harden-check.ts` (the gaia harden gate), an ast-grep rule under `tools/ast-grep/rules/`, or create a new script under `scripts/`:
 
 - Add the pattern to the `PATTERNS` array in harden-check.ts
 - Or create a new script in `.claude/skills/d-harness/scripts/` for skill-specific checks

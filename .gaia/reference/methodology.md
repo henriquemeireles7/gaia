@@ -1,58 +1,311 @@
-# Methodology — Evolving the `.gaia/` substrate
+# Methodology — The Constitutional Loop
 
-> Status: Reference
+> Status: Reference (the methodology that produces every other reference)
 > Last verified: April 2026
-> Scope: How `.gaia/` itself changes — when to add a reference, when to add a skill, when to add a hook, when to write an ADR
-> Paired with: `harness.md` (mechanics), `ax.md` (agent experience)
+> Scope: How `.gaia/` itself evolves. Names the methodology. Defines the relations between References, Rules, Skills, and Hooks.
+> Paired with: `code.md` (the constitutional pattern), `harness.md` (mechanics), `ax.md` (agent experience), `skills.md` (skill conventions)
 
 ---
 
 ## What this file is
 
-The `.gaia/` folder is not static. It evolves as the project learns. This file is the discipline for those changes — what kinds of additions belong where, and what gates them.
+Most "AI rules" libraries hand the agent a markdown file. The agent reads it (sometimes), the rules drift from the code, and a year later you have a folder of advice nobody enforces.
 
-Without this discipline you get one of two failure modes:
+Gaia's answer is **The Constitutional Loop**. It is the methodology that turns principles into a moat:
 
-1. **Drift toward bloat** — every learning becomes a reference doc; the constitution turns into a CMS the agent can't fit in context.
-2. **Drift toward chaos** — learnings live in commit messages and Slack threads; the agent re-discovers the same fix every week.
+```
+       ┌──────────── domain-context hook ─────────────┐
+       │                                              ▼
+   ┌───┴───┐         ┌──────────┐         ┌──────────────┐
+   │ READ  │ ───►    │ WRITE    │ ───►    │ VERIFY       │
+   │ ref/  │         │ code +   │         │ rules.ts     │
+   │ <X>.md│         │ tests    │         │ mechanisms   │
+   └───────┘         └──────────┘         └──────┬───────┘
+                                                  │
+                                          rules-coverage CI
+                                                  │
+                                          (loop closes)
+```
 
-Methodology is the antidote: a small set of rules that decide where each new piece of knowledge lives.
+Three substrates compose the methodology — call them **the Reference–Rule–Skill (RRS) triad**:
+
+| Substrate     | Form         | Loaded when             | Verified when      | Failure if absent         |
+| ------------- | ------------ | ----------------------- | ------------------ | ------------------------- |
+| **Reference** | Loaded noun  | Before edits in domain  | n/a (informs)      | Agent guesses; drift      |
+| **Rule**      | Mechanism    | n/a (executed)          | After edits, in CI | Reference is aspirational |
+| **Skill**     | Invoked verb | When user/agent invokes | At end of skill    | Procedure is inconsistent |
+
+Hooks bridge them: `domain-context.ts` auto-loads References before relevant edits; `harden-check.ts` and the script suite verify Rules after edits; the `Skill` tool surfaces Skills.
+
+A principle that exists in only one substrate is incomplete. The methodology's job is to make sure every principle traverses the loop.
+
+Read `code.md` first to understand the four-part principle shape (description + enforcement + anti-pattern + pattern). This file uses it.
 
 ---
 
-## The 7 methodology principles
+## The 8 methodology principles
 
-### Where things live
+### 1. The Constitutional Loop is the methodology
 
-**1. Reference files describe taste; rules.ts describes mechanism.**
-A reference (`code.md`, `backend.md`, etc.) is the _why_ — opinions, principles, examples. `rules.ts` is the _what_ — a mechanically enforceable rule with a `mechanism: { kind, ... }`. New rule = entry in `rules.ts`. New principle that can't be mechanically checked = section in a reference. Never both at the same level — references explain, rules enforce.
+Every concern in Gaia has up to three forms (Reference, Rule, Skill) connected by two bridges (auto-load Hook, verify Mechanism). The Loop closes when both bridges fire on the same concern. A concern that lives in only one substrate is debt.
 
-**2. Skills are verbs; references are nouns.**
-A skill (`d-tdd`, `d-review`) is something you _do_ — a procedure with phases, checks, and outputs. A reference is something you _consult_ before doing. If a new pattern is "read these files, follow these steps, produce this output," it's a skill. If it's "here are the conventions for X," it's a reference.
+**Enforcement:**
 
-**3. Hooks enforce facts; CLAUDE.mds describe judgment (vision §4).**
-Anything mechanical (block this path, run this script on save) goes in `.claude/hooks/` referenced from `.claude/settings.json`. Anything that requires the agent to _decide_ (use this pattern when, prefer X over Y) goes in CLAUDE.md or a reference. Don't write a hook that requires a model call to evaluate.
+- `bun run rules:coverage` lists `rules.ts` entries with no matching reference and references with no matching rule (both directions).
+- The `domain-context` hook reads the rule's `reference` field and loads `.gaia/reference/<reference>.md` when an agent edits a file in that domain.
+- CI job `rules-coverage` runs the report on every PR.
 
-### When to add what
+**Anti-pattern:**
 
-**4. Add a reference when 3+ files would benefit from the same context.**
-A reference exists to be loaded. If only one file ever reads it, the content belongs in that file's CLAUDE.md or as inline comments. Three+ consumers across folders → it's a real reference.
+```ts
+// ❌ A "rule" that doesn't load any reference and isn't enforced
+{ id: 'mystery/be-careful', tier: 'architecture', mechanism: { kind: 'pending', note: '?' } }
+// nothing teaches the agent what "careful" means; nothing fails when it isn't
+```
 
-**5. Add a skill when there's a procedure with ≥3 phases.**
-A two-step thing is just two tool calls. A multi-phase procedure with cross-checks, fix-first behavior, or specific output formats is a skill. Skills live in `.claude/skills/<name>/SKILL.md` with the canonical frontmatter (see `skills.md`).
+**Pattern:**
 
-**6. Add an ADR for irreversible architecture changes.**
-ADRs (`.gaia/adrs/NNNN-name.md`) capture _why_ a one-way decision was made. Examples: choosing Polar over Stripe, replacing GritQL with ast-grep, adopting OKLCH. Reversible changes (a new rule, a new reference) don't need an ADR. The TEMPLATE.md is the canonical shape.
+```ts
+// ✅ Reference + rule + (optional) skill, all wired
+// .gaia/reference/security.md describes "Protected by default"
+// .gaia/rules.ts: { id: 'backend/protected-by-default', reference: 'backend',
+//                   mechanism: { kind: 'ast-grep', rule: 'backend-protected-by-default' } }
+// .claude/hooks/domain-context.ts: editing apps/api/server/* → loads backend.md
+// scripts (or ast-grep) verify on every commit
+```
 
-### What never moves
+---
 
-**7. Memory has three surfaces; none auto-promote.**
+### 2. Reference principles map 1:1 to `rules.ts` entries
 
-- `.gaia/memory/working/` — volatile, scoped to a session. Cleared whenever.
-- `.gaia/memory/episodic/` — append-only log. Patterns observed once.
-- `.gaia/memory/personal/` — per-developer, gitignored. Personal preferences.
+Every numbered principle in a reference file aspires to a `rules.ts` entry — even if the mechanism is `pending`. References without rules are aspirational; rules without references are inscrutable. Pending → enforced cycle time SLO: 14 days.
 
-Promotion to `reference/` is **manual** via the `d-harness` skill. Never auto-promote — observed patterns must be reviewed before becoming constitutional.
+**Enforcement:**
+
+- `scripts/rules-coverage.ts` reports total rules vs pending; CI prints the list on every PR.
+- (Planned) `scripts/check-reference-rule-mapping.ts` walks reference files and reports principles not in `rules.ts`.
+- A pending entry older than 14 days surfaces in the weekly `d-health` audit.
+
+**Anti-pattern:**
+
+```md
+<!-- ❌ Reference declares a principle with no rules.ts presence -->
+
+## 7. Audit logs on every mutation
+
+(no rules.ts entry; the agent has no signal that this is checked)
+```
+
+**Pattern:**
+
+```md
+<!-- ✅ Reference principle has a rules.ts entry, even if pending -->
+
+## 7. Audit logs on every mutation
+
+**Enforcement:** rule `security/audit-on-mutation` (mechanism: pending —
+ast-grep on routes mounted under `protectedRoute` calling DB writes
+without `auditLog()`). Coverage: see `bun run rules:coverage`.
+```
+
+---
+
+### 3. Skills are invoked verbs; references are loaded nouns; they compose
+
+References load via `Read` before edits in their domain (auto-loaded by the domain-context hook). Skills run via the `Skill` tool, with ≥3 phases per `skills.md`. Skills routinely `Read` references mid-execution. Both have a `Last verified:` field in their header — staleness is debt.
+
+**Enforcement:**
+
+- `scripts/check-skills.ts` validates SKILL.md frontmatter (`ax/skill-md-frontmatter` rule).
+- (Planned) `scripts/check-staleness.ts` flags references and skills with `Last verified` >180 days old.
+- The domain-context hook fails closed if a referenced file is missing.
+
+**Anti-pattern:**
+
+```md
+<!-- ❌ A "skill" with no phases — really just a tip -->
+
+# my-skill
+
+When you see X, do Y.
+```
+
+**Pattern:**
+
+```md
+<!-- ✅ Skill with phases, frontmatter, references -->
+
+---
+
+name: d-tdd
+description: 'TDD implementation. Triggers: "implement", "start coding".'
+
+---
+
+# d-tdd — TDD Implementation
+
+## Phase 0: ...
+
+## Phase 1: ...
+```
+
+---
+
+### 4. Hooks are deterministic gates; CLAUDE.mds are judgment context
+
+A hook executes in <100ms, makes a yes/no decision without an LLM call, and fails closed (block on error) by default. A CLAUDE.md is read into context and informs decisions that require judgment. Don't write a hook that needs a model call; don't put hard gates in CLAUDE.md prose.
+
+**Enforcement:**
+
+- Hooks live in `.claude/hooks/*.ts`; configured in `.claude/settings.json`.
+- A hook that calls `fetch()` to an LLM endpoint is review-rejected.
+- CLAUDE.mds are read-only context for the agent — the agent doesn't write to them mid-session.
+
+**Anti-pattern:**
+
+```ts
+// ❌ "Smart" hook that asks an LLM for permission
+// .claude/hooks/maybe-block.ts
+const verdict = await fetch('https://api.anthropic.com/...', {...})
+if (verdict === 'block') process.exit(1)
+// Latency: seconds. Determinism: zero. Cost: real money. Bug: unbounded.
+```
+
+**Pattern:**
+
+```ts
+// ✅ Deterministic, fast, fail-closed
+import { blockedFor } from '../../.gaia/rules'
+const blocked = blockedFor('security/protect-config')
+if (blocked.includes(input.tool_input.file_path)) {
+  console.error('Blocked: config file edit not authorized.')
+  process.exit(2) // hook fail-closed
+}
+```
+
+---
+
+### 5. Add a reference when ≥3 files in the same domain benefit; delete when dead
+
+Domain ≠ file count. 3 random files don't justify a reference; 3 files sharing a concern do. Soft ceiling: ~25 references — beyond that, the agent can't reason across enough relevant context. Delete a reference when it hasn't been auto-loaded in 6 months (the domain-context hook can log loads).
+
+**Enforcement:**
+
+- `MANIFEST.md` enumerates references; `scripts/check-manifest.ts` prevents drift.
+- (Planned) `scripts/reference-load-stats.ts` consumes hook telemetry; flags zero-load references.
+- Quarterly review of references in `d-health`.
+
+**Anti-pattern:**
+
+```sh
+# ❌ A reference per concern, no matter how narrow
+.gaia/reference/
+├── code.md
+├── code-tests.md
+├── code-tests-mocking.md
+├── code-tests-mocking-resend.md
+└── …  # 87 files, agent's context blows up
+```
+
+**Pattern:**
+
+```sh
+# ✅ Domain-grouped, ~21 references (current)
+.gaia/reference/
+├── code.md, backend.md, frontend.md, database.md, testing.md, …
+```
+
+---
+
+### 6. Add a skill when output must be consistent AND ≥3 phases
+
+Skills are invocable verbs the user surfaces by name (`/d-review`). Phases run sequentially unless explicitly marked branching. Two reasons to make something a skill: **consistency** (same input → same output every time) and **discoverability** (the user can find it by name). Tasks with neither belong in a CLAUDE.md or a script.
+
+**Enforcement:**
+
+- SKILL.md frontmatter required (`ax/skill-md-frontmatter`, script-enforced).
+- Quarterly skill audit in `d-health`; unused skills (no invocation in 6 months) get archived.
+
+**Anti-pattern:**
+
+```md
+<!-- ❌ A "skill" that's actually a tip -->
+
+# helpful-tip
+
+Reminder: always run tests before commit.
+
+(this is a CLAUDE.md line, not a skill)
+```
+
+**Pattern:**
+
+See `.claude/skills/d-review/SKILL.md` — frontmatter, phases, pre-condition + final-gate sandwich, output format.
+
+---
+
+### 7. Write an ADR for irreversible decisions; append-only
+
+Adopting a new framework, switching a payment provider, replacing the lint engine, changing the auth model — these need an ADR at `.gaia/adrs/NNNN-<title>.md`. Decisions log entries in references are _local_ (the evolution of one reference). ADRs are _global_ (the evolution of the project). Numbering is append-only; superseded ADRs stay with status updated.
+
+**Enforcement:**
+
+- ADR template: `.gaia/adrs/TEMPLATE.md`.
+- The PR landing the decision links to the ADR. Reviewer reads ADR first.
+- (Planned) `scripts/check-adr-numbering.ts` rejects renumbered ADRs.
+
+**Anti-pattern:**
+
+```sh
+# ❌ Decision lives only in commit message
+git commit -m "switch from Stripe to Polar (we should document this someday)"
+```
+
+**Pattern:**
+
+```sh
+# ✅ ADR + linked PR
+ls .gaia/adrs/
+0001-ast-grep-over-gritql.md
+0002-polar-over-stripe.md  # status: accepted; supersedes nothing
+```
+
+---
+
+### 8. Memory has three surfaces with explicit owners and decay
+
+| Surface            | Owner    | Lifetime     | Promotes to              |
+| ------------------ | -------- | ------------ | ------------------------ |
+| `memory/working/`  | Agent    | Per session  | (cleared on session end) |
+| `memory/episodic/` | Agent    | 90-day decay | `reference/` via human   |
+| `memory/personal/` | Operator | Indefinite   | Stays (gitignored)       |
+
+The agent writes to `memory/episodic/` during sessions. After 90 days without re-trigger, entries are archived. Promotion to `reference/` is manual via `d-harness` and requires the same review as a code change. `memory/personal/` is gitignored at the directory level — never commit personal notes.
+
+**Enforcement:**
+
+- `.gitignore` excludes `memory/personal/`.
+- (Planned) `scripts/memory-decay.ts` archives episodic entries older than 90 days into `memory/episodic/.archive/`.
+- `d-harness` is the only skill that promotes — code review enforces.
+
+**Anti-pattern:**
+
+```md
+<!-- ❌ Personal preference committed to memory/personal/ in a PR -->
+
+git diff --name-only
++memory/personal/henrique-prefs.md
+
+(the operator just leaked their personal notes)
+```
+
+**Pattern:**
+
+```sh
+# ✅ Episodic learning gets observed → curated → promoted (via d-harness)
+echo "Pattern observed: ..." >> .gaia/memory/episodic/$(date +%F).md
+# 90 days later, d-harness reviews; if pattern is generalizable, promote to a reference
+```
 
 ---
 
@@ -60,7 +313,7 @@ Promotion to `reference/` is **manual** via the `d-harness` skill. Never auto-pr
 
 | New thing                                  | Where it goes                                       |
 | ------------------------------------------ | --------------------------------------------------- |
-| "We always X in domain Y"                  | `reference/<Y>.md` principle                        |
+| "We always X in domain Y"                  | `reference/<Y>.md` principle + `rules.ts` entry     |
 | "Block this file from being edited"        | `rules.ts` rule + `.claude/hooks/protect-files.ts`  |
 | "Run this script on every save"            | `.claude/settings.json` hook → `.claude/hooks/*.ts` |
 | Multi-step procedure agent invokes by name | `.claude/skills/<name>/SKILL.md`                    |
@@ -76,36 +329,33 @@ Promotion to `reference/` is **manual** via the `d-harness` skill. Never auto-pr
 
 ### memory → reference
 
-When `d-harness` (or a human review) sees the same pattern in `memory/episodic/` ≥3 times across distinct contexts, propose adding it to a reference file. Promotion requires:
+The `d-harness` skill (or human review) sees a pattern in `memory/episodic/` ≥3 times across distinct contexts → proposes a reference addition. Promotion requires:
 
-1. The pattern is generalizable (not specific to one bug)
-2. Adding it doesn't contradict an existing reference
-3. A reviewer signs off on the diff
+1. Pattern is generalizable (not specific to one bug).
+2. Adding it doesn't contradict an existing reference.
+3. Reviewer signs off on the diff.
+4. A `rules.ts` entry is created at the same time (per principle #2 above).
 
-Never promote silently. Memory's job is recall; the reference's job is constitution.
+### reference principle → enforced rule
 
-### reference principle → rule
-
-When a reference principle becomes mechanically checkable, add it to `rules.ts` with the appropriate mechanism. Examples:
+A reference principle that becomes mechanically checkable converts its mechanism in `rules.ts` from `pending` → `script` / `oxlint` / `ast-grep` / `hook` / `tsc` / `ci`. Examples:
 
 - "Use AppError, not bare Error" (code.md) → `code/named-errors-no-bare-throw` ast-grep rule
 - "Don't read `process.env` outside config/env.ts" (security.md) → `security/no-raw-env` hook
 - "Tests next to source" (testing.md) → `testing/colocated-tests` script
 
-The principle stays in the reference (the _why_); the rule does the enforcement (the _what_).
-
 ### rule pending → enforced
 
-`rules.ts` entries with `mechanism: { kind: 'pending' }` are visible debt. Convert to one of `hook` / `script` / `oxlint` / `ast-grep` / `tsc` / `ci` when the enforcement mechanism is ready. The `rules-coverage` CI job lists the remaining pending rules every PR.
+`rules.ts` entries with `mechanism: { kind: 'pending' }` are visible debt. The 14-day SLO from principle #2 is the working agreement.
 
 ---
 
 ## ADR workflow
 
 1. Copy `.gaia/adrs/TEMPLATE.md` to `.gaia/adrs/NNNN-<title>.md` (next number).
-2. Fill in: Status (proposed/accepted/superseded), Context, Decision, Consequences, Alternatives, References.
-3. Land the ADR in the same PR as the change it documents. Reviewer reads the ADR first.
-4. When superseded, update the old ADR's status to `superseded by NNNN` instead of deleting it. The history is the value.
+2. Fill in: Status (proposed / accepted / superseded), Context, Decision, Consequences, Alternatives, References.
+3. Land the ADR in the same PR as the change it documents. Reviewer reads ADR first.
+4. When superseded: update old ADR's status to `superseded by NNNN`; do not delete.
 
 ---
 
@@ -121,24 +371,44 @@ A failing test, a clear error message, a sharp interface — these substitute fo
 
 ---
 
+## Enforcement mapping
+
+| Principle                              | Mechanism                                       | rules.ts entry              |
+| -------------------------------------- | ----------------------------------------------- | --------------------------- |
+| 1. Constitutional Loop                 | `bun run rules:coverage` + CI report            | (meta)                      |
+| 2. 1:1 reference ↔ rule                | `rules-coverage.ts`; planned `check-mapping.ts` | (meta)                      |
+| 3. Verbs vs nouns + last-verified      | `check-skills.ts`; planned `check-staleness.ts` | `ax/skill-md-frontmatter`   |
+| 4. Hooks deterministic                 | Code review                                     | (meta)                      |
+| 5. Reference threshold + dead deletion | Manifest check + planned load stats             | `harness/manifest-coverage` |
+| 6. Skill threshold + audit             | `check-skills.ts`                               | `ax/skill-md-frontmatter`   |
+| 7. ADR for irreversible                | Code review + template                          | (planned)                   |
+| 8. Memory decay                        | Planned `memory-decay.ts`                       | (planned)                   |
+
+---
+
 ## Cross-references
 
 - Single policy source: `.gaia/rules.ts`
+- Coverage report: `bun run rules:coverage`
 - Folder index: `.gaia/MANIFEST.md`
 - ADR template: `.gaia/adrs/TEMPLATE.md`
 - Memory surfaces: `.gaia/memory/{working,episodic,personal}/`
-- Harness mechanics: `.gaia/reference/harness.md`
-- Skill conventions: `.gaia/reference/skills.md`
-- Workflow loops: `.gaia/reference/workflow.md`
+- Harness mechanics: `harness.md`
+- Skill conventions: `skills.md`
+- Workflow loops: `workflow.md`
+- Constitution shape: `code.md`
 
 ---
 
 ## Decisions log
 
-| Date       | Decision                                      | Rationale                                                                                                                                         |
-| ---------- | --------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------- |
-| 2026-04-28 | References describe taste, rules.ts enforces  | Splits "the why" (debatable, evolving) from "the what" (mechanical, automatable). Rules without a why drift; principles without a rule rot.       |
-| 2026-04-28 | Manual promotion only from memory → reference | Auto-promotion would let stochastic noise enter the constitution. Promotion is a curation act, not an aggregation act.                            |
-| 2026-04-28 | ADRs for irreversible decisions only          | ADRs are expensive to write and read. Reserve them for choices that cost real money / time to undo. Reversible rules can change without ceremony. |
+| Date       | Decision                                      | Rationale                                                                                                                                                                                                                   |
+| ---------- | --------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| 2026-04-28 | Name the methodology: The Constitutional Loop | Most "AI rules" libraries hand the agent a markdown file. The Loop hands the agent the right file at the right moment AND fails the commit if the rule isn't followed. The auto-load + mechanical-verify combo is the moat. |
+| 2026-04-28 | RRS triad (References, Rules, Skills)         | Three substrates with distinct lifecycles; each has its own bridge to the agent. References = loaded nouns; Rules = executed mechanisms; Skills = invoked verbs. A concern in fewer than its applicable substrates is debt. |
+| 2026-04-28 | 1:1 reference principle ↔ rules.ts entry      | Without this, references rot into "advice nobody enforces." Pending entries are visible debt with a 14-day SLO.                                                                                                             |
+| 2026-04-28 | Manual promotion only from memory → reference | Auto-promotion would let stochastic noise enter the constitution. Promotion is curation, not aggregation.                                                                                                                   |
+| 2026-04-28 | ADRs for irreversible decisions only          | ADRs are expensive to write and read. Reserve for choices that cost real money / time to undo.                                                                                                                              |
+| 2026-04-28 | Memory decay: 90 days for episodic            | Without decay, `memory/episodic/` grows forever. 90 days is "long enough to be useful, short enough to remain curated."                                                                                                     |
 
 _Update this log when methodology rules change. The methodology is the only thing that's allowed to evolve recursively — be careful._

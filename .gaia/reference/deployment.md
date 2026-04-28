@@ -2,60 +2,288 @@
 
 > Status: Reference
 > Last verified: April 2026
-> Scope: Everything between `git push` and a healthy URL — Docker, Railway, Neon, env management, DNS, rollbacks
-> Paired with: `dx.md` (developer experience), `observability.md` (logs/metrics/traces), `security.md` (secrets)
+> Scope: Everything between `git push` and a healthy URL — image promotion, env management, migrations, health checks, rollbacks
+> Paired with: `dx.md` (local loop), `observability.md` (signals), `security.md` (secrets), `code.md` (the constitution)
 
 ---
 
 ## What this file is
 
-The shipping discipline for Gaia. Vision §Stack picks the platform mix (Bun runtime, Postgres on Neon, Railway as default host); this file is the _how_ — what we expect the deploy pipeline to enforce, what's manual, and what's checked at runtime.
+The shipping discipline for Gaia. Vision §Stack picks the platform mix (Bun, Postgres-on-Neon, Railway as default host); this file is the _why_ + _enforcement_ for the cloud boundary. Every principle below has a single-line description, the mechanism that enforces it, an anti-pattern, and a pattern — so an agent (or human) can verify "does this still hold?" at a glance.
 
-Read `dx.md` first for local-loop patterns. This file picks up at the cloud boundary.
+Read `code.md` first for the four-part principle shape. Read `dx.md` for the local loop. This file picks up at the cloud boundary and stops at "first request served."
+
+---
+
+## Threat model for deploys
+
+What goes wrong when shipping software, in rough order of severity:
+
+1. **Code-vs-schema mismatch** — new code expects a column the migration didn't run.
+2. **Config drift** — staging works, prod 500s because an env var differs.
+3. **Hot rollback impossible** — the previous image isn't pinned by digest, so there's nothing to roll back to.
+4. **Cascading health-check failure** — readiness check fails on a transient DB blip; all instances marked unhealthy; total outage.
+5. **Silent observability** — error happens, no signal emitted, you find out from a customer.
+
+The 10 principles below are the answer to each.
 
 ---
 
 ## The 10 deployment principles
 
-### Pipeline
+### 1. Promote a digest, never rebuild
 
-**1. One artifact per commit.**
-The container built from `master` is the same container that goes to staging and prod. No "rebuild for prod" — the bytes that passed staging are the bytes that ship.
+The artifact built at the first CI gate is identified by its content-addressable image digest (`sha256:…`). Staging and prod pull _that digest_. No `latest` tag. No "build for prod" — the bytes that passed staging are the bytes that ship.
 
-**2. CI is the gate. Local is courtesy.**
-`bun run check` runs in CI on every PR (`.github/workflows/ci.yml`). Merging to `master` requires a green CI run. Local checks are for fast feedback; the CI run is authoritative.
+**Enforcement:** Image registry retention ≥30 deploys. CI sets the deploy-target via digest, not tag. Verifiable: every deploy log line names a digest.
 
-**3. Migrations run before the new code starts.**
-Every deploy runs `bun apps/api/scripts/migrate.ts` before booting the new server image. Old code keeps running while the new schema lands; new code starts only after migrations succeed.
+**Anti-pattern:**
 
-### Configuration
+```yaml
+# ❌ Tag-based deploy — `latest` can drift between stages
+deploy:
+  image: ghcr.io/me/gaia:latest
+```
 
-**4. 12-factor for env vars.**
-Every config value comes from `process.env` via `packages/config/env.ts`. Never reach into `process.env` directly outside that file (enforced by `harden-check`). The schema is TypeBox; missing required vars make the process refuse to start.
+**Pattern:**
 
-**5. Secrets stay in the platform.**
-Railway environment variables, Vercel secrets, AWS Secrets Manager, GitHub Actions secrets. Never `.env` checked in; never secrets baked into the image. `gitleaks` runs on every PR (`.github/workflows/ci.yml`). Rotation cadence per `security.md`.
+```yaml
+# ✅ Digest-pinned across all stages
+deploy:
+  image: ghcr.io/me/gaia@sha256:6f3a…b9
+```
 
-### Database
+---
 
-**6. Neon for Postgres; Drizzle for migrations.**
-Neon's branchable Postgres = preview databases per PR. `drizzle-kit generate` produces SQL; `migrate.ts` applies it. Manual SQL never touches a live DB; `database.md` rule.
+### 2. CI is the merge gate; branch protection is the enforcement
 
-**7. Connection pooling.**
-Bun + `postgres-js` with default pool. For Neon's serverless surface, prefer the pooled connection string (`?sslmode=require&pgbouncer=true`). Long-lived connections are fine on Railway; serverless contexts use the http driver.
+`master` requires green checks: `check`, `secrets`, `deps`, `dead-code`, `rules-coverage`. Branch protection makes "merge without CI green" impossible — not a social contract, a permission. Branches live ≤3 days (trunk-based).
 
-### Runtime
+**Enforcement:** GitHub branch protection on `master` requires the named jobs in `.github/workflows/ci.yml`. `bun run check` mirrors the CI surface so local feedback is fast.
 
-**8. Health checks gate every deploy.**
-`GET /health` returns `{ ok: true }` and is the readiness/liveness signal. Railway watches it; bad deploys roll back automatically. Add per-feature health (DB ping, Polar ping) only when business logic depends on it.
+**Anti-pattern:**
 
-**9. Observability is initialized at boot.**
-`apps/api/server/app.ts` calls `initObservability(env)` before `app.listen()` (rule `observability/init-at-boot`, enforced by `scripts/check-observability-init.ts`). Sentry catches uncaught exceptions; Axiom collects logs; OTel covers traces.
+```sh
+# ❌ "Just merge it, CI is flaky"
+git push --force origin master
+```
 
-### Recovery
+**Pattern:**
 
-**10. Rollbacks are a deploy, not a hack.**
-Use the platform's rollback (Railway "Promote" / "Rollback") to ship the previous image. Never edit prod env vars to "fix" a bad deploy unless the env var IS the bug — that's how you produce un-reproducible state.
+```sh
+# ✅ CI is authoritative; branch protection enforces it
+gh pr merge --squash --delete-branch  # blocked if any required check is red
+```
+
+---
+
+### 3. Schema changes are additive and run before code
+
+Migrations are forward-only and idempotent (Drizzle's journal). Breaking changes use **expand-then-contract** across ≥2 deploys: deploy A adds the new column nullable + dual-writes, deploy B backfills and makes it required. Migration runs _before_ the new image starts serving traffic; if it fails, deploy aborts and old code keeps serving.
+
+**Enforcement:** `apps/api/scripts/migrate.ts` runs before image swap (configured in Railway pre-deploy hook). Drizzle journal makes re-runs no-ops. Code review checklist for schema PRs: "is this additive within this deploy?"
+
+**Anti-pattern:**
+
+```ts
+// ❌ One-shot breaking change — old code crashes during the deploy window
+export const users = pgTable('users', {
+  id: uuid('id').primaryKey(),
+  email: text('email').notNull(), // was nullable yesterday; old code reads NULLs
+})
+```
+
+**Pattern:**
+
+```ts
+// ✅ Deploy A — additive
+export const users = pgTable('users', {
+  id: uuid('id').primaryKey(),
+  email: text('email'), // still nullable
+  emailVerified: boolean('email_verified').default(false), // new, default
+})
+
+// Deploy B (after backfill job) — make required
+// emailVerified: boolean('email_verified').notNull().default(false),
+```
+
+---
+
+### 4. Config is typed at boot; secrets are platform-managed
+
+`packages/config/env.ts` declares every env var with TypeBox. Required vars without values crash the process at boot. Secrets (`*_SECRET`, `*_TOKEN`, `*_KEY`) live in the platform's secret store (Railway env vars, AWS Secrets Manager, GitHub Actions secrets) — never in `.env` files inside the image. Rotation cadence per `security.md`.
+
+**Enforcement:**
+
+- `harden-check.ts` blocks `process.env.X` outside `packages/config/env.ts` (rule `security/no-raw-env`)
+- `gitleaks` job in CI rejects committed secrets
+- Schema validation crashes boot if a required var is missing — failures show up at deploy time, not at the first user request
+
+**Anti-pattern:**
+
+```ts
+// ❌ Untyped, ad-hoc, missing-var fail mode is "undefined behavior at runtime"
+const apiKey = process.env.POLAR_KEY ?? ''
+const isProd = process.env.NODE_ENV === 'prod' // typo — never matches
+```
+
+**Pattern:**
+
+```ts
+// ✅ Typed schema; missing required vars crash at boot
+import { env } from '@gaia/config'
+// env.POLAR_ACCESS_TOKEN is `string` (required); env.NODE_ENV is `'development' | 'test' | 'production'`
+```
+
+---
+
+### 5. Every PR gets a preview database
+
+The DB layer supports branching (Neon and similar do this natively). CI provisions a Neon branch per PR, runs `bun db:migrate` against it, and runs the test suite. Local dev mirrors via `bun db:dev` (Docker Postgres). PR reviewers verify the change in a live environment, not in code.
+
+**Enforcement:** `.github/workflows/ci.yml` provisions a Neon branch keyed on PR number. The PR description bot updates the URL on each push. Branches are deleted when the PR closes.
+
+**Anti-pattern:**
+
+```yaml
+# ❌ Shared staging DB — PRs interfere with each other; "works in staging" doesn't mean "works alone"
+DATABASE_URL: postgres://staging-shared
+```
+
+**Pattern:**
+
+```yaml
+# ✅ Per-PR DB
+DATABASE_URL: ${{ secrets.NEON_BRANCH_URL_PR_${{ github.event.number }} }}
+```
+
+---
+
+### 6. Liveness, readiness, smoke — three separate checks
+
+`GET /health` is liveness (process is alive, ~1ms, no deps). `GET /health/ready` is readiness (DB ping, Polar ping, ~50ms). The platform waits for readiness ≥3× before swapping traffic; rollback fires automatically on readiness fail >60s. A post-deploy synthetic test exercises one critical user path; if it fails, alert.
+
+**Enforcement:** Two routes in `apps/api/server/app.ts`. Railway uses readiness as the deploy gate. A separate Inngest function runs the smoke test post-deploy and writes to Axiom.
+
+**Anti-pattern:**
+
+```ts
+// ❌ One health endpoint that lies
+.get('/health', () => ({ ok: true }))  // returns ok even when DB is down → cascading 500s after deploy
+```
+
+**Pattern:**
+
+```ts
+// ✅ Three checks, three semantics
+.get('/health', () => ({ ok: true }))                                    // liveness
+.get('/health/ready', async () => {
+  await db.execute(sql`select 1`)
+  return { ok: true }
+})                                                                        // readiness
+// + post-deploy synthetic test in @gaia/workflows
+```
+
+---
+
+### 7. Observability initializes before the first request
+
+`apps/api/server/app.ts` calls `initObservability(env)` before `app.listen()` (rule `observability/init-at-boot`, enforced by `scripts/check-observability-init.ts`). Sentry/Axiom/OTel configured with: trace sampling (100% dev / 10% prod), trace-id propagation through logs, fail-soft on vendor outages. See `code.md` §8 and `observability.md` for boundary signals.
+
+**Enforcement:** `scripts/check-observability-init.ts` reads `app.ts` and verifies `initObservability(env)` is called at module scope before `app.listen(`. Wired into `bun run check`.
+
+**Anti-pattern:**
+
+```ts
+// ❌ Init lazily on first request — first 100 requests have no tracing, no Sentry
+app.listen(env.PORT)
+app.onRequest(() => initObservability(env)) // never runs the first time it matters
+```
+
+**Pattern:**
+
+```ts
+// ✅ Init at module scope, before listen
+initObservability(env)
+const log = getLogger()
+export const app = new Elysia() /* ... */
+if (import.meta.main) app.listen(env.PORT)
+```
+
+---
+
+### 8. Rollback is a deploy with a 5-minute MTTR
+
+Rollback uses the platform's promote-previous-image (Railway "Promote"). Because schema changes are additive (P3), rolling back code does not require schema rollback. Data corruption is recovered via Neon point-in-time restore (RPO ≤5 minutes). Rollback fires a Slack hook + Sentry release marker so the incident is observable.
+
+**Enforcement:** Railway "Promote" button + retention policy from P1 ensures the previous image is reachable. Rollback runbook lives at `decisions/deploy.md`. MTTR measured from incident detection to readiness-restored.
+
+**Anti-pattern:**
+
+```sh
+# ❌ "Hotfix in prod" — edit env vars or SSH into the container to "fix" things
+railway env set FEATURE_FLAG=false  # creates un-reproducible state
+```
+
+**Pattern:**
+
+```sh
+# ✅ Promote previous digest; investigate after
+railway service promote --to-deployment <previous-digest>
+# Sentry release marker fires; Slack alerts; on-call investigates
+```
+
+---
+
+### 9. Preview environment per PR
+
+Every PR opens a preview deployment (Railway PR previews) AND a preview DB (P5). The PR description shows both URLs. Reviewers click and verify in a real environment.
+
+**Enforcement:** Railway PR previews enabled in project settings. The PR template includes a "Preview" section the bot fills in. Preview deployments expire when the PR closes.
+
+**Anti-pattern:**
+
+```md
+<!-- ❌ "I tested locally, ship it" — local doesn't have prod's TLS, env, edge config -->
+
+LGTM
+```
+
+**Pattern:**
+
+```md
+<!-- ✅ PR description -->
+
+Preview: https://gaia-pr-42.up.railway.app
+Preview DB: postgres://...neon.../br_pr_42
+```
+
+---
+
+### 10. Time-to-first-deploy ≤30 minutes from clone
+
+A new operator clones the repo, sets 8 env vars (the required list in `packages/config/env.ts`), runs `railway up`, and reaches a green `/health/ready` in under 30 minutes. If they can't, the deploy doc is the bug.
+
+**Enforcement:** Quarterly deploy-time audit (in `decisions/maturity.md`). New-operator script (`scripts/first-deploy.ts`) outputs a timed report. CI runs it once per quarter against a fresh Railway project.
+
+**Anti-pattern:**
+
+```md
+<!-- ❌ A README with 47 manual steps, half of which are out of date -->
+
+1. Sign up for Neon
+2. Create a project
+3. Get the connection string
+4. ...46 more
+```
+
+**Pattern:**
+
+```md
+<!-- ✅ One command + 8 env vars -->
+
+bun first-deploy.ts # interactive: prompts for the 8 secrets, creates Railway project, deploys, polls /health/ready
+```
 
 ---
 
@@ -76,95 +304,45 @@ Use the platform's rollback (Railway "Promote" / "Rollback") to ship the previou
 | Traces         | Honeycomb / Jaeger via OTel                          | `packages/core/observability.ts`                |
 | AI             | Anthropic                                            | `packages/adapters/ai.ts` — see `ai.md`         |
 
-Swap any of these by changing one adapter file. Do not swap the architecture; swap the adapter behind the architecture.
+Swap any of these by changing the corresponding adapter file. Do not swap the architecture.
 
 ---
 
-## Env vars
+## Required env (the 8)
 
-### Required
-
-`packages/config/env.ts` is the catalog. The minimum for prod boot:
+The minimum for prod boot, per `packages/config/env.ts`:
 
 ```
-DATABASE_URL                # postgres connection string (Neon)
+DATABASE_URL                # postgres connection string
 BETTER_AUTH_SECRET          # 32+ chars; rotate per security.md
-PUBLIC_APP_URL              # https://yourapp.com — used by auth callbacks
-POLAR_ACCESS_TOKEN          # Polar API key
-POLAR_WEBHOOK_SECRET        # for HMAC verification
+PUBLIC_APP_URL              # https://yourapp.com
+POLAR_ACCESS_TOKEN          # Polar API
+POLAR_WEBHOOK_SECRET        # HMAC verification
 POLAR_PRODUCT_ID            # default plan id
 RESEND_API_KEY              # email
-ANTHROPIC_API_KEY           # AI features
+ANTHROPIC_API_KEY           # AI
 ```
 
-### Optional
-
-```
-SENTRY_DSN                  # error tracking
-AXIOM_TOKEN, AXIOM_ORG_ID   # log shipping
-OTEL_EXPORTER_OTLP_ENDPOINT # tracing
-GOOGLE_CLIENT_ID/SECRET     # OAuth
-POSTHOG_API_KEY             # analytics
-R2_*                        # object storage
-INNGEST_*                   # workflows
-```
-
-If unset, the relevant feature degrades gracefully (e.g. Sentry becomes a no-op).
-
-### CI placeholders
-
-`.github/workflows/ci.yml` provides safe placeholder values for required vars so adapter modules can initialize at import time during tests. Real values come from Railway in prod.
+Optional vars (Sentry, Axiom, OTel, OAuth, R2, PostHog, Inngest) degrade gracefully when unset.
 
 ---
 
-## Deploy steps (Railway)
+## Enforcement mapping
 
-```sh
-# 1. One-time setup
-railway init
-railway link
-railway add postgres
-railway env set BETTER_AUTH_SECRET=$(openssl rand -hex 32)
-railway env set POLAR_ACCESS_TOKEN=...
-# (set the rest from the env list above)
+| Principle                   | Mechanism                                     | rules.ts entry                  |
+| --------------------------- | --------------------------------------------- | ------------------------------- |
+| 1. Promote a digest         | CI image push + retention policy              | _pending_                       |
+| 2. CI is the merge gate     | Branch protection on `master`                 | _platform-level, not in tree_   |
+| 3. Schema changes additive  | Code review checklist                         | `database/migrations-versioned` |
+| 4. Config typed at boot     | `harden-check.ts` + TypeBox schema validation | `security/no-raw-env`           |
+| 5. PR-scoped DB             | CI workflow                                   | _pending_                       |
+| 6. Three health checks      | Code review + Railway config                  | _pending_                       |
+| 7. Observability at boot    | `scripts/check-observability-init.ts`         | `observability/init-at-boot`    |
+| 8. 5-minute rollback        | Image retention + runbook                     | _platform-level_                |
+| 9. PR preview environment   | Railway PR previews                           | _platform-level_                |
+| 10. ≤30-minute first deploy | Quarterly audit + scripts/first-deploy.ts     | _pending_                       |
 
-# 2. Deploy
-git push origin master
-# Railway picks up the push, builds, runs migrations, swaps the image.
-
-# 3. First deploy: run migrations explicitly
-railway run bun apps/api/scripts/migrate.ts
-
-# 4. Set the public URL on Polar / Better Auth dashboards
-#    so OAuth callbacks resolve correctly.
-```
-
----
-
-## Docker
-
-The default `Dockerfile` (vision §Stack) is a multi-stage build:
-
-1. `oven/bun:1.2` base
-2. `bun install --frozen-lockfile` for deterministic deps
-3. `bun build apps/api/server/app.ts --target=bun --minify`
-4. `CMD ["bun", "run", "dist/app.js"]`
-
-Build locally to catch image-only failures: `docker build -t gaia .`. CI runs the same build on every PR (`.github/workflows/ci.yml` — add a `build` job if not present yet).
-
----
-
-## Rollback playbook
-
-| Symptom                      | First action                                    | If that doesn't work             |
-| ---------------------------- | ----------------------------------------------- | -------------------------------- |
-| 500s spike after deploy      | Railway → Promote previous deployment           | Open Sentry, find the regression |
-| Migration broke schema       | Roll back the deploy first; data fix second     | Restore from Neon point-in-time  |
-| Webhook signatures rejecting | Check `POLAR_WEBHOOK_SECRET` env on Railway     | Re-check Polar dashboard secret  |
-| 100% error rate on /auth/\*  | Check `BETTER_AUTH_SECRET` consistency          | Roll back; rotate secret         |
-| OAuth callback URL mismatch  | Set `PUBLIC_APP_URL` to the production hostname | Update redirect URLs on provider |
-
-Never roll back a migration by editing prod data. Use Neon's point-in-time restore.
+The `_pending_` entries are visible debt — `rules-coverage` lists them.
 
 ---
 
@@ -174,19 +352,21 @@ Never roll back a migration by editing prod data. Use Neon's point-in-time resto
 - Env schema: `packages/config/env.ts`
 - Migrations: `apps/api/scripts/migrate.ts`, `packages/db/schema.ts`
 - Observability boot: `packages/core/observability.ts`
-- Health endpoint: `apps/api/server/app.ts` `GET /health`
+- Health endpoints: `apps/api/server/app.ts`
 - Local dev: `dx.md`
 - Secrets policy: `security.md`
+- Database principles: `database.md`
 
 ---
 
 ## Decisions log
 
-| Date       | Decision                         | Rationale                                                                                                                         |
-| ---------- | -------------------------------- | --------------------------------------------------------------------------------------------------------------------------------- |
-| 2026-04-28 | Default platform: Railway + Neon | Best Bun support; branchable Postgres for preview DBs; one project owns runtime + env + secrets — minimum cognitive overhead.     |
-| 2026-04-28 | Migrations run before image swap | Old code + new schema is recoverable; new code + old schema is not. Order matters.                                                |
-| 2026-04-28 | Health check gates auto-rollback | `/health` returning anything but `{ ok: true }` rolls back automatically. Add per-feature health only when product depends on it. |
-| 2026-04-28 | One artifact per commit          | Same image goes staging → prod. Eliminates "works in staging, fails in prod" caused by a different build.                         |
+| Date       | Decision                               | Rationale                                                                                                                         |
+| ---------- | -------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------- |
+| 2026-04-28 | Default platform: Railway + Neon       | Best Bun support; branchable previews; one project owns runtime + env + secrets — minimum cognitive overhead.                     |
+| 2026-04-28 | Schema changes additive across deploys | Old code + new schema is recoverable; new code + old schema is not. Order matters.                                                |
+| 2026-04-28 | Three health checks (live/ready/smoke) | One endpoint can't carry three semantics. Liveness must be cheap; readiness must verify deps; smoke must exercise a real path.    |
+| 2026-04-28 | Promote-by-digest, never rebuild       | Reproducibility across stages requires content-addressable artifacts. Tag drift is the canonical "works in staging" failure mode. |
+| 2026-04-28 | ≤30-minute time-to-first-deploy SLO    | Solo operators value time-to-prod. Staleness in the deploy doc is the most common cause of "it didn't work" — make it a metric.   |
 
-_Add to log when changing platform, build pipeline, or env-handling rules. ADR required for changes that affect rollback behavior or required env vars._
+_Add to log when changing platform, build pipeline, or required-env shape. ADRs required for changes that affect rollback or required env vars._
