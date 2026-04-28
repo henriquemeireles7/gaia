@@ -8,3 +8,9 @@ dist/
 .DS_Store
 .context/
 public/styles.css
+
+# Gaia volatile memory and audit
+.gaia/memory/working/*
+!.gaia/memory/working/.gitkeep
+.gaia/audit/*
+!.gaia/audit/.gitkeep
