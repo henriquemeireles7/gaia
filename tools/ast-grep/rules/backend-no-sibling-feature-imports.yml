@@ -1,0 +1,22 @@
+id: backend-no-sibling-feature-imports
+language: TypeScript
+files:
+  - 'apps/api/features/**/*.ts'
+rule:
+  any:
+    - pattern: import $X from "../$FEATURE"
+    - pattern: import $X from "../$FEATURE/$$$"
+    - pattern: import $X from "../../features/$FEATURE"
+    - pattern: import $X from "../../features/$FEATURE/$$$"
+    - pattern: import $X from "@gaia/api-server/features/$FEATURE"
+    - pattern: import $X from "@gaia/api-server/features/$FEATURE/$$$"
+    - pattern: import { $$$ } from "../$FEATURE"
+    - pattern: import { $$$ } from "../$FEATURE/$$$"
+    - pattern: import { $$$ } from "../../features/$FEATURE"
+    - pattern: import { $$$ } from "../../features/$FEATURE/$$$"
+message: |
+  Sibling feature imports are forbidden (rule backend/no-sibling-feature-imports,
+  vision §Architecture-3). Cross-feature reuse goes through @gaia/<package>
+  promotion, never via direct sibling imports. If you find yourself reaching
+  into another feature folder, the shared code probably belongs in a package.
+severity: error

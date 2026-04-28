@@ -1,0 +1,17 @@
+id: code-no-throw-new-error-in-features
+language: TypeScript
+files:
+  - 'apps/api/features/**/*.ts'
+  - 'apps/web/src/**/*.ts'
+  - 'apps/web/src/**/*.tsx'
+ignores:
+  - '**/*.test.ts'
+  - '**/*.test.tsx'
+rule:
+  pattern: throw new Error($$$)
+message: |
+  Feature/route code must not `throw new Error(...)` (rule
+  code/named-errors-no-bare-throw). Use `throw new AppError("CODE", details?)`
+  from @gaia/errors so the error catalog and HTTP status mapping stay
+  consistent. See .gaia/reference/errors.md.
+severity: error

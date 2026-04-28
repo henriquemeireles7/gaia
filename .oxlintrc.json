@@ -8,14 +8,30 @@
   },
   "rules": {
     "typescript/no-explicit-any": "error",
-    "no-empty": ["error", { "allowEmptyCatch": false }],
+    "no-empty": [
+      "error",
+      {
+        "allowEmptyCatch": false
+      }
+    ],
     "no-throw-literal": "error",
     "no-debugger": "error",
-    "no-console": ["warn", { "allow": ["error", "warn"] }],
+    "no-console": [
+      "warn",
+      {
+        "allow": ["error", "warn"]
+      }
+    ],
     "unicorn/prefer-node-protocol": "error",
     "unicorn/no-array-sort": "off",
     "no-underscore-dangle": "off",
-    "unicorn/prefer-set-has": "off"
+    "unicorn/prefer-set-has": "off",
+    "import/no-unassigned-import": [
+      "error",
+      {
+        "allow": ["**/*.css", "**/*.scss", "**/styles.css"]
+      }
+    ]
   },
   "env": {
     "builtin": true

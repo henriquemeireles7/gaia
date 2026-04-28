@@ -85,7 +85,7 @@ export const subscriptions = pgTable(
 // ============================================================
 export const webhookEvents = pgTable('webhook_events', {
   id: uuid('id').defaultRandom().primaryKey(),
-  provider: text('provider', { enum: ['polar', 'inngest'] }).notNull(),
+  provider: text('provider', { enum: ['polar', 'inngest', 'audit'] }).notNull(),
   externalEventId: text('external_event_id').notNull().unique(),
   eventType: text('event_type').notNull(),
   processedAt: timestamp('processed_at').notNull().defaultNow(),

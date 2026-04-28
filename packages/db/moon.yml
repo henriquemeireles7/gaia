@@ -1,0 +1,16 @@
+$schema: 'https://moonrepo.dev/schemas/project.json'
+
+type: library
+language: typescript
+
+tasks:
+  generate:
+    command: 'bunx drizzle-kit generate'
+    inputs:
+      - 'schema.ts'
+    outputs:
+      - 'migrations/**'
+  migrate:
+    command: 'bun ../../apps/api/scripts/migrate.ts'
+    deps:
+      - '~:generate'

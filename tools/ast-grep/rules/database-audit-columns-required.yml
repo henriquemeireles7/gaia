@@ -1,0 +1,19 @@
+id: database-audit-columns-required
+language: TypeScript
+files:
+  - 'packages/db/schema.ts'
+  - 'packages/db/schemas/**/*.ts'
+rule:
+  pattern: |
+    export const $TABLE = pgTable($NAME, {
+      $$$
+    })
+  not:
+    regex: "\\bcreatedAt\\b"
+message: |
+  Every table must declare a `createdAt` column (rule
+  database/audit-columns-required). Audit trails start with knowing when
+  a row was inserted. Mutable tables should also declare `updatedAt`,
+  but that is judgment-tier and flagged by /review. See
+  .gaia/reference/database.md.
+severity: error

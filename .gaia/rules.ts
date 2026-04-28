@@ -36,9 +36,8 @@ export type Mechanism =
   | { kind: 'pending'; note: string }
   | { kind: 'hook'; hook: string }
   | { kind: 'script'; script: string }
-  | { kind: 'biome'; rule: string }
   | { kind: 'oxlint'; rule: string }
-  | { kind: 'gritql'; rule: string }
+  | { kind: 'ast-grep'; rule: string }
   | { kind: 'tsc' }
   | { kind: 'ci'; job: string }
 
@@ -185,7 +184,7 @@ export const rules: readonly Rule[] = [
     description: 'Block edits to locked config files unless explicitly authorized.',
     tier: 'hook',
     mechanism: { kind: 'hook', hook: '.claude/hooks/protect-config.ts' },
-    blocked: ['biome.json', 'tsconfig.json', '.oxlintrc.json', '.oxfmtrc.json'],
+    blocked: ['tsconfig.json', '.oxlintrc.json', '.oxfmtrc.json', 'sgconfig.yml'],
   },
   {
     id: 'security/no-secrets-committed',
@@ -305,8 +304,8 @@ export const rules: readonly Rule[] = [
     reference: 'code',
     description:
       'Feature/service code must not `throw new Error(...)` — use AppError from @gaia/errors.',
-    tier: 'hook',
-    mechanism: { kind: 'hook', hook: 'packages/security/harden-check.ts' },
+    tier: 'lint',
+    mechanism: { kind: 'ast-grep', rule: 'code-no-throw-new-error-in-features' },
   },
   {
     id: 'code/one-schema-many-consumers',
@@ -342,10 +341,15 @@ export const rules: readonly Rule[] = [
     description:
       'Feature code must not import vendor SDKs directly — go through @gaia/adapters/<capability>.',
     tier: 'lint',
-    mechanism: {
-      kind: 'pending',
-      note: 'GritQL rule no-vendor-import-in-features (apps/api/features/**)',
-    },
+    mechanism: { kind: 'ast-grep', rule: 'backend-no-vendor-sdk-in-features' },
+  },
+  {
+    id: 'backend/no-sibling-feature-imports',
+    reference: 'backend',
+    description:
+      'Features in apps/api/features/<X>/ must not import from sibling feature folders. Cross-feature reuse is via @gaia/<package> promotion.',
+    tier: 'lint',
+    mechanism: { kind: 'ast-grep', rule: 'backend-no-sibling-feature-imports' },
   },
 
   // ─── frontend.md ─────────────────────────────────────────────
@@ -402,9 +406,9 @@ export const rules: readonly Rule[] = [
     id: 'database/audit-columns-required',
     reference: 'database',
     description:
-      'Business tables include createdAt and updatedAt; mutable rows track createdBy where applicable.',
+      'Every Drizzle table (`pgTable(...)`) declares `createdAt`. Mutable tables also declare `updatedAt` (judgment-tier, /review).',
     tier: 'lint',
-    mechanism: { kind: 'pending', note: 'GritQL rule audit-columns' },
+    mechanism: { kind: 'ast-grep', rule: 'database-audit-columns-required' },
   },
 
   // ─── testing.md (additions) ──────────────────────────────────

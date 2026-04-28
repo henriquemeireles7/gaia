@@ -11,6 +11,7 @@ import { env } from '@gaia/config'
 import { getLogger } from '@gaia/core/logger'
 import { initObservability } from '@gaia/core/observability'
 import { AppError } from '@gaia/errors'
+import { applySecurityHeaders } from '@gaia/security/security-headers'
 import { functions, inngest } from '@gaia/workflows'
 import { Elysia, t } from 'elysia'
 import { serve as inngestServe } from 'inngest/bun'
@@ -49,6 +50,12 @@ export const app = new Elysia()
     return { ok: false, code: 'INTERNAL_ERROR', message: 'Internal server error' }
   })
 
+  // Apply OWASP-baseline security headers to every response.
+  // Feature routes use @gaia/security/protected-route which composes the
+  // same headers + auth derive; this app-level hook covers the inline
+  // routes below (health, auth, webhook, inngest).
+  .onBeforeHandle(({ set }) => applySecurityHeaders(set))
+
   // ── Health ─────────────────────────────────────────────────────
   .get('/health', () => ({ ok: true as const }), {
     response: t.Object({ ok: t.Literal(true) }),
@@ -61,6 +68,8 @@ export const app = new Elysia()
   .all('/api/inngest', ({ request }) => inngestHandler(request))
 
   // ── Authenticated session probe ───────────────────────────────
+  // For full feature routes use protectedRoute from @gaia/security/protected-route
+  // which derives { user, session, requestId } onto the context.
   .derive(async ({ request }) => {
     const session = await auth.api.getSession({ headers: request.headers })
     return {

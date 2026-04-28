@@ -1,0 +1,17 @@
+$schema: 'https://moonrepo.dev/schemas/project.json'
+
+type: application
+language: typescript
+
+tasks:
+  dev:
+    command: 'bun --hot server/app.ts'
+    options:
+      persistent: true
+  build:
+    command: 'bun build server/app.ts --outdir ../../dist --target bun --minify'
+    inputs:
+      - 'server/**/*.ts'
+      - 'scripts/**/*.ts'
+    outputs:
+      - '../../dist'

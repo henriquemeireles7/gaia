@@ -18,11 +18,5 @@
       ]
     }
   },
-  "ignoreDependencies": [
-    "@types/bun",
-    "@biomejs/biome",
-    "@gaia/api-server",
-    "@gaia/security",
-    "@gaia/web"
-  ]
+  "ignoreDependencies": ["@types/bun", "@gaia/api-server", "@gaia/security", "@gaia/web"]
 }

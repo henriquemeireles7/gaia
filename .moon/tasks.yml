@@ -1,0 +1,20 @@
+# .moon/tasks.yml — tasks inherited by every project.
+# Override per-project in <project>/moon.yml as needed.
+
+$schema: 'https://moonrepo.dev/schemas/tasks.json'
+
+tasks:
+  check:
+    command: 'bun run check'
+    inputs:
+      - '**/*.ts'
+      - '**/*.tsx'
+      - '**/*.json'
+    options:
+      runFromWorkspaceRoot: true
+
+  test:
+    command: 'bun test'
+    inputs:
+      - '**/*.ts'
+      - '**/*.tsx'

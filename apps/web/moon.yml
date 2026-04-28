@@ -1,0 +1,18 @@
+$schema: 'https://moonrepo.dev/schemas/project.json'
+
+type: application
+language: typescript
+
+tasks:
+  dev:
+    command: 'vinxi dev'
+    options:
+      persistent: true
+  build:
+    command: 'vinxi build'
+    inputs:
+      - 'src/**/*.{ts,tsx,css}'
+      - 'app.config.ts'
+    outputs:
+      - '.vinxi'
+      - '.output'

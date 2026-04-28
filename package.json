@@ -13,9 +13,10 @@
     "build": "bun build apps/api/server/app.ts --outdir dist --target bun --minify",
     "build:web": "vinxi build",
     "start": "bun run dist/app.js",
-    "check": "bun run check:lint && bun run check:format && bun run check:types && bun run harden && bun run check:scripts && bun run check:test",
+    "check": "bun run check:lint && bun run check:format && bun run check:ast && bun run check:types && bun run harden && bun run check:scripts && bun run check:test",
     "check:lint": "bunx oxlint .",
     "check:format": "bunx oxfmt --check .",
+    "check:ast": "node_modules/.bin/ast-grep scan",
     "check:types": "bunx tsc --noEmit",
     "check:test": "bun test --pass-with-no-tests",
     "check:dead": "bunx knip --reporter compact",
@@ -42,6 +43,7 @@
     "@gaia/db": "workspace:*",
     "@gaia/errors": "workspace:*",
     "@gaia/security": "workspace:*",
+    "@gaia/ui": "workspace:*",
     "@gaia/web": "workspace:*",
     "@gaia/workflows": "workspace:*",
     "@opentelemetry/api": "^1.9.0",
@@ -61,12 +63,15 @@
     "vinxi": "^0.5.0"
   },
   "devDependencies": {
-    "@biomejs/biome": "^2.4.11",
+    "@ast-grep/cli": "^0.42.1",
     "@types/bun": "latest",
     "drizzle-kit": "^0.30.0",
     "knip": "^5.40.0",
     "oxfmt": "^0.47.0",
     "oxlint": "^1.62.0",
     "typescript": "^5.7.0"
-  }
+  },
+  "trustedDependencies": [
+    "@ast-grep/cli"
+  ]
 }

@@ -1,0 +1,29 @@
+id: backend-no-vendor-sdk-in-features
+language: TypeScript
+files:
+  - 'apps/api/features/**/*.ts'
+  - 'apps/web/src/**/*.ts'
+  - 'apps/web/src/**/*.tsx'
+ignores:
+  - 'apps/web/src/lib/api.ts'
+rule:
+  any:
+    - pattern: import $X from "@polar-sh/sdk"
+    - pattern: import $X from "@anthropic-ai/sdk"
+    - pattern: import $X from "resend"
+    - pattern: import $X from "@aws-sdk/client-s3"
+    - pattern: import $X from "@aws-sdk/s3-request-presigner"
+    - pattern: import $X from "posthog-node"
+    - pattern: import $X from "stripe"
+    - pattern: import { $$$ } from "@polar-sh/sdk"
+    - pattern: import { $$$ } from "@anthropic-ai/sdk"
+    - pattern: import { $$$ } from "resend"
+    - pattern: import { $$$ } from "@aws-sdk/client-s3"
+    - pattern: import { $$$ } from "posthog-node"
+    - pattern: import { $$$ } from "stripe"
+message: |
+  Vendor SDK imports are forbidden in feature code (rule
+  backend/no-vendor-sdk-in-features). Use @gaia/adapters/<capability>
+  instead so the vendor stays swappable behind a typed seam.
+  See .gaia/reference/backend.md.
+severity: error

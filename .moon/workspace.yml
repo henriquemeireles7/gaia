@@ -1,0 +1,29 @@
+# .moon/workspace.yml — Moon monorepo orchestration (vision §Stack)
+#
+# Discovers projects in apps/* and packages/*. Each project's tasks are
+# defined in its own moon.yml. The root tasks (defined in package.json)
+# remain canonical for the dev loop; Moon adds: parallel execution, smart
+# task graphs, affected-only runs, and remote caching.
+#
+# Bootstrap:
+#   curl -fsSL https://moonrepo.dev/install/moon.sh | bash
+#   moon sync projects
+#
+# Common commands:
+#   moon run :check      # all projects' check tasks in parallel
+#   moon run web:dev     # specific project task
+#   moon ci              # affected-only CI run
+
+$schema: 'https://moonrepo.dev/schemas/workspace.json'
+
+projects:
+  - 'apps/*'
+  - 'packages/*'
+
+vcs:
+  manager: git
+  defaultBranch: master
+
+runner:
+  cacheLifetime: '7 days'
+  inheritColorsForPipedTasks: true

@@ -1,0 +1,8 @@
+# sgconfig.yml — ast-grep project config (vision §Stack: AST-aware patterns)
+#
+# Replaces the broken Biome GritQL plugin attempt. ast-grep is a Rust-based
+# AST search/lint/rewrite tool using tree-sitter. Rules live as YAML files
+# under tools/ast-grep/rules/.
+
+ruleDirs:
+  - tools/ast-grep/rules
