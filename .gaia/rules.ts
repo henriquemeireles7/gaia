@@ -33,6 +33,9 @@ export type ReferenceDomain =
   | 'methodology'
   | 'ai'
   | 'skills'
+  | 'references'
+  | 'onboarding'
+  | 'retention'
 
 export type RuleTier = 'test' | 'lint' | 'hook' | 'architecture'
 
@@ -541,6 +544,373 @@ export const rules: readonly Rule[] = [
       'CLI scripts print data to stdout and narration to stderr — enables piping without corruption.',
     tier: 'lint',
     mechanism: { kind: 'script', script: 'scripts/check-cli-stdout.ts' },
+  },
+
+  // ─── references.md (the meta-reference) ──────────────────────
+  {
+    id: 'references/voice-consulted',
+    reference: 'references',
+    description:
+      'References are imperative and consulted-during-action; tutorial-style narration belongs in dx.md or README.',
+    tier: 'lint',
+    mechanism: { kind: 'pending', note: 'soft regex flagging hedge words in reference files' },
+  },
+  {
+    id: 'references/principle-shape',
+    reference: 'references',
+    description:
+      'Every numbered reference principle has the 5-part shape: title+description, 2-4 rules bullets, enforcement, anti-pattern, pattern.',
+    tier: 'lint',
+    mechanism: { kind: 'script', script: 'scripts/check-reference-shape.ts' },
+  },
+  {
+    id: 'references/principle-has-rule',
+    reference: 'references',
+    description:
+      'Every reference principle maps 1:1 to a rules.ts entry (even pending). Reference principles without a rule are aspirational.',
+    tier: 'lint',
+    mechanism: { kind: 'pending', note: 'scripts/check-reference-rule-mapping.ts walks ref files' },
+  },
+  {
+    id: 'references/feature-scope',
+    reference: 'references',
+    description:
+      'Per-feature references live at .gaia/reference/features/<feature>.md and load only when editing that feature.',
+    tier: 'architecture',
+    mechanism: { kind: 'hook', hook: '.claude/hooks/domain-context.ts' },
+  },
+  {
+    id: 'references/adversarial-review',
+    reference: 'references',
+    description:
+      'New reference files (or major rewrites) include a 6-specialist adversarial review per principle in the PR.',
+    tier: 'architecture',
+    mechanism: { kind: 'pending', note: 'codified in d-reference skill; reviewer checks PR body' },
+  },
+  {
+    id: 'references/staleness',
+    reference: 'references',
+    description:
+      'References declare a Last verified date; >180 days without re-verification is debt, surfaced by d-health.',
+    tier: 'lint',
+    mechanism: { kind: 'pending', note: 'scripts/check-reference-staleness.ts' },
+  },
+  {
+    id: 'references/voice-imperative',
+    reference: 'references',
+    description:
+      'Reference principles use imperative present tense; avoid hedge words ("tend to", "usually", "you might want to").',
+    tier: 'lint',
+    mechanism: { kind: 'pending', note: 'soft regex; advisory only' },
+  },
+
+  // ─── product/onboarding.md ───────────────────────────────────
+  {
+    id: 'onboarding/ttv-budget',
+    reference: 'onboarding',
+    description:
+      "Time-to-first-value ≤60 seconds (p50). Don't gate first value behind email verification.",
+    tier: 'architecture',
+    mechanism: { kind: 'pending', note: 'd-health analytics check (PostHog activation latency)' },
+  },
+  {
+    id: 'onboarding/activation-defined-once',
+    reference: 'onboarding',
+    description:
+      'Exactly one trackActivation() function in packages/adapters/analytics.ts; no ad-hoc track("activation"|"activated"|...) calls.',
+    tier: 'lint',
+    mechanism: { kind: 'pending', note: 'ast-grep: track(...) with activation literals' },
+  },
+  {
+    id: 'onboarding/no-tour-modals',
+    reference: 'onboarding',
+    description:
+      'No modal-tour libraries (shepherd.js, intro.js, react-joyride). Empty states are the onboarding surface.',
+    tier: 'lint',
+    mechanism: { kind: 'pending', note: 'harden-check pattern: imports of tour libs' },
+  },
+  {
+    id: 'onboarding/progressive-disclosure',
+    reference: 'onboarding',
+    description:
+      'New users see ≤5 nav items; advanced features appear after activation. Settings reveal sections progressively.',
+    tier: 'architecture',
+    mechanism: { kind: 'pending', note: 'd-review heuristic; nav items count' },
+  },
+  {
+    id: 'onboarding/persist-anonymous',
+    reference: 'onboarding',
+    description:
+      'Anonymous user work persists across signup boundary via localStorage / IndexedDB; signup form rehydrates state.',
+    tier: 'architecture',
+    mechanism: { kind: 'pending', note: 'd-review check on signup routes' },
+  },
+  {
+    id: 'onboarding/silent-first-failure',
+    reference: 'onboarding',
+    description:
+      "Onboarding routes don't render Alert(error); failures absorbed silently and retried in background.",
+    tier: 'architecture',
+    mechanism: { kind: 'pending', note: 'd-review on /signup, /onboarding/*' },
+  },
+  {
+    id: 'onboarding/funnel-events',
+    reference: 'onboarding',
+    description:
+      'Required events: visit, signup_start, signup_complete, activation. Each step tracked independently.',
+    tier: 'lint',
+    mechanism: {
+      kind: 'pending',
+      note: 'script scans signup + onboarding routes for required track() calls',
+    },
+  },
+  {
+    id: 'onboarding/email-on-signup',
+    reference: 'onboarding',
+    description:
+      'First transactional email sent within 5 minutes; better-auth sendOnSignUp:true; sendVerificationEmail wired.',
+    tier: 'lint',
+    mechanism: { kind: 'pending', note: 'ast-grep on packages/auth/index.ts' },
+  },
+
+  // ─── product/retention.md ────────────────────────────────────
+  {
+    id: 'retention/dau-wau-floor',
+    reference: 'retention',
+    description: 'DAU/WAU ratio target ≥40%. Sub-40% sustained four weeks signals weak retention.',
+    tier: 'architecture',
+    mechanism: { kind: 'pending', note: 'd-health audit reads PostHog' },
+  },
+  {
+    id: 'retention/notification-quality',
+    reference: 'retention',
+    description:
+      'Notifications carry user-requested value; ≤3/week email, ≤1/day push. Each has granular unsubscribe.',
+    tier: 'architecture',
+    mechanism: { kind: 'pending', note: 'd-review template scan + opens-rate floor' },
+  },
+  {
+    id: 'retention/state-machine',
+    reference: 'retention',
+    description:
+      'Users have engagement_state enum (active|dormant|churned); recomputed nightly; messaging gated on state.',
+    tier: 'lint',
+    mechanism: { kind: 'pending', note: 'schema check + ast-grep on email-send call sites' },
+  },
+  {
+    id: 'retention/click-to-cancel',
+    reference: 'retention',
+    description:
+      'Cancel button visible from /billing in ≤2 clicks. Polar customer portal handles the actual cancel.',
+    tier: 'architecture',
+    mechanism: { kind: 'pending', note: 'd-review checks /billing surfaces cancel link' },
+  },
+  {
+    id: 'retention/haircut-offered',
+    reference: 'retention',
+    description: 'Cancel flow surfaces tier-down + pause options BEFORE confirming cancellation.',
+    tier: 'architecture',
+    mechanism: { kind: 'pending', note: 'd-review checks cancel-flow component' },
+  },
+  {
+    id: 'retention/cohort-dashboards',
+    reference: 'retention',
+    description:
+      'Cohort retention dashboards exist for week-1, week-4, week-12 in PostHog (or equivalent).',
+    tier: 'architecture',
+    mechanism: { kind: 'pending', note: 'script verifies dashboards exist' },
+  },
+  {
+    id: 'retention/dunning-configured',
+    reference: 'retention',
+    description:
+      'Failed payments trigger dunning (≥3 retries over 14 days); subscription.past_due gives 7-day grace before cancel.',
+    tier: 'lint',
+    mechanism: { kind: 'pending', note: 'script checks billing webhook handler' },
+  },
+  {
+    id: 'retention/usage-tiers',
+    reference: 'retention',
+    description:
+      'users.usage_tier enum (light|middle|power); tier_promoted analytics event fires on transitions.',
+    tier: 'lint',
+    mechanism: { kind: 'pending', note: 'schema check + analytics event check' },
+  },
+
+  // ─── deployment.md (gaps from previous PR) ───────────────────
+  {
+    id: 'deployment/promote-digest',
+    reference: 'deployment',
+    description: 'Image deploys reference content-addressable digests, not floating tags.',
+    tier: 'architecture',
+    mechanism: { kind: 'pending', note: 'CI workflow inspection script' },
+  },
+  {
+    id: 'deployment/preview-env-per-pr',
+    reference: 'deployment',
+    description: 'Every PR opens a preview deployment + preview database (Neon branch).',
+    tier: 'architecture',
+    mechanism: { kind: 'pending', note: 'CI workflow check' },
+  },
+  {
+    id: 'deployment/three-health-checks',
+    reference: 'deployment',
+    description:
+      'Three endpoints: /health (liveness), /health/ready (readiness), post-deploy synthetic test.',
+    tier: 'lint',
+    mechanism: { kind: 'pending', note: 'ast-grep on app.ts for both routes' },
+  },
+  {
+    id: 'deployment/rollback-mttr',
+    reference: 'deployment',
+    description: '≤5 minute rollback MTTR; previous image digest reachable; runbook exists.',
+    tier: 'architecture',
+    mechanism: { kind: 'pending', note: 'platform-level (Railway promote)' },
+  },
+  {
+    id: 'deployment/ttfd-30min',
+    reference: 'deployment',
+    description: 'New operator reaches green /health/ready in ≤30 minutes from clone.',
+    tier: 'architecture',
+    mechanism: { kind: 'pending', note: 'quarterly audit + scripts/first-deploy.ts' },
+  },
+
+  // ─── methodology.md (constitutional loop principles) ─────────
+  {
+    id: 'methodology/constitutional-loop',
+    reference: 'methodology',
+    description:
+      'Every concern has up to three forms (Reference, Rule, Skill). A concern in only one substrate is debt.',
+    tier: 'architecture',
+    mechanism: { kind: 'script', script: 'scripts/rules-coverage.ts' },
+  },
+  {
+    id: 'methodology/principle-rule-mapping',
+    reference: 'methodology',
+    description:
+      'Every reference principle maps 1:1 to rules.ts entries. Pending → enforced cycle SLO 14 days.',
+    tier: 'architecture',
+    mechanism: { kind: 'pending', note: 'scripts/check-reference-rule-mapping.ts' },
+  },
+  {
+    id: 'methodology/hooks-deterministic',
+    reference: 'methodology',
+    description:
+      'Hooks execute <100ms, no LLM calls, fail-closed. Judgment goes in CLAUDE.mds, not hooks.',
+    tier: 'architecture',
+    mechanism: { kind: 'pending', note: 'code review; no LLM-call detection in hooks' },
+  },
+  {
+    id: 'methodology/memory-decay',
+    reference: 'methodology',
+    description: 'memory/episodic/ entries older than 90 days without re-trigger are archived.',
+    tier: 'architecture',
+    mechanism: { kind: 'pending', note: 'scripts/memory-decay.ts (planned cron)' },
+  },
+
+  // ─── ai.md (gaps from previous PR) ───────────────────────────
+  {
+    id: 'ai/prompts-as-constants',
+    reference: 'ai',
+    description:
+      'System prompts are TypeScript constants in apps/api/server/<feature>/prompts.ts; no inline strings.',
+    tier: 'lint',
+    mechanism: { kind: 'pending', note: 'ast-grep: complete({ system: stringLiteral })' },
+  },
+  {
+    id: 'ai/bounded-calls',
+    reference: 'ai',
+    description:
+      'Every complete() call provides maxTokens; output structure pinned via JSON mode or tool-use.',
+    tier: 'lint',
+    mechanism: { kind: 'pending', note: 'ast-grep + adapter signature requires maxTokens' },
+  },
+  {
+    id: 'ai/model-pinned',
+    reference: 'ai',
+    description:
+      'Model identity is a named constant (MODELS.<feature>); no string literals scattered.',
+    tier: 'lint',
+    mechanism: { kind: 'pending', note: 'ast-grep on complete() callers' },
+  },
+  {
+    id: 'ai/cache-hit-target',
+    reference: 'ai',
+    description: 'Per-feature cache-hit rate target ≥30%; alerts when sustained below.',
+    tier: 'architecture',
+    mechanism: { kind: 'pending', note: 'OTel + Axiom dashboard alert' },
+  },
+  {
+    id: 'ai/stream-cancel',
+    reference: 'ai',
+    description: 'Streaming routes propagate AbortSignal upstream and set X-Accel-Buffering: no.',
+    tier: 'lint',
+    mechanism: { kind: 'pending', note: 'ast-grep on streaming routes' },
+  },
+  {
+    id: 'observability/ai-trace-tags',
+    reference: 'observability',
+    description:
+      'Every AI call emits a trace span with tags: model, tokens (in/out/cache), latency, cost, tool_use_count, error_class.',
+    tier: 'lint',
+    mechanism: { kind: 'pending', note: 'adapter wraps every call; review' },
+  },
+  {
+    id: 'ai/tool-loop-bounded',
+    reference: 'ai',
+    description:
+      'Tool-use loops bounded (max depth 10, max same-tool retries 3). Audit log on every tool call.',
+    tier: 'lint',
+    mechanism: { kind: 'pending', note: 'code review; planned ast-grep on tool-dispatch sites' },
+  },
+
+  // ─── skills.md (gaps from previous PR) ───────────────────────
+  {
+    id: 'skills/output-mode-required',
+    reference: 'skills',
+    description:
+      'Every SKILL.md ends with an Output section naming its mode (fix, report, or question).',
+    tier: 'lint',
+    mechanism: { kind: 'pending', note: 'check-skills.ts extension to verify Output section' },
+  },
+  {
+    id: 'skills/cold-start-safe',
+    reference: 'skills',
+    description:
+      'Skills run from a cold start; no "as I mentioned" assumptions; references-by-path for shared content.',
+    tier: 'lint',
+    mechanism: { kind: 'pending', note: 'scripts/check-skill-cold-start.ts' },
+  },
+  {
+    id: 'skills/numbered-phases',
+    reference: 'skills',
+    description: 'Skills with non-trivial work use ## Phase N: headers (sequential by default).',
+    tier: 'lint',
+    mechanism: { kind: 'pending', note: 'scripts/check-skill-phases.ts' },
+  },
+  {
+    id: 'skills/sandwich-gates',
+    reference: 'skills',
+    description:
+      'Skills mutating files have an identical pre-condition (Phase 0) and final-gate phase running the same check.',
+    tier: 'architecture',
+    mechanism: { kind: 'pending', note: 'code review' },
+  },
+  {
+    id: 'skills/typed-output',
+    reference: 'skills',
+    description:
+      'Skill output: one mode per line (fix, report, or question). Reports include numeric confidence.',
+    tier: 'lint',
+    mechanism: { kind: 'pending', note: 'output-section linter' },
+  },
+  {
+    id: 'skills/sibling-layout',
+    reference: 'skills',
+    description:
+      'Sibling files typed by location: <skill>/scripts/* for code, <skill>/templates/* for inputs, <skill>/rules-*.md for sub-instructions.',
+    tier: 'architecture',
+    mechanism: { kind: 'pending', note: 'check-skills.ts extension' },
   },
 ] as const
 

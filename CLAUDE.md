@@ -38,6 +38,9 @@ These shape the agent's behavior at the point of work (vision §Harness):
 | Evolving `.gaia/` itself     | `.gaia/reference/methodology.md`                         |
 | AI features (Anthropic SDK)  | `.gaia/reference/ai.md`                                  |
 | Writing SKILL.md files       | `.gaia/reference/skills.md`                              |
+| Writing reference files      | `.gaia/reference/references.md`                          |
+| Onboarding / activation      | `.gaia/reference/product/onboarding.md`                  |
+| Retention / dunning          | `.gaia/reference/product/retention.md`                   |
 | Currently being worked on    | `.gaia/initiatives/roadmap.md`                           |
 | Latest data snapshot         | `.gaia/initiatives/context.md`                           |
 | What's allowed/blocked       | `.gaia/protocols/permissions.md`                         |
@@ -49,16 +52,18 @@ When the user's request matches one of these, invoke the skill BEFORE any other 
 
 ### Workflow loop (Gaia)
 
-| Trigger                                 | Skill        |
-| --------------------------------------- | ------------ |
-| Start an initiative, brainstorm a bet   | `d-strategy` |
-| Extract projects from an initiative     | `d-roadmap`  |
-| Implement a project (TDD)               | `d-tdd`      |
-| Write blog/handbook/social/clip content | `d-content`  |
-| Pre-commit principles review            | `d-review`   |
-| Deep audit, scoring, trend tracking     | `d-health`   |
-| Build/deploy error → prevention rule    | `d-harness`  |
-| Deploy failed → recover                 | `d-fail`     |
+| Trigger                                 | Skill         |
+| --------------------------------------- | ------------- |
+| Start an initiative, brainstorm a bet   | `d-strategy`  |
+| Extract projects from an initiative     | `d-roadmap`   |
+| Implement a project (TDD)               | `d-tdd`       |
+| Write blog/handbook/social/clip content | `d-content`   |
+| Pre-commit principles review            | `d-review`    |
+| Deep audit, scoring, trend tracking     | `d-health`    |
+| Build/deploy error → prevention rule    | `d-harness`   |
+| Deploy failed → recover                 | `d-fail`      |
+| Author / rewrite a reference file       | `d-reference` |
+| Author / rewrite a SKILL.md             | `d-skill`     |
 
 ### Foundation (gstack, vendored under `.claude/skills/gstack/`)
 

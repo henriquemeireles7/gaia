@@ -94,7 +94,42 @@ const DOMAIN_MAP: readonly Rule[] = [
     references: ['commands.md', 'observability.md'],
     reason: 'CI configuration',
   },
+  // ── Product surfaces (auth flows, signup, billing, dunning, notifications) ─
+  {
+    test: (p) =>
+      /apps\/web\/src\/routes\/(login|signup|forgot-password|reset-password|onboard)/.test(p) ||
+      /onboard/i.test(p),
+    references: ['product/onboarding.md'],
+    reason: 'onboarding / signup surface',
+  },
+  {
+    test: (p) => /billing|subscription|dunning|notification|retention/i.test(p),
+    references: ['product/retention.md'],
+    reason: 'retention / billing / notifications surface',
+  },
+  // ── Per-feature references (scoped loading) ───────────────────────────────
+  // For files under apps/{api,web}/src/.../features/<x>/* or apps/api/features/<x>/*,
+  // also auto-load .gaia/reference/features/<x>.md if present.
+  // Implemented via a wildcard rule below, post-DOMAIN_MAP.
+  // ── Reference / skill authoring (the meta layer) ──────────────────────────
+  {
+    test: (p) => p.startsWith('.gaia/reference/'),
+    references: ['references.md', 'methodology.md'],
+    reason: 'editing a reference file (meta-layer)',
+  },
+  {
+    test: (p) => p.startsWith('.claude/skills/') && p.endsWith('SKILL.md'),
+    references: ['skills.md', 'methodology.md', 'ax.md'],
+    reason: 'editing a skill (meta-layer)',
+  },
 ]
+
+// Per-feature reference loader: extract <feature> from path and add features/<feature>.md if it exists.
+function featureRefFor(path: string): string | null {
+  const m = path.match(/(?:apps\/(?:api|web)\/(?:src\/)?features\/|features\/)([a-z][a-z0-9-]*)/i)
+  if (!m) return null
+  return `features/${m[1]}.md`
+}
 
 const input = (await Bun.stdin.json()) as {
   tool_input?: { file_path?: string; path?: string }
@@ -122,6 +157,15 @@ for (const rule of DOMAIN_MAP) {
     for (const ref of rule.references) required.add(ref)
     reasons.push(rule.reason)
   }
+}
+
+// Per-feature reference (scoped loading by path)
+const featureRef = featureRefFor(relPath)
+if (featureRef) {
+  required.add(featureRef)
+  reasons.push(
+    `per-feature reference for ${featureRef.replace(/^features\//, '').replace(/\.md$/, '')}`,
+  )
 }
 
 // Filter to references that actually exist on disk.
