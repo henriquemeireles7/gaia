@@ -9,7 +9,9 @@
   ],
   "scripts": {
     "dev": "bun --hot apps/api/server/app.ts",
+    "dev:web": "vinxi dev",
     "build": "bun build apps/api/server/app.ts --outdir dist --target bun --minify --external=isomorphic-dompurify",
+    "build:web": "vinxi build",
     "start": "bun run dist/app.js",
     "check": "bun run check:lint && bun run check:types && bun run harden && bun run check:test",
     "check:lint": "bunx biome ci .",
@@ -31,6 +33,8 @@
     "@hono/zod-validator": "^0.5.0",
     "@polar-sh/sdk": "^0.20.0",
     "@sinclair/typebox": "^0.34.0",
+    "@solidjs/router": "^0.15.0",
+    "@solidjs/start": "^1.1.0",
     "@t3-oss/env-core": "^0.12.0",
     "better-auth": "^1.2.0",
     "drizzle-orm": "^0.38.0",
@@ -45,7 +49,9 @@
     "preact": "^10.25.0",
     "preact-render-to-string": "^6.5.0",
     "resend": "^4.1.0",
+    "solid-js": "^1.9.0",
     "stripe": "^17.5.0",
+    "vinxi": "^0.5.0",
     "zod": "^3.24.0"
   },
   "devDependencies": {
