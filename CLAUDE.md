@@ -34,6 +34,10 @@ These shape the agent's behavior at the point of work (vision §Harness):
 | Brand voice                  | `.gaia/reference/voice.md`                               |
 | Workflow loops               | `.gaia/reference/workflow.md`                            |
 | Harness mechanics            | `.gaia/reference/harness.md`                             |
+| Deploying / Docker / Railway | `.gaia/reference/deployment.md`                          |
+| Evolving `.gaia/` itself     | `.gaia/reference/methodology.md`                         |
+| AI features (Anthropic SDK)  | `.gaia/reference/ai.md`                                  |
+| Writing SKILL.md files       | `.gaia/reference/skills.md`                              |
 | Currently being worked on    | `.gaia/initiatives/roadmap.md`                           |
 | Latest data snapshot         | `.gaia/initiatives/context.md`                           |
 | What's allowed/blocked       | `.gaia/protocols/permissions.md`                         |

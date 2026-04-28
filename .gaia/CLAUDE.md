@@ -7,7 +7,7 @@ The Gaia methodology — the substrate that makes principles discoverable and en
 | Path           | Purpose                                                                                        |
 | -------------- | ---------------------------------------------------------------------------------------------- |
 | `vision.md`    | The locked source of truth — Gaia v6.                                                          |
-| `reference/`   | The constitution. 17 reference files; load on demand by domain.                                |
+| `reference/`   | The constitution. 21 reference files; load on demand by domain.                                |
 | `initiatives/` | Strategic bets per workflow period (NCT-hybrid).                                               |
 | `memory/`      | Three surfaces: `working/` (volatile), `episodic/` (append-only), `personal/` (per-developer). |
 | `protocols/`   | Typed tool schemas, permissions, delegation rules.                                             |
@@ -38,6 +38,10 @@ The Gaia methodology — the substrate that makes principles discoverable and en
 | Brand voice                       | `reference/voice.md`                   |
 | Workflow loops                    | `reference/workflow.md`                |
 | Harness mechanics                 | `reference/harness.md`                 |
+| Deploying to prod                 | `reference/deployment.md`              |
+| Evolving `.gaia/` itself          | `reference/methodology.md`             |
+| AI features (Anthropic SDK)       | `reference/ai.md`                      |
+| Writing SKILL.md files            | `reference/skills.md`                  |
 | What's currently being worked on? | `initiatives/roadmap.md`               |
 | What's the latest data snapshot?  | `initiatives/context.md`               |
 | What's allowed/blocked?           | `protocols/permissions.md` _(Phase 2)_ |

@@ -29,6 +29,10 @@ export type ReferenceDomain =
   | 'voice'
   | 'workflow'
   | 'harness'
+  | 'deployment'
+  | 'methodology'
+  | 'ai'
+  | 'skills'
 
 export type RuleTier = 'test' | 'lint' | 'hook' | 'architecture'
 
