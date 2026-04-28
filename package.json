@@ -52,7 +52,7 @@
     "@polar-sh/sdk": "^0.20.0",
     "@sentry/node": "^9.0.0",
     "@sinclair/typebox": "^0.34.0",
-    "@solidjs/router": "^0.15.0",
+    "@solidjs/router": "^0.16.1",
     "@solidjs/start": "^1.1.0",
     "better-auth": "^1.2.0",
     "drizzle-orm": "^0.38.0",
