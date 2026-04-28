@@ -36,7 +36,7 @@
     "preact": "^10.25.0",
     "preact-render-to-string": "^6.5.0",
     "resend": "^4.1.0",
-    "stripe": "^17.5.0",
+    "stripe": "^22.1.0",
     "zod": "^3.24.0"
   },
   "devDependencies": {
