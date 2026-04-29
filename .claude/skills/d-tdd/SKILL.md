@@ -12,7 +12,7 @@ plan decomposition, TDD implementation, completion audit, wiring audit, and hand
 
 ## Pipeline
 
-d-strategy → gstack reviews → d-roadmap → **d-tdd** → d-review → /ship
+d-initiative → gstack reviews → d-roadmap → **d-tdd** → d-review → /ship
 
 ## When to use
 

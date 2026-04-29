@@ -11,7 +11,7 @@ Takes a reviewed initiative document.md and extracts each project into its own s
 
 ## Pipeline
 
-d-strategy → gstack reviews → **d-roadmap** → /ship (PR+merge)
+d-initiative → gstack reviews → **d-roadmap** → /ship (PR+merge)
 
 ## When to use
 

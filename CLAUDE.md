@@ -53,7 +53,7 @@ When the user's request matches one of these, invoke the skill BEFORE any other 
 
 | Trigger                                 | Skill         |
 | --------------------------------------- | ------------- |
-| Start an initiative, brainstorm a bet   | `d-strategy`  |
+| Start an initiative, brainstorm a bet   | `d-initiative`  |
 | Extract projects from an initiative     | `d-roadmap`   |
 | Implement a project (TDD)               | `d-tdd`       |
 | Write blog/handbook/social/clip content | `d-content`   |

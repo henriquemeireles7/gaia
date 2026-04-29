@@ -1,9 +1,9 @@
 ---
-name: d-strategy
-description: "Strategy session skill. Interactive founder Q&A that produces an initiative document with project suggestions. Triggers: 'd-strategy', 'strategy session', 'new initiative', 'what should we build next'."
+name: d-initiative
+description: "Strategy session skill. Interactive founder Q&A that produces an initiative document with project suggestions. Triggers: 'd-initiative', 'strategy session', 'new initiative', 'what should we build next'."
 ---
 
-# d-strategy — Strategy Session
+# d-initiative — Strategy Session
 
 ## What this does
 
@@ -11,7 +11,7 @@ Interactive founder Q&A that produces a strategy initiative. Reads codebase stat
 
 ## Pipeline
 
-**d-strategy** → gstack reviews (CEO/eng/design) → d-roadmap → /ship
+**d-initiative** → gstack reviews (CEO/eng/design) → d-roadmap → /ship
 
 ## When to use
 

@@ -163,7 +163,7 @@ Locked decisions as of v6. Each choice traces back to one or more of the 15 prin
 
 - **Primary IDE:** Claude Code
 - **Skill foundation:** gstack (`plan`, `review`, `qa` — vendored under `.claude/skills/gstack/`)
-- **Gaia skills:** d-strategy, d-roadmap, d-tdd, d-content, d-review, d-harness, d-health, d-fail
+- **Gaia skills:** d-initiative, d-roadmap, d-tdd, d-content, d-review, d-harness, d-health, d-fail
 - **Hooks runtime:** TypeScript + Bun, consuming `.gaia/rules.ts`, living in `.claude/hooks/`
 - **Protocols:** typed tool schemas with preconditions, side-effects, approval gates
 - **Permissions:** `.gaia/protocols/permissions.md` — always-allowed / requires-approval / never-allowed
@@ -265,7 +265,7 @@ gaia/                                    # Repo root
 │       │   ├── plan/SKILL.md
 │       │   ├── review/SKILL.md
 │       │   └── qa/SKILL.md
-│       ├── d-strategy/                  # Initiative Q&A → initiative.md
+│       ├── d-initiative/                  # Initiative Q&A → initiative.md
 │       ├── d-roadmap/                   # Initiative → projects/*.md
 │       ├── d-tdd/                       # TDD orchestration from project (was d-code)
 │       ├── d-content/                   # Strategy → branded content
@@ -486,7 +486,7 @@ If the harness starts thinking — loading context intelligently, matching skill
 
 12. **Latent for judgment, deterministic for facts.** Every step in the system is classified. **Judgment** → latent space (LLM reads, interprets, decides). **Facts** → deterministic (SQL, tests, lint, compiled code, counts, sorts, verifications). Mixing them is the #1 failure mode. If you catch yourself asking the model to count, sort, deduplicate, or verify — stop, and write a deterministic tool. The boundary is the design.
 
-13. **Diarization is the signature skill shape.** Diarization is the skill pattern unique to AI: read everything about a subject, hold contradictions in mind, synthesize a structured profile. `/d-review` diarizes a PR. `/d-health` diarizes the codebase. `/d-strategy` diarizes an initiative. No SQL produces this. No RAG pipeline produces this. The model has to actually read and synthesize. Most of Gaia's highest-value skills are diarization skills.
+13. **Diarization is the signature skill shape.** Diarization is the skill pattern unique to AI: read everything about a subject, hold contradictions in mind, synthesize a structured profile. `/d-review` diarizes a PR. `/d-health` diarizes the codebase. `/d-initiative` diarizes an initiative. No SQL produces this. No RAG pipeline produces this. The model has to actually read and synthesize. Most of Gaia's highest-value skills are diarization skills.
 
 #### Mission
 
@@ -513,7 +513,7 @@ Cloning Gaia gives you a working harness on day one:
 - `.claude/settings.json` — hook wiring + skill registration
 - `.claude/hooks/` — lifecycle hooks in Bun TS (incl. `domain-context.ts` auto-loader)
 - `.claude/skills/gstack/` — vendored `plan`, `review`, `qa`
-- `.claude/skills/d-*/` — Gaia skills (d-strategy, d-roadmap, d-tdd, d-content, d-review, d-harness, d-health, d-fail, d-reference, d-skill)
+- `.claude/skills/d-*/` — Gaia skills (d-initiative, d-roadmap, d-tdd, d-content, d-review, d-harness, d-health, d-fail, d-reference, d-skill)
 - `CLAUDE.md` — root resolver (~100 lines)
 
 Users clone, run `bun install`, configure env vars, and have a fully operational agent-native development environment. No Python runtime for hooks. No jq. No external memory service. All state is markdown + JSONL + TypeScript in git.
@@ -569,7 +569,7 @@ The template ships with the following working out of the box:
 - Dockerfile + railway.toml for one-click Railway deploy
 - wrangler.toml documented for Cloudflare scale migration
 - README + onboarding walkthrough
-- Workflow scaffolding: a fresh repo can run `d-strategy` on day one
+- Workflow scaffolding: a fresh repo can run `d-initiative` on day one
 
 ### What does not ship in v1
 
@@ -655,7 +655,7 @@ Ordered by blocking priority:
 
 9. **Custom Biome GritQL ruleset** — encoded enforcement rules. One per principle that needs codebase-pattern enforcement (estimated 30–50 rules across reference files).
 
-10. **Workflow skill artifacts** — for each workflow skill (`d-strategy`, `d-roadmap`, `d-tdd`, `d-content`, `d-review`, `d-harness`, `d-health`, `d-fail`), produce `SKILL.md` + walkthrough template + research/acknowledgements file.
+10. **Workflow skill artifacts** — for each workflow skill (`d-initiative`, `d-roadmap`, `d-tdd`, `d-content`, `d-review`, `d-harness`, `d-health`, `d-fail`), produce `SKILL.md` + walkthrough template + research/acknowledgements file.
 
 11. **Domain-scoped project enforcement** — CI/pre-spawn script reads project `domain:` and `touches:` frontmatter; refuses overlap. Replaces conductor's runtime role until conductor.build ships.
 
