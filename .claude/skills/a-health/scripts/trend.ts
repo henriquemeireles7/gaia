@@ -1,17 +1,21 @@
 // .claude/skills/a-health/scripts/trend.ts — health/trend-required
 //
-// Parse the ## Audit History table in decisions/health.md and emit per-axis
-// delta vs the most recent prior row (a-health/reference.md §3).
+// Parse the ## Audit History table in the latest dated a-health report and
+// emit per-axis delta vs the most recent prior row (a-health/reference.md §3).
 //
 // Usage:
 //   bun .claude/skills/a-health/scripts/trend.ts \
 //     --current '{"composite":8.5,"vector":{"security":9.2,...}}' \
-//     [--prior decisions/health.md]
+//     [--prior auto]
 //
 // stdout: JSON { direction, deltaComposite, deltaPerAxis, priorDate, priorComposite }
 // Exit codes: 0 ok, 2 no prior history (first run), 1 parse error.
+//
+// Defaults: --prior auto-detects the most recent dated file under
+// .gaia/audits/a-health/ (excluding today's report).
 
-import { existsSync, readFileSync } from 'node:fs'
+import { existsSync, readFileSync, readdirSync } from 'node:fs'
+import { join } from 'node:path'
 
 type Vector = Record<string, number | null>
 type Current = { composite: number; vector: Vector }
@@ -36,7 +40,7 @@ const AXES = [
 function parseArgs(): { current: Current; priorPath: string } {
   const args = process.argv.slice(2)
   let currentRaw = ''
-  let priorPath = 'decisions/health.md'
+  let priorPath = ''
   for (let i = 0; i < args.length; i++) {
     if (args[i] === '--current') currentRaw = args[++i] ?? ''
     else if (args[i] === '--prior') priorPath = args[++i] ?? priorPath
@@ -44,6 +48,16 @@ function parseArgs(): { current: Current; priorPath: string } {
   if (!currentRaw) {
     console.error('trend: --current <json> required')
     process.exit(1)
+  }
+  if (!priorPath) {
+    const today = new Date().toISOString().slice(0, 10)
+    const healthDir = '.gaia/audits/a-health'
+    if (existsSync(healthDir)) {
+      const dated = readdirSync(healthDir)
+        .filter((f) => /^\d{4}-\d{2}-\d{2}\.md$/.test(f) && f !== `${today}.md`)
+        .sort()
+      priorPath = dated.length ? join(healthDir, dated[dated.length - 1] as string) : ''
+    }
   }
   return { current: JSON.parse(currentRaw) as Current, priorPath }
 }

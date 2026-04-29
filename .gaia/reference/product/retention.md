@@ -208,7 +208,7 @@ Aggregate retention lies. A 50% retention "headline" can hide a 90% week-1 cohor
 - PostHog dashboards: cohort retention week-1, week-4, week-12
 - Cohorts measured by signup week; events = "any meaningful action that week"
 - Target: week-12 retention ≥40% to claim PMF (Reforge / a16z benchmark for SaaS)
-- Cohort comparisons in `decisions/health.md` quarterly; flag drops >5pp week-over-week
+- Cohort comparisons in `.gaia/audits/a-health/<YYYY-MM-DD>.md` quarterly; flag drops >5pp week-over-week
 
 **Enforcement:** rule `retention/cohort-dashboards` (mechanism: pending — script verifies PostHog dashboards exist for the named cohorts).
 
@@ -222,7 +222,7 @@ Aggregate retention number with no cohort breakdown.
 **Pattern:**
 
 ```text
-# ✅ Cohort table from decisions/health.md
+# ✅ Cohort table from .gaia/audits/a-health/<YYYY-MM-DD>.md
                  Week 1   Week 4   Week 12
 Apr cohort       72%      45%      38%
 May cohort       69%      48%      42%   ← PMF improving

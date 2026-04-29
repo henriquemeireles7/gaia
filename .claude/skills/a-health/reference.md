@@ -92,11 +92,11 @@ A single-number health score hides which axis moved. `a-health` always emits the
 
 ### 3. Trend is mandatory; single-shot scores are theater
 
-A health score with no prior context is a vibes report. Every audit run reads the prior `decisions/health.md`, computes per-axis delta, declares the direction (improving / stable / degrading). The first run of a fresh repo opens the trend; every subsequent run extends it. An audit that can't compare to history fails closed.
+A health score with no prior context is a vibes report. Every audit run reads the prior `.gaia/audits/a-health/<YYYY-MM-DD>.md`, computes per-axis delta, declares the direction (improving / stable / degrading). The first run of a fresh repo opens the trend; every subsequent run extends it. An audit that can't compare to history fails closed.
 
 **Rules / Guidelines / Boundaries:**
 
-- `decisions/health.md` MUST contain an `## Audit History` table.
+- `.gaia/audits/a-health/<YYYY-MM-DD>.md` MUST contain an `## Audit History` table.
 - Each run appends one row: date, composite, vector, top driver.
 - Trend direction is computed mechanically: `delta > +0.2` improving / `delta < -0.2` degrading / else stable.
 - Missing history is reported, not silently bypassed.
@@ -106,7 +106,7 @@ A health score with no prior context is a vibes report. Every audit run reads th
 **Anti-pattern:**
 
 ```md
-❌ Audit emits a score but never opens decisions/health.md.
+❌ Audit emits a score but never opens .gaia/audits/a-health/<YYYY-MM-DD>.md.
 Two consecutive audits look identical, no signal that they're independent.
 ```
 
@@ -228,12 +228,12 @@ Re-running the full audit when nothing changed is waste. If a domain's source fi
 
 ### 7. Report-only by contract; final gate confirms
 
-`a-health` is a diagnostic, never a treatment. It mutates `decisions/health.md` and `.gaia/audits/a-health/*` only. Every other write is a violation. The final phase re-runs `bun run check` to confirm no source mutation slipped through. Fix work belongs to `w-review` and `w-code` after the report lands.
+`a-health` is a diagnostic, never a treatment. It mutates `.gaia/audits/a-health/<YYYY-MM-DD>.md` and `.gaia/audits/a-health/*` only. Every other write is a violation. The final phase re-runs `bun run check` to confirm no source mutation slipped through. Fix work belongs to `w-review` and `w-code` after the report lands.
 
 **Rules / Guidelines / Boundaries:**
 
 - Output mode: **report**. The skill never auto-applies fixes.
-- Allowed writes: `decisions/health.md`, `.gaia/audits/a-health/<date>.md`, `.gaia/audits/a-health/pulse.jsonl`, `.gaia/audits/a-health/.stamp`.
+- Allowed writes: `.gaia/audits/a-health/<YYYY-MM-DD>.md`, `.gaia/audits/a-health/<date>.md`, `.gaia/audits/a-health/pulse.jsonl`, `.gaia/audits/a-health/.stamp`.
 - Phase 4 runs `bun run check` and asserts zero diff in tracked source files.
 - A report listing zero findings still ships — the report IS the output.
 
@@ -265,7 +265,7 @@ findings.push({
 
 ### 8. Sub-audit failure is a finding, not an abort
 
-If `a-security` crashes mid-run, `a-health` emits the partial report with that axis marked `error` and the failure message captured in the findings list. The audit must complete and produce `decisions/health.md` even when a sibling skill is broken. A skipped audit is more dangerous than a partial one because the operator never sees that the audit is broken.
+If `a-security` crashes mid-run, `a-health` emits the partial report with that axis marked `error` and the failure message captured in the findings list. The audit must complete and produce `.gaia/audits/a-health/<YYYY-MM-DD>.md` even when a sibling skill is broken. A skipped audit is more dangerous than a partial one because the operator never sees that the audit is broken.
 
 **Rules / Guidelines / Boundaries:**
 
@@ -281,7 +281,7 @@ If `a-security` crashes mid-run, `a-health` emits the partial report with that a
 ```ts
 // ❌ a-security crash aborts the whole audit; operator gets no signal at all
 const findings = await runSecurityAudit() // throws
-// nothing else runs; decisions/health.md not written; trend stops
+// nothing else runs; .gaia/audits/a-health/<YYYY-MM-DD>.md not written; trend stops
 ```
 
 **Pattern:**
@@ -388,7 +388,7 @@ Skip-intelligence: an axis with prior score ≥9.5 AND zero changed files in sco
 
 ---
 
-## Output (canonical shape of `decisions/health.md`)
+## Output (canonical shape of `.gaia/audits/a-health/<YYYY-MM-DD>.md`)
 
 ```md
 # Codebase Health Report

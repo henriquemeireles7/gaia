@@ -1,16 +1,20 @@
 // .claude/skills/a-health/scripts/aggregate-scores.ts — Phase 3 synthesizer
 //
 // Read sibling a-* audit reports + Phase 1 mechanical outputs, compute the
-// 12-axis vector, weighted composite, trend vs prior decisions/health.md,
+// 12-axis vector, weighted composite, trend vs the latest prior dated report,
 // and emit the canonical health report (a-health/reference.md §Output).
 //
 // Usage:
 //   bun .claude/skills/a-health/scripts/aggregate-scores.ts \
 //     [--audits-dir .gaia/audits] \
-//     [--prior decisions/health.md] \
+//     [--prior auto] \
 //     [--stamp .gaia/audits/a-health/.stamp] \
-//     [--out decisions/health.md] \
+//     [--out auto] \
 //     [--print]
+//
+// Defaults: --prior auto-detects the most recent dated file under
+// .gaia/audits/a-health/ (excluding today's), --out writes today's dated file
+// at .gaia/audits/a-health/<YYYY-MM-DD>.md.
 //
 // Sub-audit failure handling: missing or unparseable sibling report → axis
 // score = null with status 'n/a' (a-health/reference.md §8). Audit completes.
@@ -80,11 +84,13 @@ type Args = {
 }
 function parseArgs(): Args {
   const a = process.argv.slice(2)
+  const today = new Date().toISOString().slice(0, 10)
+  const auditsDir = '.gaia/audits'
   const args: Args = {
-    auditsDir: '.gaia/audits',
-    priorPath: 'decisions/health.md',
+    auditsDir,
+    priorPath: '',
     stampPath: '.gaia/audits/a-health/.stamp',
-    outPath: 'decisions/health.md',
+    outPath: join(auditsDir, 'a-health', `${today}.md`),
     print: false,
   }
   for (let i = 0; i < a.length; i++) {
@@ -94,6 +100,17 @@ function parseArgs(): Args {
     else if (k === '--stamp') args.stampPath = a[++i] ?? args.stampPath
     else if (k === '--out') args.outPath = a[++i] ?? args.outPath
     else if (k === '--print') args.print = true
+  }
+  // Auto-resolve --prior: the latest dated file under .gaia/audits/a-health/
+  // excluding today's report.
+  if (!args.priorPath) {
+    const healthDir = join(args.auditsDir, 'a-health')
+    if (existsSync(healthDir)) {
+      const dated = readdirSync(healthDir)
+        .filter((f) => /^\d{4}-\d{2}-\d{2}\.md$/.test(f) && f !== `${today}.md`)
+        .sort()
+      args.priorPath = dated.length ? join(healthDir, dated[dated.length - 1] as string) : ''
+    }
   }
   return args
 }
@@ -512,10 +529,14 @@ function main(): void {
   mkdirSync(dirname(args.outPath), { recursive: true })
   writeFileSync(args.outPath, report)
 
-  // also drop a snapshot under .gaia/audits/a-health/<date>.md
+  // If caller passed a custom --out outside .gaia/audits/a-health/, also write
+  // a dated snapshot in the canonical location so trend.ts can find it later.
   const snapDir = '.gaia/audits/a-health'
-  mkdirSync(snapDir, { recursive: true })
-  writeFileSync(join(snapDir, `${date}.md`), report)
+  const snapPath = join(snapDir, `${date}.md`)
+  if (args.outPath !== snapPath) {
+    mkdirSync(snapDir, { recursive: true })
+    writeFileSync(snapPath, report)
+  }
 
   process.stdout.write(
     `${JSON.stringify({ date, composite, computedAxes: computedCount, out: args.outPath }, null, 2)}\n`,

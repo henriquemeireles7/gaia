@@ -981,7 +981,7 @@ export const rules: readonly Rule[] = [
     id: 'health/trend-required',
     skill: 'a-health',
     description:
-      'Every audit appends a row to decisions/health.md ## Audit History; missing history surfaces as P0.',
+      'Every audit appends a row to the prior .gaia/audits/a-health/<YYYY-MM-DD>.md ## Audit History; missing history surfaces as P0.',
     tier: 'lint',
     mechanism: {
       kind: 'script',
@@ -992,7 +992,7 @@ export const rules: readonly Rule[] = [
     id: 'health/worst-file-leaderboard',
     skill: 'a-health',
     description:
-      'decisions/health.md ranks top 5 worst files cross-audit; files in ≥3 audits get systemic-debt tag.',
+      'The audit report ranks top 5 worst files cross-audit; files in ≥3 audits get systemic-debt tag.',
     tier: 'lint',
     mechanism: {
       kind: 'script',
@@ -1021,8 +1021,7 @@ export const rules: readonly Rule[] = [
   {
     id: 'health/report-only',
     skill: 'a-health',
-    description:
-      'a-health is report-only; only decisions/health.md and .gaia/audits/a-health/* may be written.',
+    description: 'a-health is report-only; only files under .gaia/audits/a-health/ may be written.',
     tier: 'architecture',
     mechanism: {
       kind: 'pending',

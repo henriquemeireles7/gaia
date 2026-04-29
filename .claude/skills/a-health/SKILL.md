@@ -1,6 +1,6 @@
 ---
 name: a-health
-description: 'Composite codebase health audit. Dispatcher: runs the bun run check harness, dispatches the 6 a-* sibling audits (a-security, a-ai, a-ax, a-ux, a-dx, a-observability, a-perf), aggregates a 12-axis vector, computes trend vs prior decisions/health.md, surfaces worst-file leaderboard. Mode: report. Tier: pulse (Phase 1 only, ~30s) | weekly (full 4-phase audit) | monthly (full + remediation plan). Triggers: "a-health", "health audit", "codebase health", "full audit", "how healthy is the code". Pair: every a-* sibling (composite). Artifact: decisions/health.md (vector + trend + fix plan) + .gaia/audits/a-health/<date>.md.'
+description: 'Composite codebase health audit. Dispatcher: runs the bun run check harness, dispatches the 6 a-* sibling audits (a-security, a-ai, a-ax, a-ux, a-dx, a-observability, a-perf), aggregates a 12-axis vector, computes trend vs prior .gaia/audits/a-health/<YYYY-MM-DD>.md, surfaces worst-file leaderboard. Mode: report. Tier: pulse (Phase 1 only, ~30s) | weekly (full 4-phase audit) | monthly (full + remediation plan). Triggers: "a-health", "health audit", "codebase health", "full audit", "how healthy is the code". Pair: every a-* sibling (composite). Artifact: .gaia/audits/a-health/<YYYY-MM-DD>.md (vector + trend + fix plan).'
 ---
 
 # a-health — Comprehensive codebase health audit
@@ -16,7 +16,7 @@ description: 'Composite codebase health audit. Dispatcher: runs the bun run chec
 
 ## What this does
 
-`a-health` is the orchestra conductor, not an instrument. The 6 sibling audit skills (`a-security`, `a-ai`, `a-ax`, `a-ux`, `a-dx`, `a-observability`, `a-perf`) each own their domain principles. `a-health` runs the existing `bun run check` harness, dispatches to those siblings, aggregates findings into a 12-axis vector, computes per-axis trend vs the prior `decisions/health.md`, ranks the cross-audit worst-file leaderboard, and emits `decisions/health.md`.
+`a-health` is the orchestra conductor, not an instrument. The 6 sibling audit skills (`a-security`, `a-ai`, `a-ax`, `a-ux`, `a-dx`, `a-observability`, `a-perf`) each own their domain principles. `a-health` runs the existing `bun run check` harness, dispatches to those siblings, aggregates findings into a 12-axis vector, computes per-axis trend vs the prior `.gaia/audits/a-health/<YYYY-MM-DD>.md`, ranks the cross-audit worst-file leaderboard, and emits `.gaia/audits/a-health/<YYYY-MM-DD>.md`.
 
 **One mode: report.** No code mutations. The fix plan tells `w-review` and `w-code` what to fix.
 
@@ -39,7 +39,7 @@ bun .claude/skills/a-health/scripts/reproducibility-stamp.ts > .gaia/audits/a-he
 Read the prior audit if it exists:
 
 ```sh
-ls decisions/health.md && cat decisions/health.md   # or absent → first-run flow
+ls .gaia/audits/a-health/<YYYY-MM-DD>.md && cat .gaia/audits/a-health/<YYYY-MM-DD>.md   # or absent → first-run flow
 ```
 
 ## Phase 1: Mechanical sweep
@@ -80,8 +80,8 @@ Skill(a-perf,          mode: report)   → .gaia/audits/a-perf/<date>.md        
 bun .claude/skills/a-health/scripts/aggregate-scores.ts \
   --stamp .gaia/audits/a-health/.stamp \
   --audits-dir .gaia/audits \
-  --prior decisions/health.md \
-  --out decisions/health.md
+  --prior .gaia/audits/a-health/<YYYY-MM-DD>.md \
+  --out .gaia/audits/a-health/<YYYY-MM-DD>.md
 ```
 
 This script:
@@ -90,10 +90,10 @@ This script:
 2. Reads Phase 1 output (knip, rules:coverage, harden, check-duplication, ast-grep).
 3. Computes per-axis scores via the formula in `reference.md` Part — Score formula.
 4. Computes the composite as the weighted sum.
-5. Diffs against the prior `decisions/health.md` (per `trend.ts`) → emits per-axis delta + direction.
+5. Diffs against the prior `.gaia/audits/a-health/<YYYY-MM-DD>.md` (per `trend.ts`) → emits per-axis delta + direction.
 6. Ranks worst files cross-audit (per `worst-files.ts`) → top 5 with systemic-debt tag.
 7. Builds the fix plan (P0–P3) ordered by severity and worst-file weight.
-8. Writes `decisions/health.md` (replaces) and appends a row to its `## Audit History` table.
+8. Writes `.gaia/audits/a-health/<YYYY-MM-DD>.md` (replaces) and appends a row to its `## Audit History` table.
 
 Companion scripts under `.claude/skills/a-health/scripts/`:
 
@@ -110,7 +110,7 @@ Re-run `bun run check` and confirm no source mutations slipped through (per prin
 ```sh
 bun run check                                   # must match Phase 0 result
 git diff --name-only                            # allowed-write whitelist:
-                                                #   decisions/health.md
+                                                #   .gaia/audits/a-health/<YYYY-MM-DD>.md
                                                 #   .gaia/audits/a-health/<date>.md
                                                 #   .gaia/audits/a-health/.stamp
                                                 #   .gaia/audits/a-health/pulse.jsonl (pulse mode)
@@ -136,10 +136,10 @@ Top 3 fixes:
   2. ...
   3. ...
 
-Full report: decisions/health.md
+Full report: .gaia/audits/a-health/<YYYY-MM-DD>.md
 ```
 
-### Health Report (`decisions/health.md`)
+### Health Report (`.gaia/audits/a-health/<YYYY-MM-DD>.md`)
 
 Canonical shape lives in `reference.md` Part — Output. Summary:
 
@@ -156,7 +156,7 @@ Canonical shape lives in `reference.md` Part — Output. Summary:
 - NEVER fix issues during a-health — diagnostic, not treatment.
 - NEVER ask questions — zero-interaction skill.
 - NEVER duplicate a sibling's domain checklist into this skill (principle 1).
-- ALWAYS produce `decisions/health.md`, even when sub-audits error (principle 8).
+- ALWAYS produce `.gaia/audits/a-health/<YYYY-MM-DD>.md`, even when sub-audits error (principle 8).
 - ALWAYS bump the prior `## Audit History` table — append, don't replace.
 - ALWAYS capture the reproducibility stamp before scoring; never trend across mismatched stacks without flagging.
 - If `bun run check` fails in Phase 0, capture as a P0 finding and continue (principle 8).
@@ -176,6 +176,6 @@ This skill is invoked by:
 
 - **CLAUDE.md routing**: `/a-health` or triggers like "health audit", "codebase health".
 - **Stop hook**: `quick-pulse.ts` runs after sessions touching ≥10 files (per principle 9; wired in `.claude/settings.json`).
-- **w-review**: can read the latest `decisions/health.md` for fix-plan context.
+- **w-review**: can read the latest `.gaia/audits/a-health/<YYYY-MM-DD>.md` for fix-plan context.
 
-After the report, fix work flows: `decisions/health.md` → `w-review` (fast pass/fail) → `w-code` (TDD fix) → `gstack /review` → `gstack /qa` → `gstack /ship`.
+After the report, fix work flows: `.gaia/audits/a-health/<YYYY-MM-DD>.md` → `w-review` (fast pass/fail) → `w-code` (TDD fix) → `gstack /review` → `gstack /qa` → `gstack /ship`.
