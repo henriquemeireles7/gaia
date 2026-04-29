@@ -8,3 +8,5 @@ dist/
 .DS_Store
 .context/
 public/styles.css
+.gaia/memory/working/
+.gaia/memory/personal/
