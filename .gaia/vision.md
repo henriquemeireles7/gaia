@@ -163,11 +163,11 @@ Locked decisions as of v6. Each choice traces back to one or more of the 15 prin
 
 - **Primary IDE:** Claude Code
 - **Skill foundation:** gstack (`plan`, `review`, `qa` — vendored under `.claude/skills/gstack/`)
-- **Gaia skills:** d-initiative, d-initiative, d-code, d-content, d-review, , d-health, d-fail
+- **Gaia skills:** w-initiative, w-code, w-write, w-review, a-health, w-debug
 - **Hooks runtime:** TypeScript + Bun, consuming `.gaia/rules.ts`, living in `.claude/hooks/`
 - **Protocols:** typed tool schemas with preconditions, side-effects, approval gates
 - **Permissions:** `.gaia/protocols/permissions.md` — always-allowed / requires-approval / never-allowed
-- **Review flow:** `/d-review` runs a superset of CI and adds LLM judgment
+- **Review flow:** `/w-review` runs a superset of CI and adds LLM judgment
 - **Self-evolving (deferred to v2):** dream cycle, skill self-rewrite, auto-promotion of episodic patterns to reference files
 - **Orchestrator (future):** conductor.build (see Orchestration section)
 
@@ -265,14 +265,13 @@ gaia/                                    # Repo root
 │       │   ├── plan/SKILL.md
 │       │   ├── review/SKILL.md
 │       │   └── qa/SKILL.md
-│       ├── d-initiative/                  # Initiative Q&A → initiative.md
-│       ├── d-initiative/                   # Initiative → projects/*.md
-│       ├── d-code/                       # TDD orchestration from project (was d-code)
-│       ├── d-content/                   # Strategy → branded content
-│       ├── d-review/                    # Pre-commit principles review
-│       ├── /                   # Error → prevention artifact at correct tier
-│       ├── d-health/                    # Codebase health audit
-│       └── d-fail/                      # Deploy failure recovery
+│       ├── w-initiative/                  # Initiative Q&A → initiative.md
+│       ├── w-initiative/                   # Initiative → projects/*.md
+│       ├── w-code/                       # TDD orchestration from project (was w-code)
+│       ├── w-write/                     # Strategy → branded content (was d-content)
+│       ├── w-review/                    # Pre-commit principles review
+│       ├── a-health/                    # Codebase health audit
+│       └── w-debug/                     # Production debugger: deploy / runtime / check / bug (was d-fail)
 │
 ├── .gaia/                               # The methodology — everything Gaia-specific
 │   ├── CLAUDE.md                        # Methodology-internal resolver
@@ -410,7 +409,7 @@ Grouped into four clusters. Each principle states an enforcement mechanism. Full
 **Handoffs and gates**
 
 8. **Each phase transition is an artifact validation, not a ceremony.** No phase progresses without a schema-valid prior artifact.
-9. **Principles review runs before correctness review.** Gaia's `d-review` runs first; gstack `/review` and `/qa` only run on principles-passing diffs.
+9. **Principles review runs before correctness review.** Gaia's `w-review` runs first; gstack `/review` and `/qa` only run on principles-passing diffs.
 10. **Projects are domain-scoped, declared parallel.** Each project frontmatter declares `domain:` (and optional `touches:`); a CI/pre-spawn script refuses overlapping scopes (the orchestrator's runtime role, until conductor.build ships). Domain-scoping is what makes parallelism real — an end-to-end project would have to load every reference and would blow the context budget.
 
 **Outcomes and honesty**
@@ -486,17 +485,17 @@ If the harness starts thinking — loading context intelligently, matching skill
 
 12. **Latent for judgment, deterministic for facts.** Every step in the system is classified. **Judgment** → latent space (LLM reads, interprets, decides). **Facts** → deterministic (SQL, tests, lint, compiled code, counts, sorts, verifications). Mixing them is the #1 failure mode. If you catch yourself asking the model to count, sort, deduplicate, or verify — stop, and write a deterministic tool. The boundary is the design.
 
-13. **Diarization is the signature skill shape.** Diarization is the skill pattern unique to AI: read everything about a subject, hold contradictions in mind, synthesize a structured profile. `/d-review` diarizes a PR. `/d-health` diarizes the codebase. `/d-initiative` diarizes an initiative. No SQL produces this. No RAG pipeline produces this. The model has to actually read and synthesize. Most of Gaia's highest-value skills are diarization skills.
+13. **Diarization is the signature skill shape.** Diarization is the skill pattern unique to AI: read everything about a subject, hold contradictions in mind, synthesize a structured profile. `/w-review` diarizes a PR. `/a-health` diarizes the codebase. `/w-initiative` diarizes an initiative. No SQL produces this. No RAG pipeline produces this. The model has to actually read and synthesize. Most of Gaia's highest-value skills are diarization skills.
 
 #### Mission
 
-14. **The harness enforces the reference principles.** The harness's primary job is to make every principle in `.gaia/reference/*.md` enforceable. Each principle has a mechanism — lint rule, hook, script, CI gate, or `/d-review` heuristic — registered in `.gaia/rules.ts`. Without a mechanism, a principle is aspirational and gets demoted to memo until enforcement is designed. The harness is the union of all such mechanisms, and nothing more.
+14. **The harness enforces the reference principles.** The harness's primary job is to make every principle in `.gaia/reference/*.md` enforceable. Each principle has a mechanism — lint rule, hook, script, CI gate, or `/w-review` heuristic — registered in `.gaia/rules.ts`. Without a mechanism, a principle is aspirational and gets demoted to memo until enforcement is designed. The harness is the union of all such mechanisms, and nothing more.
 
 ### Coding: the missing-by-design skill
 
 Gstack has no `code` skill. Neither does Gaia. **Coding is not a skill; it is the surface every other skill operates on.** The guideline lives in `.gaia/reference/code.md` as context (destinations and fences), not procedure.
 
-Agents code by loading the relevant CLAUDE.mds, the architecture references, the feature's local context, and the current task — then writing. No skill wraps the act of writing code itself. Skills wrap the acts _around_ writing code: planning (`plan`), reviewing (`review`, `d-review`), testing (`qa`), TDD orchestration (`d-code`), refactoring, documenting.
+Agents code by loading the relevant CLAUDE.mds, the architecture references, the feature's local context, and the current task — then writing. No skill wraps the act of writing code itself. Skills wrap the acts _around_ writing code: planning (`plan`), reviewing (`review`, `w-review`), testing (`qa`), TDD orchestration (`w-code`), refactoring, documenting.
 
 The four engineering disciplines (think before, simplify, surgical, goal-driven) are operating instructions in the root `CLAUDE.md`, not principles in this document. Their place is at the point of work, not in vision.
 
@@ -513,7 +512,7 @@ Cloning Gaia gives you a working harness on day one:
 - `.claude/settings.json` — hook wiring + skill registration
 - `.claude/hooks/` — lifecycle hooks in Bun TS (incl. `domain-context.ts` auto-loader)
 - `.claude/skills/gstack/` — vendored `plan`, `review`, `qa`
-- `.claude/skills/d-*/` — Gaia skills (d-initiative, d-initiative, d-code, d-content, d-review, , d-health, d-fail, d-reference, d-skill)
+- `.claude/skills/d-*/` and `.claude/skills/w-*/` — Gaia skills (w-initiative, w-code, w-write, w-review, a-health, w-debug, h-reference, h-skill)
 - `CLAUDE.md` — root resolver (~100 lines)
 
 Users clone, run `bun install`, configure env vars, and have a fully operational agent-native development environment. No Python runtime for hooks. No jq. No external memory service. All state is markdown + JSONL + TypeScript in git.
@@ -558,7 +557,7 @@ The template ships with the following working out of the box:
 - Neon-ready Postgres schema with Drizzle migrations
 - Rate limiting, session security, helmet-style headers, audit logging
 - Full CI pipeline (type/lint/format/test/security/coverage/size)
-- **Complete static harness**: `.gaia/rules.ts`, `.gaia/domains.ts`, Bun/TS hooks (incl. domain-context auto-loader), protocols, gstack foundation + Gaia d-skills (incl. d-reference and d-skill meta-skills)
+- **Complete static harness**: `.gaia/rules.ts`, `.gaia/domains.ts`, Bun/TS hooks (incl. domain-context auto-loader), protocols, gstack foundation + Gaia d-skills (incl. h-reference and h-skill meta-skills)
 - **Reference files** organized hierarchically by category (~24 files: engineering, experience, methodology, product domains)
 - **Initiatives folder** scaffolded with empty roadmap.md; projects declare `domain:` and run in parallel
 - **Nested CLAUDE.md strategy**, file-system-indexed (no MANIFEST)
@@ -569,7 +568,7 @@ The template ships with the following working out of the box:
 - Dockerfile + railway.toml for one-click Railway deploy
 - wrangler.toml documented for Cloudflare scale migration
 - README + onboarding walkthrough
-- Workflow scaffolding: a fresh repo can run `d-initiative` on day one
+- Workflow scaffolding: a fresh repo can run `w-initiative` on day one
 
 ### What does not ship in v1
 
@@ -643,7 +642,7 @@ Ordered by blocking priority:
 
 3. ✅ **DONE** — `.gaia/CLAUDE.md` methodology-internal resolver shipped.
 
-4. **Reference file inventory and mechanisms** — for v1, ship mechanisms for `code.md`, `backend.md`, `errors.md`, `testing.md`, `security.md` (engineering core). `frontend.md` ships with route-shape and accessibility mechanisms. Experience-axis files (`design.md`, `voice.md`, `ux.md`, `dx.md`, `ax.md`, `tokens.md`) ship with `/d-review` heuristics initially.
+4. **Reference file inventory and mechanisms** — for v1, ship mechanisms for `code.md`, `backend.md`, `errors.md`, `testing.md`, `security.md` (engineering core). `frontend.md` ships with route-shape and accessibility mechanisms. Experience-axis files (`design.md`, `voice.md`, `ux.md`, `dx.md`, `ax.md`, `tokens.md`) ship with `/w-review` heuristics initially.
 
 5. **V1 MVP file list** — every file that ships in the starter, with description and reason.
 
@@ -655,7 +654,7 @@ Ordered by blocking priority:
 
 9. **Custom Biome GritQL ruleset** — encoded enforcement rules. One per principle that needs codebase-pattern enforcement (estimated 30–50 rules across reference files).
 
-10. **Workflow skill artifacts** — for each workflow skill (`d-initiative`, `d-initiative`, `d-code`, `d-content`, `d-review`, ``, `d-health`, `d-fail`), produce `SKILL.md` + walkthrough template + research/acknowledgements file.
+10. **Workflow skill artifacts** — for each workflow skill (`w-initiative`, `w-code`, `w-write`, `w-review`, `a-health`, `w-debug`), produce `SKILL.md` + walkthrough template + research/acknowledgements file.
 
 11. **Domain-scoped project enforcement** — CI/pre-spawn script reads project `domain:` and `touches:` frontmatter; refuses overlap. Replaces conductor's runtime role until conductor.build ships.
 
@@ -663,7 +662,7 @@ Ordered by blocking priority:
 
 13. **`.gaia/domains.ts` schema** — canonical domain map; derives docs resolver, domain-context routing, project validation, rules.ts prefixes. One source replaces four hand-maintained copies.
 
-14. **Initiative-type → project shape templates** — feature / api-only / polish / infra / content / methodology each define the project decomposition shape. Drives `d-initiative` decomposition.
+14. **Initiative-type → project shape templates** — feature / api-only / polish / infra / content / methodology each define the project decomposition shape. Drives `w-initiative` decomposition.
 
 15. **Positioning statement (one sentence)** — current draft: _"Gaia is Rails for TypeScript in the agent era — for solo operators building production SaaS, with a daily workflow loop and a harness that enforces every principle in your reference files."_
 
