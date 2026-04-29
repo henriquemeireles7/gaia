@@ -77,7 +77,8 @@
     "esbuild": "^0.25.0",
     "fast-xml-parser": "^5.7.0",
     "h3": "^1.15.9",
-    "hono": "^4.12.14"
+    "hono": "^4.12.14",
+    "uuid": "^14.0.0"
   },
   "trustedDependencies": [
     "@ast-grep/cli"
