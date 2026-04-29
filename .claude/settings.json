@@ -85,6 +85,10 @@
           },
           {
             "type": "command",
+            "command": "bun run .claude/skills/a-health/scripts/quick-pulse.ts"
+          },
+          {
+            "type": "command",
             "command": "bun run .claude/hooks/notify-done.ts"
           }
         ]

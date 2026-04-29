@@ -4,6 +4,31 @@ All notable changes to Gaia. Format adapted from [Keep a Changelog](https://keep
 
 The repo is pre-1.0. Breaking changes happen freely until v1.0.0.
 
+## [0.2.2] - 2026-04-29
+
+a-health rebuild — composite dispatcher with a 12-axis vector. The kaz-era 10-session checklist is gone; a-health now runs the existing `bun run check` harness, dispatches each a-\* sibling audit (a-security, a-ai, a-ax, a-ux, a-dx, a-observability, a-perf), and aggregates findings into a vector + trend + worst-file leaderboard. New a-perf skill scaffolded so the performance axis has an owner.
+
+### Added
+
+- `.claude/skills/a-health/reference.md` — 10 numbered principles in canonical 5-part shape (was a 38-line stub).
+- `.claude/skills/a-health/scripts/aggregate-scores.ts` — Phase 3 synthesizer; reads sibling audit reports, computes 12-axis vector + composite, runs trend against the latest prior dated report, embeds worst-file leaderboard, writes `.gaia/audits/a-health/<YYYY-MM-DD>.md`.
+- `.claude/skills/a-health/scripts/trend.ts` — parses prior `## Audit History` table, emits per-axis delta + direction (improving / stable / degrading).
+- `.claude/skills/a-health/scripts/worst-files.ts` — cross-audit hot-spot ranking; files in ≥3 sub-audits get a `systemic` tag.
+- `.claude/skills/a-health/scripts/check-duplication.ts` — DRY detector via 5-line shingle hashing, surfaces clones with ≥3 occurrences across distinct files.
+- `.claude/skills/a-health/scripts/reproducibility-stamp.ts` — captures git SHA + tool versions per audit so trend comparisons degrade gracefully across stack changes.
+- `.claude/skills/a-health/scripts/quick-pulse.ts` — Stop-hook entry point; appends a one-line pulse to `.gaia/audits/a-health/pulse.jsonl` when a session touched ≥10 files.
+- `.claude/skills/a-perf/{SKILL.md,reference.md}` — new performance audit skill scaffolded with 6 budget-first principles (P95 route budget, bundle budget, FK indexing, Lighthouse, no sync I/O, fetch timeouts).
+- 11 new `rules.ts` entries owned by `a-health` (dispatch invariant, score formula, trend, worst-file, coverage drift, skip intelligence, report-only contract, partial-report fallback, continuous pulse, duplication budget, self-audit). `a-perf` added to the `SkillDomain` union.
+- `.claude/settings.json` Stop hook fires `quick-pulse.ts` after every session.
+
+### Changed
+
+- `.claude/skills/a-health/SKILL.md` — collapsed from 10 unnumbered Sessions to 4 numbered Phases (pre-condition + stamp / mechanical sweep / dispatch siblings / aggregate + score + trend). Frontmatter `description` rewritten to declare dispatcher mode + tier (pulse / weekly / monthly).
+
+### Removed
+
+- `.claude/skills/a-health/scripts/health-coherence.ts`, `health-dead-exports.ts`, `health-architecture.ts`, `health-test-coverage.ts`, `utils.ts` — kaz-era helpers that referenced `platform/*` paths absent in gaia.
+
 ## [0.2.1] - 2026-04-29
 
 Cleanup: `decisions/` folder retired. Operational deploy runbook (Railway config, Dockerfile rules, rollback, CLI cheatsheets) merged into `.claude/skills/w-deploy/reference.md` next to the principles it enforces. The empty `health.md` and the unfilled `maturity.md` template are gone — `a-health` now writes audits to `.gaia/audits/a-health/<YYYY-MM-DD>.md`, matching every other `a-*` skill.
