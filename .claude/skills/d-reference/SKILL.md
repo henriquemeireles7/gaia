@@ -183,9 +183,9 @@ For EACH principle, append an entry to `.gaia/rules.ts`:
 }
 ```
 
-If the `ReferenceDomain` type doesn't include this reference yet, extend the union type at the top of `rules.ts`.
+If the `SkillDomain` type doesn't include this skill or folder yet, extend the union type at the top of `rules.ts`.
 
-If you can ship a real mechanism today (script, hook, oxlint, ast-grep), do it in this phase and update the entry. The pending → enforced cycle SLO is 14 days per `methodology.md` §2.
+If you can ship a real mechanism today (script, hook, oxlint, ast-grep), do it in this phase and update the entry. The pending → enforced cycle SLO is 14 days per `d-rules/reference.md` principle 2.
 
 ---
 
@@ -220,7 +220,7 @@ This runs:
 
 - `oxlint` + `oxfmt` (style)
 - `ast-grep scan` (architectural rules)
-- `tsc --noEmit` (types — confirms `ReferenceDomain` extension)
+- `tsc --noEmit` (types — confirms `SkillDomain` extension)
 - `bun packages/security/harden-check.ts` (security)
 - `bun scripts/check-reference-shape.ts` (this skill's enforcement)
 - All other check:scripts

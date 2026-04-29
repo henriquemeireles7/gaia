@@ -47,6 +47,8 @@ for (const pattern of SCAN) {
 if (findings.length > 0) {
   console.error('voice/no-marketing-vocabulary — flagged (advisory):')
   for (const f of findings) console.error(`  ${f}`)
-  console.error('\nReplace with specific, observable phrases. See .gaia/reference/voice.md.')
+  console.error(
+    '\nReplace with specific, observable phrases. See .claude/skills/d-content/reference.md.',
+  )
 }
 process.exit(0) // advisory
