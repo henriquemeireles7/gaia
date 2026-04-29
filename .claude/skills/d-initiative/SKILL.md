@@ -11,7 +11,7 @@ Interactive founder Q&A that produces a strategy initiative. Reads codebase stat
 
 ## Pipeline
 
-**d-initiative** → gstack reviews (CEO/eng/design) → d-roadmap → /ship
+**d-initiative** → gstack reviews (CEO/eng/design) → d-initiative → /ship
 
 ## When to use
 
@@ -189,7 +189,7 @@ Initiative created: decisions/{domain}/NN-name/
 
 Next steps:
 1. Run gstack reviews to refine: /plan-ceo-review, /plan-eng-review, /plan-design-review
-2. After reviews settle the project breakdown: /d-roadmap
+2. After reviews settle the project breakdown: /d-initiative
 3. Then execute per-project: d-code or d-content
 ```
 

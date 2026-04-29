@@ -163,7 +163,7 @@ Locked decisions as of v6. Each choice traces back to one or more of the 15 prin
 
 - **Primary IDE:** Claude Code
 - **Skill foundation:** gstack (`plan`, `review`, `qa` — vendored under `.claude/skills/gstack/`)
-- **Gaia skills:** d-initiative, d-roadmap, d-code, d-content, d-review, d-harness, d-health, d-fail
+- **Gaia skills:** d-initiative, d-initiative, d-code, d-content, d-review, , d-health, d-fail
 - **Hooks runtime:** TypeScript + Bun, consuming `.gaia/rules.ts`, living in `.claude/hooks/`
 - **Protocols:** typed tool schemas with preconditions, side-effects, approval gates
 - **Permissions:** `.gaia/protocols/permissions.md` — always-allowed / requires-approval / never-allowed
@@ -266,11 +266,11 @@ gaia/                                    # Repo root
 │       │   ├── review/SKILL.md
 │       │   └── qa/SKILL.md
 │       ├── d-initiative/                  # Initiative Q&A → initiative.md
-│       ├── d-roadmap/                   # Initiative → projects/*.md
+│       ├── d-initiative/                   # Initiative → projects/*.md
 │       ├── d-code/                       # TDD orchestration from project (was d-code)
 │       ├── d-content/                   # Strategy → branded content
 │       ├── d-review/                    # Pre-commit principles review
-│       ├── d-harness/                   # Error → prevention artifact at correct tier
+│       ├── /                   # Error → prevention artifact at correct tier
 │       ├── d-health/                    # Codebase health audit
 │       └── d-fail/                      # Deploy failure recovery
 │
@@ -513,7 +513,7 @@ Cloning Gaia gives you a working harness on day one:
 - `.claude/settings.json` — hook wiring + skill registration
 - `.claude/hooks/` — lifecycle hooks in Bun TS (incl. `domain-context.ts` auto-loader)
 - `.claude/skills/gstack/` — vendored `plan`, `review`, `qa`
-- `.claude/skills/d-*/` — Gaia skills (d-initiative, d-roadmap, d-code, d-content, d-review, d-harness, d-health, d-fail, d-reference, d-skill)
+- `.claude/skills/d-*/` — Gaia skills (d-initiative, d-initiative, d-code, d-content, d-review, , d-health, d-fail, d-reference, d-skill)
 - `CLAUDE.md` — root resolver (~100 lines)
 
 Users clone, run `bun install`, configure env vars, and have a fully operational agent-native development environment. No Python runtime for hooks. No jq. No external memory service. All state is markdown + JSONL + TypeScript in git.
@@ -530,7 +530,7 @@ The following capabilities are explicitly **not** in v1, by design:
 - **Auto-promotion to references** — agent-authored writes to the constitution
 - **Runtime conductor** (`.gaia/conductor.ts`) — orchestrates worktree spawn, schedules workflow loops; depends on conductor.build
 
-In v1, the user (or `d-harness` invoked manually) is the promotion path; reference files only contain principles a human reviewed and approved. v2 adds self-evolution once trigger-eval infrastructure exists to catch confidently-wrong promotions before they poison the constitution.
+In v1, the user (or `` invoked manually) is the promotion path; reference files only contain principles a human reviewed and approved. v2 adds self-evolution once trigger-eval infrastructure exists to catch confidently-wrong promotions before they poison the constitution.
 
 ⸻
 
@@ -655,7 +655,7 @@ Ordered by blocking priority:
 
 9. **Custom Biome GritQL ruleset** — encoded enforcement rules. One per principle that needs codebase-pattern enforcement (estimated 30–50 rules across reference files).
 
-10. **Workflow skill artifacts** — for each workflow skill (`d-initiative`, `d-roadmap`, `d-code`, `d-content`, `d-review`, `d-harness`, `d-health`, `d-fail`), produce `SKILL.md` + walkthrough template + research/acknowledgements file.
+10. **Workflow skill artifacts** — for each workflow skill (`d-initiative`, `d-initiative`, `d-code`, `d-content`, `d-review`, ``, `d-health`, `d-fail`), produce `SKILL.md` + walkthrough template + research/acknowledgements file.
 
 11. **Domain-scoped project enforcement** — CI/pre-spawn script reads project `domain:` and `touches:` frontmatter; refuses overlap. Replaces conductor's runtime role until conductor.build ships.
 
@@ -663,7 +663,7 @@ Ordered by blocking priority:
 
 17. **`.gaia/domains.ts` schema** — canonical domain map; derives docs resolver, domain-context routing, project validation, rules.ts prefixes. One source replaces four hand-maintained copies.
 
-18. **Initiative-type → project shape templates** — feature / api-only / polish / infra / content / methodology each define the project decomposition shape. Drives `d-roadmap` decomposition.
+18. **Initiative-type → project shape templates** — feature / api-only / polish / infra / content / methodology each define the project decomposition shape. Drives `d-initiative` decomposition.
 
 12. **Positioning statement (one sentence)** — current draft: _"Gaia is Rails for TypeScript in the agent era — for solo operators building production SaaS, with a daily workflow loop and a harness that enforces every principle in your reference files."_
 

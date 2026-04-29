@@ -13,7 +13,7 @@ Professional writer phases with adversarial voice.md compliance review.
 
 ## Pipeline
 
-d-initiative → d-roadmap → **d-content** (for content projects) or d-code (for code projects)
+d-initiative → d-initiative → **d-content** (for content projects) or d-code (for code projects)
 
 ## When to use
 
