@@ -1,478 +1,181 @@
 ---
 name: a-health
-description: "Comprehensive codebase health audit: 10 sessions covering security, performance, UI, coherence, dead weight, test health, architecture, dependencies, content, and scoring. Mode: report. Tier: daily (smoke 3 sessions) | weekly (all 10 sessions) | monthly (10 + trend analysis + remediation plan). Triggers: 'a-health', 'health audit', 'codebase health', 'full audit', 'how healthy is the code'. Pair: a-* (composite — invokes other audits as sub-sessions). Artifact: decisions/health.md (scored report + fix plan + trend vs prior runs)."
+description: 'Composite codebase health audit. Dispatcher: runs the bun run check harness, dispatches the 6 a-* sibling audits (a-security, a-ai, a-ax, a-ux, a-dx, a-observability, a-perf), aggregates a 12-axis vector, computes trend vs prior decisions/health.md, surfaces worst-file leaderboard. Mode: report. Tier: pulse (Phase 1 only, ~30s) | weekly (full 4-phase audit) | monthly (full + remediation plan). Triggers: "a-health", "health audit", "codebase health", "full audit", "how healthy is the code". Pair: every a-* sibling (composite). Artifact: decisions/health.md (vector + trend + fix plan) + .gaia/audits/a-health/<date>.md.'
 ---
 
-# a-health — Comprehensive Codebase Health Audit
+# a-health — Comprehensive codebase health audit
 
-> **Path translation (gaia v6):** the body below references kaz-setup paths; the gaia equivalents are:
->
-> - `platform/scripts/harden-check.ts` → `packages/security/harden-check.ts`
-> - `platform/db/schema.ts` → `packages/db/schema.ts`
-> - `platform/server/routes.ts` → `apps/api/server/app.ts` (+ feature modules under `apps/api/server/`)
-> - `platform/errors.ts` → `packages/errors/index.ts`
-> - `platform/env.ts` → `packages/config/env.ts`
-> - `platform/auth/permissions.ts` → `packages/auth/index.ts`
-> - `providers/<x>.ts` → `packages/adapters/<x>.ts`
-> - `zValidator()` / Zod → TypeBox via Elysia route schemas
-> - `throwError('CODE')` → `throw new AppError('CODE')` (from `@gaia/errors`)
-> - `c.req.json()` → Elysia `body` with TypeBox schema
-> - Stripe → Polar (`packages/adapters/payments.ts`)
->   A full rewrite of this skill is tracked as a future project; the audit logic still applies, just translate paths as you read.
+> Reference: see `reference.md` in this folder (10 audit-orchestration principles, score formula, output shape).
+
+## Quick reference
+
+- `/a-health` — full audit (Phase 0–4); ~5–10 minutes.
+- `/a-health pulse` — mechanical sweep only (Phase 1); ~30 seconds. Same path as the Stop hook.
+- `/a-health monthly` — full audit + extended remediation plan with effort estimates.
+- `/a-health --force` — bypass skip-intelligence; recompute every axis.
 
 ## What this does
 
-Deep periodic audit of the entire codebase across 10 sessions. Report-only — never fixes code,
-never fixes code. Produces a scored report with a prioritized fix plan.
+`a-health` is the orchestra conductor, not an instrument. The 6 sibling audit skills (`a-security`, `a-ai`, `a-ax`, `a-ux`, `a-dx`, `a-observability`, `a-perf`) each own their domain principles. `a-health` runs the existing `bun run check` harness, dispatches to those siblings, aggregates findings into a 12-axis vector, computes per-axis trend vs the prior `decisions/health.md`, ranks the cross-audit worst-file leaderboard, and emits `decisions/health.md`.
 
-Run this every few days, before major releases, or when the codebase "feels off."
-
-**One mode. No flags. No decisions during the run.**
+**One mode: report.** No code mutations. The fix plan tells `w-review` and `w-code` what to fix.
 
 ## When to run
 
-- Every few days as a health pulse
-- Before a major release or milestone
-- When the codebase "feels off" but nothing specific is broken
-- After a large implementation session (post w-code)
+- Continuously: pulse fires automatically after sessions touching ≥10 files.
+- Weekly: full audit cadence.
+- Before a major release: full audit.
+- After landing an initiative: full audit + monthly remediation plan.
 
-## Before Starting
+## Phase 0: Pre-condition + reproducibility stamp
 
-```sh
-bun run check
-```
-
-If this fails, report it as a P0 finding in the health report and continue the audit.
-Do NOT stop. Do NOT ask the user what to do.
-
-Read:
-
-- Root CLAUDE.md (build order, seven files, rules)
-- `decisions/code.md` (dependency rules, security, performance)
-- `decisions/health.md` (prior audit findings, if exists)
-- `decisions/architecture.md` (data storage rule, feature groups)
-- `decisions/design.md` (for UI session)
-- `decisions/health.md` (prior health report, if exists — needed for trend)
-
----
-
-## DX Rules (mandatory)
-
-- **NEVER ask questions during the audit.** Zero interaction. Pure diagnostic.
-- **NEVER fix code.** Report only. The fix plan tells the user what to fix.
-- **NEVER create tasks.** The report IS the output.
-- **ALWAYS produce a report**, even if some sessions fail or scripts crash.
-- **After each session**, print one line: `Session N (Name): X findings (Y critical)`
-- **At the end**, print a 3-line summary in chat:
-  ```
-  Composite score: X.X/10 [↑/↓/= from last run]
-  Top findings: [1-3 highest severity items]
-  Full report: decisions/health.md
-  ```
-
----
-
-## Session 1: Security
-
-### 1a. Mechanical check
+Verify `bun run check` is green and capture the provenance stamp. The audit produces output even if the harness is red — but the red harness becomes a P0 finding instead of an aborted run (per principle 8: sub-audit failure is a finding, not an abort).
 
 ```sh
-bun platform/scripts/harden-check.ts --json 2>/dev/null || bun platform/scripts/harden-check.ts
+bun run check                                                                                  # capture pass/fail
+bun .claude/skills/a-health/scripts/reproducibility-stamp.ts > .gaia/audits/a-health/.stamp    # git SHA + tool versions
 ```
 
-Read findings. Each error = high severity. Each warning = medium severity.
-
-### 1b. Input validation — every route handler
-
-- [ ] Every POST/PUT/PATCH uses `zValidator()` with Zod schema
-- [ ] No `c.req.json()` or `c.req.query()` used directly
-- [ ] Zod schemas validate all fields (no `.passthrough()` on user input)
-- [ ] Error responses use `throwError()` — no raw error objects
-- [ ] User-supplied IDs validated as proper format before DB lookup
-- [ ] Email always normalized: `.toLowerCase().trim()`
-
-### 1c. Auth & authorization — every `/api/*` route
-
-- [ ] Has `requireAuth` middleware (except auth/webhook endpoints)
-- [ ] Role-gated routes use `requirePermission()`, not manual checks
-- [ ] No session tokens in URL query strings
-- [ ] IDOR check: trace each route — can user A see user B's data?
-- [ ] Rate limiting on auth and public endpoints
-
-### 1d. Payment security — all payment/subscription code
-
-- [ ] Stripe webhook signature verified via `constructEvent` BEFORE processing
-- [ ] Purchase insert uses `onConflictDoNothing` (idempotent)
-- [ ] No full card numbers stored anywhere
-- [ ] Stripe secret key only in `platform/env.ts`
-- [ ] Price amounts from server-side config, not client request
-- [ ] `client_reference_id` set on checkout sessions
-- [ ] All relevant Stripe event types handled
-
-### 1e. UBS scan
+Read the prior audit if it exists:
 
 ```sh
-ubs . --format=toon --skip=11,14 2>/dev/null || echo "UBS not installed"
+ls decisions/health.md && cat decisions/health.md   # or absent → first-run flow
 ```
 
-**Output:** List findings with severity and file location.
+## Phase 1: Mechanical sweep
 
----
-
-## Session 2: Performance
-
-Check all DB queries in features/ and platform/db/:
-
-- [ ] No N+1 queries (loops with queries inside)
-- [ ] All list endpoints have pagination
-- [ ] Indexes exist on foreign keys and commonly queried columns
-- [ ] No unbounded `SELECT *` without WHERE or LIMIT
-- [ ] `uniqueIndex` on columns that must be unique
-- [ ] No synchronous file I/O in request handlers
-- [ ] `fetch()` calls have timeouts
-
----
-
-## Session 3: UI Quality
-
-Read `decisions/design.md` first.
-
-- [ ] Clear visual hierarchy on every page
-- [ ] Spacing/color/radius from design system
-- [ ] Error states have recovery actions
-- [ ] Loading states use skeletons
-- [ ] Empty states guide user to next action
-- [ ] Typography on-scale (Instrument Serif + Sans)
-- [ ] Interactive elements have hover/focus/active states
-- [ ] Forms preserve input on submission failure
-- [ ] Success actions give clear feedback
-- [ ] Keyboard navigation for critical flows
-
----
-
-## Session 4: Coherence
-
-### 4a. Run companion script
+Run the existing harness; capture parseable output per script. **No checklists in this skill** — every check below is owned by an existing script that the harness already runs.
 
 ```sh
-bun .claude/skills/a-health/scripts/health-coherence.ts
+bun run check                                # full pipeline (lint, format, ast, types, harden, scripts, test)
+bun run check:dead                           # knip — dead exports + unused deps
+bun run rules:coverage                       # pending entries; flag >14d as P1
+bun run harden                               # packages/security/harden-check.ts
+bun .claude/skills/a-health/scripts/check-duplication.ts   # DRY rule (≥3 occurrences of 5-line shingles)
 ```
 
-Read the JSON output. Each gap in the `findings` array is a health finding.
-If the script crashes, note the error and continue with manual checks below.
+Phase 1 outputs feed Phase 3 aggregation. If `bun run check` is red, capture the failing script names — every red script is a P0 finding.
 
-### 4b. Manual cross-reference (supplement script findings)
+## Phase 2: Dispatch sibling audits
 
-Read all seven files:
+Invoke each sibling audit skill in **report mode**. Each writes its own `.gaia/audits/<skill>/<date>.md`. `a-health` reads the resulting markdown, never re-implements the domain check.
 
-1. `platform/env.ts`
-2. `platform/errors.ts`
-3. `platform/db/schema.ts`
-4. `platform/server/routes.ts`
-5. `platform/server/responses.ts`
-6. `platform/auth/permissions.ts`
-7. `providers/analytics.ts`
+```
+Skill(a-security,      mode: report)   → .gaia/audits/a-security/<date>.md
+Skill(a-ai,            mode: report)   → .gaia/audits/a-ai/<date>.md
+Skill(a-ax,            mode: report)   → .gaia/audits/a-ax/<date>.md
+Skill(a-ux,            mode: report)   → .gaia/audits/a-ux/<date>.md
+Skill(a-dx,            mode: report)   → .gaia/audits/a-dx/<date>.md
+Skill(a-observability, mode: report)   → .gaia/audits/a-observability/<date>.md
+Skill(a-perf,          mode: report)   → .gaia/audits/a-perf/<date>.md          # n/a until a-perf scaffolds full reference
+```
 
-Check for gaps the script may have missed:
+**Skip-intelligence (per principle 6):** for each axis, if the prior score was ≥9.5 AND `git diff --name-only <prior-audit-sha>..HEAD` shows zero changed files in that domain's scope, mark the axis `(skipped)` and reuse the prior score. `--force` bypasses this.
 
-- Role → Feature completeness (does each role have the right permissions?)
-- Analytics event coverage (are significant user actions tracked?)
-- Schema → Index coverage (foreign keys indexed?)
+**Failure handling (per principle 8):** wrap every dispatch in try/capture. A failing sibling marks its axis `error` with the captured stderr; the audit continues. The failure surfaces as a P0 finding ("audit infra broken: a-security").
 
----
-
-## Session 5: Dead Weight
-
-### 5a. Run companion script
+## Phase 3: Aggregate, score, trend
 
 ```sh
-bun .claude/skills/a-health/scripts/health-dead-exports.ts
+bun .claude/skills/a-health/scripts/aggregate-scores.ts \
+  --stamp .gaia/audits/a-health/.stamp \
+  --audits-dir .gaia/audits \
+  --prior decisions/health.md \
+  --out decisions/health.md
 ```
 
-Read the JSON output. Each item in `dead` array is a health finding.
-If the script crashes, note the error and do manual checks.
+This script:
 
-### 5b. Manual supplement
+1. Reads each sibling's latest `.gaia/audits/<skill>/<date>.md` and parses severity counts.
+2. Reads Phase 1 output (knip, rules:coverage, harden, check-duplication, ast-grep).
+3. Computes per-axis scores via the formula in `reference.md` Part — Score formula.
+4. Computes the composite as the weighted sum.
+5. Diffs against the prior `decisions/health.md` (per `trend.ts`) → emits per-axis delta + direction.
+6. Ranks worst files cross-audit (per `worst-files.ts`) → top 5 with systemic-debt tag.
+7. Builds the fix plan (P0–P3) ordered by severity and worst-file weight.
+8. Writes `decisions/health.md` (replaces) and appends a row to its `## Audit History` table.
 
-- [ ] Dead files (`.ts` file with no imports from other files and not an entry point)
-- [ ] Dead dependencies (package.json deps never imported in source)
+Companion scripts under `.claude/skills/a-health/scripts/`:
 
----
+- `aggregate-scores.ts` — orchestrates the above
+- `trend.ts` — diff against prior
+- `worst-files.ts` — cross-audit ranking
+- `reproducibility-stamp.ts` — git SHA + tool versions
+- `quick-pulse.ts` — Stop-hook entry point (Phase 1 only)
 
-## Session 6: Test Health
+## Phase 4: Final gate
 
-### 6a. Run companion script
+Re-run `bun run check` and confirm no source mutations slipped through (per principle 7: report-only by contract).
 
 ```sh
-bun .claude/skills/a-health/scripts/health-test-coverage.ts
+bun run check                                   # must match Phase 0 result
+git diff --name-only                            # allowed-write whitelist:
+                                                #   decisions/health.md
+                                                #   .gaia/audits/a-health/<date>.md
+                                                #   .gaia/audits/a-health/.stamp
+                                                #   .gaia/audits/a-health/pulse.jsonl (pulse mode)
+                                                # any other diff = abort + P0 violation
 ```
 
-Read the JSON output. Each missing test file is a finding.
-If the script crashes, note the error and check manually.
-
-### 6b. Manual test depth review
-
-For each `.test.ts` file:
-
-- [ ] Tests happy path
-- [ ] Tests at least one error path
-- [ ] Tests edge cases (empty arrays, null values, boundaries)
-- Flag: test file that only tests happy path = shallow coverage
-
-### 6c. Test anti-patterns
-
-- [ ] No tests that depend on execution order
-- [ ] No tests with hardcoded timestamps or IDs that will break
-- [ ] No tests that mock what they should test
-- [ ] No tests that test implementation instead of behavior
-
----
-
-## Session 7: Architecture
-
-### 7a. Run companion script
-
-```sh
-bun .claude/skills/a-health/scripts/health-architecture.ts
-```
-
-Read the JSON output. Violations and cycles are findings.
-If the script crashes, note the error and check manually.
-
-### 7b. Manual architecture review
-
-- [ ] Feature bleeding: all code for a feature lives in its folder
-- [ ] No feature logic scattered across platform/ or providers/
-- [ ] CLAUDE.md freshness: footer matches actual files in each folder
-- [ ] decisions/ drift: architecture.md and code.md match actual patterns
-
----
-
-## Session 8: Dependencies
-
-```sh
-bun outdated 2>/dev/null || echo "bun outdated not available"
-```
-
-- [ ] Flag: major version behind (breaking changes available)
-- [ ] Flag: minor version behind with security patches
-- [ ] Cross-reference package.json against actual imports (unused deps)
-- [ ] Version pinning: all deps use exact versions (no `^` or `~`)
-- [ ] For the 5 largest dependencies: note size impact
-
----
-
-## Session 9: Content
-
-```sh
-bun run content:check 2>/dev/null || echo "content:check not available"
-bun run freshness 2>/dev/null || echo "freshness not available"
-```
-
-- [ ] All content/ .md files pass content-quality.ts validation
-- [ ] Freshness: all content files updated within 90 days
-- [ ] decisions/ files: all have `Last verified:` date within 30 days
-- [ ] CLAUDE.md files: footer matches actual files in folder
-- [ ] No orphaned content files (not referenced in any route or sitemap)
-
----
-
-## Session 10: Score & Trend
-
-### Scoring (0-10 per session)
-
-| Session      | Weight | Formula                                                 |
-| ------------ | ------ | ------------------------------------------------------- |
-| Security     | 20%    | 10 - (critical*3 + high*1.5 + medium*0.5 + low*0.1)     |
-| Performance  | 10%    | 10 - (critical*3 + high*1.5 + medium*0.5 + low*0.1)     |
-| UI Quality   | 5%     | 10 - (issues \* 0.5)                                    |
-| Coherence    | 20%    | 10 \* (coherent / total) from script summary            |
-| Dead Weight  | 10%    | 10 - (dead_items \* 0.3), min 0                         |
-| Test Health  | 15%    | 10 \* (with_tests / total_files) from script summary    |
-| Architecture | 10%    | 10 - (violations _ 0.5 + cycles _ 1.0)                  |
-| Dependencies | 5%     | 10 - (critical_vuln*3 + outdated_major*1 + unused\*0.5) |
-| Content      | 5%     | 10 \* (passing_checks / total_checks)                   |
-
-**Composite score** = weighted average, capped at 0-10.
-
-### Session Skip Intelligence
-
-If `decisions/health.md` exists with prior scores:
-
-- For each session: if prior score >= 9.5 AND `git diff --name-only` shows 0 changed files
-  in that session's scope since the last audit date → skip with note.
-- Override: user passes `--force` argument when invoking a-health.
-- First run: no skipping (no baseline exists).
-
-### Worst-File Leaderboard
-
-- Aggregate all findings from Sessions 1-9 per file
-- Rank by weighted count (critical=3, high=1.5, medium=0.5, low=0.1)
-- Show top 5 worst files with per-session breakdown
-- Cross-session patterns: files appearing in 3+ sessions = "systemic debt"
-
-### Trend
-
-If `decisions/health.md` exists, compare to last run:
-
-- Score delta per session
-- New issues vs resolved issues
-- Overall trajectory: improving / stable / degrading
-
----
+If anything outside the whitelist appears in `git diff --name-only`, the audit reports a self-inflicted regression and surfaces it as a P0 finding.
 
 ## Output
 
-Mode: **report** — a-health is read-only by contract; it never mutates code. Produces a scored report (decisions/health.md) plus the chat summary below. Trends across runs are tracked.
+Mode: **report**.
 
 ### Chat summary (always print)
 
 ```
-Session 1 (Security): X findings (Y critical)
-Session 2 (Performance): X findings (Y critical)
-...
-Session 9 (Content): X findings (Y critical)
+Phase 1 (mechanical sweep): N axes scored, M findings
+Phase 2 (sibling dispatch): 7 audits dispatched, K errors
+Phase 3 (aggregate + trend): composite X.X/10 [↑/↓/= delta from <prior-date>]
 
-═══════════════════════════════════════
-Composite score: X.X/10 [↑0.3 from last run]
-Top findings: [1] IDOR in profile route [2] 8 dead exports [3] 3 files missing tests
+Top driver: <axis> moved <±delta> due to <one-line cause>
+Top 3 fixes:
+  1. <file:line> — <issue> (<severity>)
+  2. ...
+  3. ...
+
 Full report: decisions/health.md
-═══════════════════════════════════════
 ```
 
-### Health Report (saved to `decisions/health.md`)
+### Health Report (`decisions/health.md`)
 
-```markdown
-# Codebase Health Report
+Canonical shape lives in `reference.md` Part — Output. Summary:
 
-> Last audit: YYYY-MM-DD
-> Composite score: X.X/10
-> Trend: [improving|stable|degrading] (delta from last run)
-
-## Session Scores
-
-| Session      | Score | Findings | Critical |
-| ------------ | ----- | -------- | -------- |
-| Security     | X/10  | N        | N        |
-| Performance  | X/10  | N        | N        |
-| UI Quality   | X/10  | N        | N        |
-| Coherence    | X/10  | N        | N        |
-| Dead Weight  | X/10  | N        | N        |
-| Test Health  | X/10  | N        | N        |
-| Architecture | X/10  | N        | N        |
-| Dependencies | X/10  | N        | N        |
-| Content      | X/10  | N        | N        |
-
-## Top 5 Worst Files
-
-| File | Sessions | Total Score | Breakdown |
-| ---- | -------- | ----------- | --------- |
-
-## Top 5 Highest-Impact Fixes
-
-1. [item] — [why it matters] — [effort estimate]
-2. ...
-
-## Fix Plan
-
-### P0 — Fix now (security holes, data integrity)
-
-| #   | Session | File | Issue | Effort |
-| --- | ------- | ---- | ----- | ------ |
-
-### P1 — Fix this week (coherence gaps, dead weight, test gaps)
-
-| #   | Session | File | Issue | Effort |
-| --- | ------- | ---- | ----- | ------ |
-
-### P2 — Fix this month (architecture drift, dependency updates)
-
-| #   | Session | File | Issue | Effort |
-| --- | ------- | ---- | ----- | ------ |
-
-### P3 — Track (cosmetic, nice-to-have)
-
-- [items]
-
-## Detailed Findings
-
-### Session 1: Security
-
-[findings]
-
-### Session 2: Performance
-
-[findings]
-
-### Session 3: UI Quality
-
-[findings]
-
-### Session 4: Coherence
-
-[findings]
-
-### Session 5: Dead Weight
-
-[findings]
-
-### Session 6: Test Health
-
-[findings]
-
-### Session 7: Architecture
-
-[findings]
-
-### Session 8: Dependencies
-
-[findings]
-
-### Session 9: Content
-
-[findings]
-
-## Audit History
-
-| Date | Score | Sec | Perf | UI  | Coh | Dead | Test | Arch | Deps | Cont |
-| ---- | ----- | --- | ---- | --- | --- | ---- | ---- | ---- | ---- | ---- |
-```
-
-## Running Individual Sessions
-
-You can run a single session:
-
-- `/a-health security` — Session 1 only
-- `/a-health performance` — Session 2 only
-- `/a-health ui` — Session 3 only
-- `/a-health coherence` — Session 4 only
-- `/a-health dead-weight` — Session 5 only
-- `/a-health tests` — Session 6 only
-- `/a-health architecture` — Session 7 only
-- `/a-health deps` — Session 8 only
-- `/a-health content` — Session 9 only
-- `/a-health score` — Session 10 only (requires other sessions to have run first)
-
-Default (no argument): run all 10 sessions sequentially.
+- Header: composite, trend, reproducibility stamp.
+- 12-axis vector table.
+- Top 5 worst files cross-audit (systemic-debt tag).
+- Top 5 highest-impact fixes.
+- Fix plan: P0 / P1 / P2 / P3 tables.
+- Detailed findings per axis (one section each).
+- Audit History table (append-only row per run).
 
 ## Rules
 
-- NEVER fix issues during a-health — this is a diagnostic, not a treatment
-- NEVER ask questions — this is a zero-interaction skill
-- NEVER create tasks or fix code — the report is the output
-- ALWAYS produce a report, even if partial (some sessions errored)
-- ALWAYS save the full report to `decisions/health.md`
-- ALWAYS produce the fix plan — the report without a plan is just complaining
-- ALWAYS compare to prior run if `decisions/health.md` exists
-- If a companion script crashes, note the error and continue with manual checks
-- If `bun run check` fails, report it as P0 and continue the audit
+- NEVER fix issues during a-health — diagnostic, not treatment.
+- NEVER ask questions — zero-interaction skill.
+- NEVER duplicate a sibling's domain checklist into this skill (principle 1).
+- ALWAYS produce `decisions/health.md`, even when sub-audits error (principle 8).
+- ALWAYS bump the prior `## Audit History` table — append, don't replace.
+- ALWAYS capture the reproducibility stamp before scoring; never trend across mismatched stacks without flagging.
+- If `bun run check` fails in Phase 0, capture as a P0 finding and continue (principle 8).
+- If skip-intelligence reuses a prior score, the report MUST mark the axis `(skipped)`.
+
+## Running individual phases
+
+- `/a-health pulse` — Phase 1 only. Same path as the Stop hook continuous mode (per principle 9).
+- `/a-health <axis>` — full pipeline scoped to a single axis (e.g. `/a-health security` runs only a-security + recomputes only the security axis).
+- `/a-health --force` — bypass skip-intelligence.
+
+Default (no argument): full Phase 0–4 audit.
 
 ## Chaining
 
-This skill is called by:
+This skill is invoked by:
 
-- **CLAUDE.md routing**: `/a-health` or triggers like "health audit", "codebase health"
-- **w-code**: Can reference health report findings for cleanup work
+- **CLAUDE.md routing**: `/a-health` or triggers like "health audit", "codebase health".
+- **Stop hook**: `quick-pulse.ts` runs after sessions touching ≥10 files (per principle 9; wired in `.claude/settings.json`).
+- **w-review**: can read the latest `decisions/health.md` for fix-plan context.
 
-Standalone usage: `/a-health` for full audit.
-After the report: use w-review or w-code to fix the prioritized items.
+After the report, fix work flows: `decisions/health.md` → `w-review` (fast pass/fail) → `w-code` (TDD fix) → `gstack /review` → `gstack /qa` → `gstack /ship`.
