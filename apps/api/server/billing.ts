@@ -148,8 +148,8 @@ export const billingRoutes = new Elysia({ name: 'billing' })
     async ({ user }) => {
       if (!user) throw new AppError('UNAUTHORIZED')
       try {
-        const checkout = await polar.checkouts.custom.create({
-          productId: env.POLAR_PRODUCT_ID,
+        const checkout = await polar.checkouts.create({
+          products: [env.POLAR_PRODUCT_ID],
           successUrl: `${env.PUBLIC_APP_URL}/dashboard?upgraded=1`,
           customerEmail: user.email,
           metadata: { user_id: user.id },

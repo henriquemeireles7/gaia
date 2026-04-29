@@ -12,12 +12,6 @@ Hardens initiative 0005 (Wave 0 runtime). Adds a substrate clarification (Innges
 
 - `.gaia/initiatives/0005-foundation-runtime/initiative.md`: substrate clarification + 10 new risks + §7 Hardening Specification + 24 audit-trail rows. File grew from 145 to 558 lines (no scope expansion — all hardening detail).
 
-### Fixed
-
-- `packages/workflows/index.ts`: `inngest.createFunction` 2-arg → 3-arg shape (matches Inngest v3 SDK + the example in `packages/workflows/CLAUDE.md`).
-- `apps/api/server/billing.ts`: `polar.checkouts.create` migrated to `polar.checkouts.custom.create` with `productId` + `metadata` (legacy API was deprecated; `products: [...]` field never existed).
-- `packages/adapters/email.test.ts`: drop `headers: null` from Resend mock + assertion (Resend SDK response type no longer carries `headers`).
-
 ## [0.2.2] - 2026-04-29
 
 a-health rebuild — composite dispatcher with a 12-axis vector. The kaz-era 10-session checklist is gone; a-health now runs the existing `bun run check` harness, dispatches each a-\* sibling audit (a-security, a-ai, a-ax, a-ux, a-dx, a-observability, a-perf), and aggregates findings into a vector + trend + worst-file leaderboard. New a-perf skill scaffolded so the performance axis has an owner.
