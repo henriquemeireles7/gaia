@@ -44,6 +44,12 @@ Initiative 0006 — Skills Committee. Renames the 17 d-\* skills into three role
 
 - Dead names from `scripts/check-skills.ts` PHASE_EXEMPT (`d-strategy`, `d-roadmap`, `d-harness` — deleted in 0001).
 
+### Security
+
+- `drizzle-orm` ^0.38 → ^0.45.2 (GHSA-gpj5-g38j-94v9, CVSS 7.5).
+- `drizzle-kit` ^0.30 → ^0.31.10 (drops `@esbuild-kit/core-utils` → clears esbuild 0.18/0.19).
+- Pinned overrides for transitive deps with no upstream release: `esbuild ^0.25.0`, `fast-xml-parser ^5.7.0` (`@aws-sdk/xml-builder` pin), `h3 ^1.15.9` (`vinxi` pin), `hono ^4.12.14`. Closes osv-scanner findings on PR #54.
+
 ## Unreleased
 
 ### Added

@@ -55,7 +55,7 @@
     "@solidjs/router": "^0.15.0",
     "@solidjs/start": "^1.1.0",
     "better-auth": "^1.2.0",
-    "drizzle-orm": "^0.38.0",
+    "drizzle-orm": "^0.45.2",
     "elysia": "^1.1.27",
     "inngest": "^3.27.0",
     "postgres": "^3.4.0",
@@ -67,11 +67,17 @@
   "devDependencies": {
     "@ast-grep/cli": "^0.42.1",
     "@types/bun": "latest",
-    "drizzle-kit": "^0.30.0",
+    "drizzle-kit": "^0.31.10",
     "knip": "^5.40.0",
     "oxfmt": "^0.47.0",
     "oxlint": "^1.62.0",
     "typescript": "^5.7.0"
+  },
+  "overrides": {
+    "esbuild": "^0.25.0",
+    "fast-xml-parser": "^5.7.0",
+    "h3": "^1.15.9",
+    "hono": "^4.12.14"
   },
   "trustedDependencies": [
     "@ast-grep/cli"
