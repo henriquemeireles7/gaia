@@ -37,7 +37,7 @@ function scan(dir: string, name: string) {
   }
 }
 
-// Only enforce on Gaia-authored skills (d-*). See scripts/check-skills.ts.
+// Only enforce on Gaia-authored skills (d-*). See .gaia/rules/checks/check-skills.ts.
 function isGaiaSkill(name: string): boolean {
   const top = name.split('/')[0] ?? ''
   return top.startsWith('d-')
