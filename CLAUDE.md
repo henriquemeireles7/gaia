@@ -51,18 +51,18 @@ When the user's request matches one of these, invoke the skill BEFORE any other 
 
 ### Workflow loop (Gaia)
 
-| Trigger                                 | Skill         |
-| --------------------------------------- | ------------- |
-| Start an initiative, brainstorm a bet   | `d-initiative`  |
-| Extract projects from an initiative     | `d-initiative`   |
+| Trigger                                 | Skill          |
+| --------------------------------------- | -------------- |
+| Start an initiative, brainstorm a bet   | `d-initiative` |
+| Extract projects from an initiative     | `d-initiative` |
 | Implement a project (TDD)               | `d-code`       |
-| Write blog/handbook/social/clip content | `d-content`   |
-| Pre-commit principles review            | `d-review`    |
-| Deep audit, scoring, trend tracking     | `d-health`    |
-| Build/deploy error → prevention rule    | ``   |
-| Deploy failed → recover                 | `d-fail`      |
-| Author / rewrite a reference file       | `d-reference` |
-| Author / rewrite a SKILL.md             | `d-skill`     |
+| Write blog/handbook/social/clip content | `d-content`    |
+| Pre-commit principles review            | `d-review`     |
+| Deep audit, scoring, trend tracking     | `d-health`     |
+| Build/deploy error → prevention rule    | ``             |
+| Deploy failed → recover                 | `d-fail`       |
+| Author / rewrite a reference file       | `d-reference`  |
+| Author / rewrite a SKILL.md             | `d-skill`      |
 
 ### Foundation (gstack, vendored under `.claude/skills/gstack/`)
 

@@ -2,13 +2,13 @@
 
 Strategic bets, ordered by 4-digit folder prefix. Each initiative is a single `initiative.md` file with research + strategy + implementation + PR breakdown.
 
-| #     | Folder                              | One-liner                                                                                              | Status            |
-| ----- | ----------------------------------- | ------------------------------------------------------------------------------------------------------ | ----------------- |
-| 0001  | `0001-gaia-workflow-setup/`         | Methodology refactor: 1:1 skill↔reference, fractal CLAUDE.md, 3 meta-skills, drop reference folder.   | in-progress       |
-| 0002  | `0002-gaia-bootstrap/`              | Clone-to-deploy in 30 min via CLI alone (no orchestrator skill). Template + onboarding CLI verbs.     | draft (stub)      |
-| 0003  | `0003-gaia-launch-hardening/`       | Public OSS launch: security audit, claim hygiene, X thread, Show HN.                                  | draft (stub)      |
-| 0004  | `0004-gaia-open-source-infra/`      | Self-hostable Kamal-based deploy platform.                                                            | draft (stub)      |
-| 0005  | `0005-gaia-platform-and-cms/`       | Hosted Gaia Cloud paid runtime + CMS Hub v1 + Admin Panel v1 + mini-CRM.                              | draft (stub)      |
+| #    | Folder                         | One-liner                                                                                           | Status       |
+| ---- | ------------------------------ | --------------------------------------------------------------------------------------------------- | ------------ |
+| 0001 | `0001-gaia-workflow-setup/`    | Methodology refactor: 1:1 skill↔reference, fractal CLAUDE.md, 3 meta-skills, drop reference folder. | in-progress  |
+| 0002 | `0002-gaia-bootstrap/`         | Clone-to-deploy in 30 min via CLI alone (no orchestrator skill). Template + onboarding CLI verbs.   | draft (stub) |
+| 0003 | `0003-gaia-launch-hardening/`  | Public OSS launch: security audit, claim hygiene, X thread, Show HN.                                | draft (stub) |
+| 0004 | `0004-gaia-open-source-infra/` | Self-hostable Kamal-based deploy platform.                                                          | draft (stub) |
+| 0005 | `0005-gaia-platform-and-cms/`  | Hosted Gaia Cloud paid runtime + CMS Hub v1 + Admin Panel v1 + mini-CRM.                            | draft (stub) |
 
 Archive: `_archive/` preserves prior initiative documents as research input.
 

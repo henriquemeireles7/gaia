@@ -9,6 +9,7 @@ status: not started
 Stub. Self-hostable Kamal-based deploy platform. Owns the `d-infra` skill content fully. Gates: 0003 must hit ≥50 stars before this starts.
 
 Anticipated scope:
+
 - `packages/infra/kamal/` adapter (deploy.yml templates for Hetzner, DigitalOcean, AWS).
 - `bun gaia infra init` / `bun gaia infra deploy` CLI verbs.
 - Migration guides: `migration-from-railway-to-kamal.md`.

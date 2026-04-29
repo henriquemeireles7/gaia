@@ -42,11 +42,11 @@ Gaia's answer is **The Constitutional Loop**. It is the methodology that turns p
 
 Three substrates compose the methodology — call them **the Skill–Reference–Rule (SRR) triad**:
 
-| Substrate     | Form         | Loaded when                  | Verified when      | Failure if absent         |
-| ------------- | ------------ | ---------------------------- | ------------------ | ------------------------- |
-| **Skill**     | Invoked verb | When user/agent invokes      | At end of skill    | Procedure is inconsistent |
-| **Reference** | Loaded noun  | On skill use + on file edit  | n/a (informs)      | Agent guesses; drift      |
-| **Rule**      | Mechanism    | n/a (executed)               | After edits, in CI | Reference is aspirational |
+| Substrate     | Form         | Loaded when                 | Verified when      | Failure if absent         |
+| ------------- | ------------ | --------------------------- | ------------------ | ------------------------- |
+| **Skill**     | Invoked verb | When user/agent invokes     | At end of skill    | Procedure is inconsistent |
+| **Reference** | Loaded noun  | On skill use + on file edit | n/a (informs)      | Agent guesses; drift      |
+| **Rule**      | Mechanism    | n/a (executed)              | After edits, in CI | Reference is aspirational |
 
 Two bridges keep the triad closed:
 
@@ -141,11 +141,11 @@ A reference principle with no rule is aspirational. A rule with no reference is 
 
 Work flows through one loop with three layers, all parallelizable, all measured by closed cycles (not shipped changes):
 
-| Layer       | Asks         | Cadence      | Produces                                  |
-| ----------- | ------------ | ------------ | ----------------------------------------- |
-| Initiative  | WHY / WHAT   | On-signal    | `initiatives/NNNN-name/initiative.md`     |
-| Coding      | HOW + DO     | Continuous   | One PR per row in initiative §4 PR table  |
-| Verdict     | DID-IT-WORK  | Window-based | Measurement window auto-opens on ship     |
+| Layer      | Asks        | Cadence      | Produces                                 |
+| ---------- | ----------- | ------------ | ---------------------------------------- |
+| Initiative | WHY / WHAT  | On-signal    | `initiatives/NNNN-name/initiative.md`    |
+| Coding     | HOW + DO    | Continuous   | One PR per row in initiative §4 PR table |
+| Verdict    | DID-IT-WORK | Window-based | Measurement window auto-opens on ship    |
 
 The unit of success is a **closed cycle**: an initiative whose hypothesis returned a verdict (moved / didn't / inconclusive / invalidated). Shipping volume without measurement is the build trap with daily-cadence theater on top.
 
@@ -471,16 +471,16 @@ A reference principle that becomes mechanically checkable converts its mechanism
 
 ## Part 7 — Decision matrix
 
-| New thing                                  | Where it goes                                                |
-| ------------------------------------------ | ------------------------------------------------------------ |
-| "We always X in domain Y"                  | `<skill>/reference.md` principle + `rules.ts` entry          |
-| "Block this file from being edited"        | `rules.ts` rule + `.claude/hooks/protect-files.ts`           |
-| "Run this script on every save"            | `.claude/settings.json` hook → `.claude/hooks/*.ts`          |
-| Multi-step procedure agent invokes by name | `.claude/skills/<name>/SKILL.md` + sibling `reference.md`    |
-| Folder-specific convention                 | That folder's `CLAUDE.md` (auto-loaded by domain-context)    |
-| Irreversible technology choice             | `.gaia/adrs/NNNN-<choice>.md`                                |
-| Lessons learned during one task            | `memory/episodic/<date>.md`                                  |
-| Per-developer scratchpad                   | `memory/personal/<name>.md` (gitignored)                     |
+| New thing                                  | Where it goes                                             |
+| ------------------------------------------ | --------------------------------------------------------- |
+| "We always X in domain Y"                  | `<skill>/reference.md` principle + `rules.ts` entry       |
+| "Block this file from being edited"        | `rules.ts` rule + `.claude/hooks/protect-files.ts`        |
+| "Run this script on every save"            | `.claude/settings.json` hook → `.claude/hooks/*.ts`       |
+| Multi-step procedure agent invokes by name | `.claude/skills/<name>/SKILL.md` + sibling `reference.md` |
+| Folder-specific convention                 | That folder's `CLAUDE.md` (auto-loaded by domain-context) |
+| Irreversible technology choice             | `.gaia/adrs/NNNN-<choice>.md`                             |
+| Lessons learned during one task            | `memory/episodic/<date>.md`                               |
+| Per-developer scratchpad                   | `memory/personal/<name>.md` (gitignored)                  |
 
 ---
 
@@ -498,16 +498,16 @@ A failing test, a clear error message, a sharp interface — these substitute fo
 
 ## Enforcement mapping
 
-| Principle                                | Mechanism                                       | rules.ts entry                       |
-| ---------------------------------------- | ----------------------------------------------- | ------------------------------------ |
-| 1. Constitutional Loop                   | `bun run rules:coverage` + CI report            | `harness/loop-coverage`              |
-| 2. 1:1 reference ↔ rule                  | `rules-coverage.ts`; planned mapping check      | `harness/rule-reference-pair`        |
-| 3. Skill ↔ reference 1:1 + last-verified | `check-skills.ts`; planned `check-staleness.ts` | `harness/skill-reference-pairing`    |
-| 4. Hooks deterministic                   | code review; planned hook-determinism check     | `harness/hook-determinism`           |
-| 5. Skill threshold + audit               | `check-skills.ts`                               | `ax/skill-md-frontmatter`            |
-| 6. Fractal CLAUDE.md auto-load           | `domain-context.ts`                             | `harness/auto-load-fractal-claude`   |
-| 7. ADR for irreversible                  | code review + template                          | `harness/adr-numbering` (planned)    |
-| 8. Memory decay                          | planned `scripts/memory-decay.ts`               | `harness/memory-decay` (planned)     |
+| Principle                                | Mechanism                                       | rules.ts entry                     |
+| ---------------------------------------- | ----------------------------------------------- | ---------------------------------- |
+| 1. Constitutional Loop                   | `bun run rules:coverage` + CI report            | `harness/loop-coverage`            |
+| 2. 1:1 reference ↔ rule                  | `rules-coverage.ts`; planned mapping check      | `harness/rule-reference-pair`      |
+| 3. Skill ↔ reference 1:1 + last-verified | `check-skills.ts`; planned `check-staleness.ts` | `harness/skill-reference-pairing`  |
+| 4. Hooks deterministic                   | code review; planned hook-determinism check     | `harness/hook-determinism`         |
+| 5. Skill threshold + audit               | `check-skills.ts`                               | `ax/skill-md-frontmatter`          |
+| 6. Fractal CLAUDE.md auto-load           | `domain-context.ts`                             | `harness/auto-load-fractal-claude` |
+| 7. ADR for irreversible                  | code review + template                          | `harness/adr-numbering` (planned)  |
+| 8. Memory decay                          | planned `scripts/memory-decay.ts`               | `harness/memory-decay` (planned)   |
 
 ---
 
@@ -525,16 +525,16 @@ A failing test, a clear error message, a sharp interface — these substitute fo
 
 ## Decisions log
 
-| Date       | Decision                                            | Rationale                                                                                                                   |
-| ---------- | --------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------- |
-| 2026-04-28 | Name the methodology: The Constitutional Loop       | Most "AI rules" libraries hand the agent a markdown file. The Loop hands the agent the right file at the right moment AND fails the commit if the rule isn't followed. The auto-load + mechanical-verify combo is the moat. |
-| 2026-04-28 | SRR triad (Skills, References, Rules)               | Three substrates with distinct lifecycles; each has its own bridge to the agent. Skills = invoked verbs; References = loaded nouns; Rules = executed mechanisms. A concern in fewer than its applicable substrates is debt. |
-| 2026-04-28 | 1:1 skill ↔ reference; reference inside skill folder | Co-locating the reference with the skill kills "where does this principle live?" drift. The skill-reference hook auto-loads the sibling on invocation. |
-| 2026-04-28 | Fractal `CLAUDE.md` for folder-scoped principles    | A skill reference is wrong for "rules that apply when editing this folder." Folder-scoped principles live with the folder; the domain-context hook walks the tree. |
-| 2026-04-28 | 1:1 reference principle ↔ rules.ts entry            | Without this, references rot into "advice nobody enforces." Pending entries are visible debt with a 14-day SLO.            |
-| 2026-04-28 | Manual promotion only from memory → reference       | Auto-promotion would let stochastic noise enter the constitution. Promotion is curation, not aggregation.                   |
-| 2026-04-28 | ADRs for irreversible decisions only                | ADRs are expensive to write and read. Reserve for choices that cost real money / time to undo.                              |
-| 2026-04-28 | Memory decay: 90 days for episodic                  | Without decay, `memory/episodic/` grows forever. 90 days is "long enough to be useful, short enough to remain curated."     |
-| 2026-04-28 | Merge methodology + harness + workflow into rules reference | The three were redundant views of the same triad. One file kills the "which one do I read?" decision.                    |
+| Date       | Decision                                                    | Rationale                                                                                                                                                                                                                   |
+| ---------- | ----------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| 2026-04-28 | Name the methodology: The Constitutional Loop               | Most "AI rules" libraries hand the agent a markdown file. The Loop hands the agent the right file at the right moment AND fails the commit if the rule isn't followed. The auto-load + mechanical-verify combo is the moat. |
+| 2026-04-28 | SRR triad (Skills, References, Rules)                       | Three substrates with distinct lifecycles; each has its own bridge to the agent. Skills = invoked verbs; References = loaded nouns; Rules = executed mechanisms. A concern in fewer than its applicable substrates is debt. |
+| 2026-04-28 | 1:1 skill ↔ reference; reference inside skill folder        | Co-locating the reference with the skill kills "where does this principle live?" drift. The skill-reference hook auto-loads the sibling on invocation.                                                                      |
+| 2026-04-28 | Fractal `CLAUDE.md` for folder-scoped principles            | A skill reference is wrong for "rules that apply when editing this folder." Folder-scoped principles live with the folder; the domain-context hook walks the tree.                                                          |
+| 2026-04-28 | 1:1 reference principle ↔ rules.ts entry                    | Without this, references rot into "advice nobody enforces." Pending entries are visible debt with a 14-day SLO.                                                                                                             |
+| 2026-04-28 | Manual promotion only from memory → reference               | Auto-promotion would let stochastic noise enter the constitution. Promotion is curation, not aggregation.                                                                                                                   |
+| 2026-04-28 | ADRs for irreversible decisions only                        | ADRs are expensive to write and read. Reserve for choices that cost real money / time to undo.                                                                                                                              |
+| 2026-04-28 | Memory decay: 90 days for episodic                          | Without decay, `memory/episodic/` grows forever. 90 days is "long enough to be useful, short enough to remain curated."                                                                                                     |
+| 2026-04-28 | Merge methodology + harness + workflow into rules reference | The three were redundant views of the same triad. One file kills the "which one do I read?" decision.                                                                                                                       |
 
 _Update this log when methodology rules change. The methodology is the only thing that's allowed to evolve recursively — be careful._

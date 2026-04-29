@@ -23,12 +23,11 @@ Runtime security primitives. Audit-the-world is a different surface — that liv
 import { protectedRoute } from '@gaia/security/protected-route'
 import { auditLog } from '@gaia/security/audit-log'
 
-export const userRoutes = protectedRoute()
-  .post('/users/:id/promote', async ({ user, params }) => {
-    await promoteUser(params.id)
-    await auditLog({ actor: user.id, action: 'user.promote', target: params.id })
-    return { ok: true }
-  })
+export const userRoutes = protectedRoute().post('/users/:id/promote', async ({ user, params }) => {
+  await promoteUser(params.id)
+  await auditLog({ actor: user.id, action: 'user.promote', target: params.id })
+  return { ok: true }
+})
 ```
 
 ## Verify

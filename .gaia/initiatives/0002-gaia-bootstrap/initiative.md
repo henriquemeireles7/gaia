@@ -10,6 +10,7 @@ status: draft (awaiting d-initiative expansion under new methodology)
 Stub. Full strategy + implementation + PR breakdown will be expanded by `d-initiative` once Initiative 0001 (methodology refactor) ships.
 
 Carry-overs from research input (the prior bootstrap doc, archived):
+
 - Cap table for template surfaces (auth, billing, admin v0.1, content v0.1).
 - TTHW <5 min and TTFD ≤30 min targets (both via CLI alone — no `d-onboard` skill).
 - CLI ships two modes from day 1: `bun create gaia@latest <name>` (full template) and `--bare` (methodology only).

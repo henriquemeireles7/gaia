@@ -9,6 +9,7 @@ status: not started
 Stub. Hosted runtime built on Initiative 0004's infra. CMS Hub + Admin v1 + mini-CRM — Stage 2a from the original launch-hardening plan.
 
 Anticipated scope (from prior research):
+
 - Hosted Gaia Cloud (managed Bun on Kamal infra from 0004).
 - `apps/cms/` — content folder → blog/handbook/guides/API docs.
 - Admin v1: 5 modules (metrics + email log + mini-CRM + projects + docs).

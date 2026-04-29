@@ -18,7 +18,7 @@ Confirm scope and mode. Verify `bun run check` is green.
 
 ## Phase 1: Read codebase + reference.md
 
-Walk root README, scripts/*, package.json scripts, CLI help text, error messages thrown by the API.
+Walk root README, scripts/\*, package.json scripts, CLI help text, error messages thrown by the API.
 
 ## Phase 2: Surface findings
 

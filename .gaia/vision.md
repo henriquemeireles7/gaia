@@ -659,19 +659,19 @@ Ordered by blocking priority:
 
 11. **Domain-scoped project enforcement** — CI/pre-spawn script reads project `domain:` and `touches:` frontmatter; refuses overlap. Replaces conductor's runtime role until conductor.build ships.
 
-16. **Hierarchical reference taxonomy** — pick categories (workflow-grouped: gaia/planning/api/web/hardening/devops/content vs experience-grouped: engineering/experience/methodology/product). Codemod migrates 21 flat files; updates resolver, hook routing, cross-refs.
+12. **Hierarchical reference taxonomy** — pick categories (workflow-grouped: gaia/planning/api/web/hardening/devops/content vs experience-grouped: engineering/experience/methodology/product). Codemod migrates 21 flat files; updates resolver, hook routing, cross-refs.
 
-17. **`.gaia/domains.ts` schema** — canonical domain map; derives docs resolver, domain-context routing, project validation, rules.ts prefixes. One source replaces four hand-maintained copies.
+13. **`.gaia/domains.ts` schema** — canonical domain map; derives docs resolver, domain-context routing, project validation, rules.ts prefixes. One source replaces four hand-maintained copies.
 
-18. **Initiative-type → project shape templates** — feature / api-only / polish / infra / content / methodology each define the project decomposition shape. Drives `d-initiative` decomposition.
+14. **Initiative-type → project shape templates** — feature / api-only / polish / infra / content / methodology each define the project decomposition shape. Drives `d-initiative` decomposition.
 
-12. **Positioning statement (one sentence)** — current draft: _"Gaia is Rails for TypeScript in the agent era — for solo operators building production SaaS, with a daily workflow loop and a harness that enforces every principle in your reference files."_
+15. **Positioning statement (one sentence)** — current draft: _"Gaia is Rails for TypeScript in the agent era — for solo operators building production SaaS, with a daily workflow loop and a harness that enforces every principle in your reference files."_
 
-13. **Template-as-manual verification** — can someone read the template top-to-bottom and understand how to build on it? Tests general principle #9.
+16. **Template-as-manual verification** — can someone read the template top-to-bottom and understand how to build on it? Tests general principle #9.
 
-14. **Trigger-eval infrastructure (v2 prerequisite)** — given input X, which skill fires? Testable routing for the skill resolver. Required before self-evolving features can ship safely.
+17. **Trigger-eval infrastructure (v2 prerequisite)** — given input X, which skill fires? Testable routing for the skill resolver. Required before self-evolving features can ship safely.
 
-15. **Distribution mechanism** — how does a user clone or import Gaia's harness into a new repo? CLI? Git template? Plugin? Open question for v1; defaults to `git clone` until decided.
+18. **Distribution mechanism** — how does a user clone or import Gaia's harness into a new repo? CLI? Git template? Plugin? Open question for v1; defaults to `git clone` until decided.
 
 ⸻
 

@@ -10,6 +10,7 @@ status: draft (awaiting d-initiative expansion under new methodology)
 Stub. Carries forward the existing launch hardening doc (archived). To be expanded by `d-initiative` after 0002 tags v1.0.
 
 Key carry-overs:
+
 - 60-day measurement window post-launch: 100 stars + 3 unsolicited DMs (Day 30); 500 stars + 1 named user (Day 60).
 - Security review (Better Auth, Polar, Bun, Drizzle CVE audit).
 - Claim hygiene — strip "X-replacement" framing from public copy.

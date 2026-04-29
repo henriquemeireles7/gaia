@@ -12,17 +12,17 @@ Cross-cutting principles that apply to every package. Per-package conventions li
 
 ## Inventory
 
-| Package         | Purpose                                                      |
-| --------------- | ------------------------------------------------------------ |
-| `adapters/`     | Vendor-wrapping providers (one file per capability)          |
-| `auth/`         | Better Auth wired to Drizzle                                  |
-| `config/`       | Env loading and validation                                    |
-| `core/`         | Shared types and utilities                                    |
-| `db/`           | Drizzle schema, migrations, client                            |
-| `errors/`       | AppError + typed error codes                                  |
-| `security/`     | Runtime security primitives (route wrappers, audit log, harden checks) |
-| `ui/`           | Design system: tokens, components, styles                    |
-| `workflows/`    | Inngest job definitions                                       |
+| Package      | Purpose                                                                |
+| ------------ | ---------------------------------------------------------------------- |
+| `adapters/`  | Vendor-wrapping providers (one file per capability)                    |
+| `auth/`      | Better Auth wired to Drizzle                                           |
+| `config/`    | Env loading and validation                                             |
+| `core/`      | Shared types and utilities                                             |
+| `db/`        | Drizzle schema, migrations, client                                     |
+| `errors/`    | AppError + typed error codes                                           |
+| `security/`  | Runtime security primitives (route wrappers, audit log, harden checks) |
+| `ui/`        | Design system: tokens, components, styles                              |
+| `workflows/` | Inngest job definitions                                                |
 
 ## Verify
 
