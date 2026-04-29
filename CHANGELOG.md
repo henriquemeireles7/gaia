@@ -4,6 +4,22 @@ All notable changes to Gaia. Format adapted from [Keep a Changelog](https://keep
 
 The repo is pre-1.0. Breaking changes happen freely until v1.0.0.
 
+## [0.2.1] - 2026-04-29
+
+Cleanup: `decisions/` folder retired. Operational deploy runbook (Railway config, Dockerfile rules, rollback, CLI cheatsheets) merged into `.claude/skills/w-deploy/reference.md` next to the principles it enforces. The empty `health.md` and the unfilled `maturity.md` template are gone — `a-health` now writes audits to `.gaia/audits/a-health/<YYYY-MM-DD>.md`, matching every other `a-*` skill.
+
+### Changed
+
+- `decisions/deploy.md` content merged into `.claude/skills/w-deploy/reference.md` as a new "Operational runbook" section. Stale rightdecision.io artifacts dropped (Stripe references, subdomain plan, personal contact info, "PostgreSQL on Railway" — Gaia uses Polar + Neon per vision §Stack).
+- `a-health` audit output path: `decisions/health.md` → `.gaia/audits/a-health/<YYYY-MM-DD>.md` (consistent with `a-security`, `a-ax`, `a-ux`, etc.).
+- `.gaia/reference/product/retention.md` cohort-comparison refs repointed to the new audits path.
+- `.claude/hooks/reinject-context.ts` swapped the `decisions/` reminder for the skill-reference equivalent.
+
+### Removed
+
+- `decisions/` folder and all three files inside it (`deploy.md`, `health.md`, `maturity.md`).
+- `decisions/` line from the README repository layout.
+
 ## [0.2.0] - 2026-04-29
 
 Initiative 0011 — Skills Committee. Renames the 17 d-\* skills into three role-prefixed categories (h- harness, w- workflow, a- audit) and mechanically enforces 10 cold-start invariants. Agents now route by prefix instead of reading every skill description; the constraint linter blocks any new SKILL.md missing Mode/Tier/Artifact/Failure-modes/After fields.

@@ -1,6 +1,6 @@
 ---
 name: a-health
-description: "Comprehensive codebase health audit: 10 sessions covering security, performance, UI, coherence, dead weight, test health, architecture, dependencies, content, and scoring. Mode: report. Tier: daily (smoke 3 sessions) | weekly (all 10 sessions) | monthly (10 + trend analysis + remediation plan). Triggers: 'a-health', 'health audit', 'codebase health', 'full audit', 'how healthy is the code'. Pair: a-* (composite — invokes other audits as sub-sessions). Artifact: decisions/health.md (scored report + fix plan + trend vs prior runs)."
+description: "Comprehensive codebase health audit: 10 sessions covering security, performance, UI, coherence, dead weight, test health, architecture, dependencies, content, and scoring. Mode: report. Tier: daily (smoke 3 sessions) | weekly (all 10 sessions) | monthly (10 + trend analysis + remediation plan). Triggers: 'a-health', 'health audit', 'codebase health', 'full audit', 'how healthy is the code'. Pair: a-* (composite — invokes other audits as sub-sessions). Artifact: .gaia/audits/a-health/<YYYY-MM-DD>.md (scored report + fix plan + trend vs prior runs)."
 ---
 
 # a-health — Comprehensive Codebase Health Audit
@@ -49,10 +49,10 @@ Read:
 
 - Root CLAUDE.md (build order, seven files, rules)
 - `decisions/code.md` (dependency rules, security, performance)
-- `decisions/health.md` (prior audit findings, if exists)
+- `.gaia/audits/a-health/<YYYY-MM-DD>.md` (prior audit findings, if exists)
 - `decisions/architecture.md` (data storage rule, feature groups)
 - `decisions/design.md` (for UI session)
-- `decisions/health.md` (prior health report, if exists — needed for trend)
+- `.gaia/audits/a-health/<YYYY-MM-DD>.md` (prior health report, if exists — needed for trend)
 
 ---
 
@@ -67,7 +67,7 @@ Read:
   ```
   Composite score: X.X/10 [↑/↓/= from last run]
   Top findings: [1-3 highest severity items]
-  Full report: decisions/health.md
+  Full report: .gaia/audits/a-health/<YYYY-MM-DD>.md
   ```
 
 ---
@@ -297,7 +297,7 @@ bun run freshness 2>/dev/null || echo "freshness not available"
 
 ### Session Skip Intelligence
 
-If `decisions/health.md` exists with prior scores:
+If `.gaia/audits/a-health/<YYYY-MM-DD>.md` exists with prior scores:
 
 - For each session: if prior score >= 9.5 AND `git diff --name-only` shows 0 changed files
   in that session's scope since the last audit date → skip with note.
@@ -313,7 +313,7 @@ If `decisions/health.md` exists with prior scores:
 
 ### Trend
 
-If `decisions/health.md` exists, compare to last run:
+If `.gaia/audits/a-health/<YYYY-MM-DD>.md` exists, compare to last run:
 
 - Score delta per session
 - New issues vs resolved issues
@@ -323,7 +323,7 @@ If `decisions/health.md` exists, compare to last run:
 
 ## Output
 
-Mode: **report** — a-health is read-only by contract; it never mutates code. Produces a scored report (decisions/health.md) plus the chat summary below. Trends across runs are tracked.
+Mode: **report** — a-health is read-only by contract; it never mutates code. Produces a scored report (.gaia/audits/a-health/<YYYY-MM-DD>.md) plus the chat summary below. Trends across runs are tracked.
 
 ### Chat summary (always print)
 
@@ -336,11 +336,11 @@ Session 9 (Content): X findings (Y critical)
 ═══════════════════════════════════════
 Composite score: X.X/10 [↑0.3 from last run]
 Top findings: [1] IDOR in profile route [2] 8 dead exports [3] 3 files missing tests
-Full report: decisions/health.md
+Full report: .gaia/audits/a-health/<YYYY-MM-DD>.md
 ═══════════════════════════════════════
 ```
 
-### Health Report (saved to `decisions/health.md`)
+### Health Report (saved to `.gaia/audits/a-health/<YYYY-MM-DD>.md`)
 
 ```markdown
 # Codebase Health Report
@@ -461,9 +461,9 @@ Default (no argument): run all 10 sessions sequentially.
 - NEVER ask questions — this is a zero-interaction skill
 - NEVER create tasks or fix code — the report is the output
 - ALWAYS produce a report, even if partial (some sessions errored)
-- ALWAYS save the full report to `decisions/health.md`
+- ALWAYS save the full report to `.gaia/audits/a-health/<YYYY-MM-DD>.md`
 - ALWAYS produce the fix plan — the report without a plan is just complaining
-- ALWAYS compare to prior run if `decisions/health.md` exists
+- ALWAYS compare to prior run if `.gaia/audits/a-health/<YYYY-MM-DD>.md` exists
 - If a companion script crashes, note the error and continue with manual checks
 - If `bun run check` fails, report it as P0 and continue the audit
 
