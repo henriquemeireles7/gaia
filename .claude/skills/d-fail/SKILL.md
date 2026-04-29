@@ -87,7 +87,7 @@ Confirm the deploy succeeds and the app is healthy.
 
 ### Step 7: Encode the Learning (if systematic)
 
-If this failure could recur, invoke /d-harness to encode a prevention rule.
+If this failure could recur, invoke / to encode a prevention rule.
 Skip this for true one-offs (typo, missing comma, etc.).
 
 ## Output

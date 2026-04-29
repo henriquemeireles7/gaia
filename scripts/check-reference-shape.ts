@@ -1,7 +1,7 @@
 // scripts/check-reference-shape.ts — references/principle-shape.
 //
-// Walks .gaia/reference/**/*.md and verifies every numbered principle
-// (### 1. ... ### 10.) has the 5-part shape:
+// Walks .claude/skills/<skill>/reference.md and verifies every numbered
+// principle (### 1. ... ### 10.) has the 5-part shape:
 //   1. title + description
 //   2. **Rules / Guidelines / Boundaries:** with 2-4 bullet points
 //   3. **Enforcement:** naming a mechanism kind
@@ -9,8 +9,8 @@
 //   5. **Pattern:** with code/example
 //
 // Skip references where the 4-part or simpler shape is intentionally
-// preserved (code.md, security.md — pre-existing layout). The skip list
-// is explicit so additions are visible.
+// preserved (legacy migrations from the flat reference folder). The skip
+// list is explicit so additions are visible.
 
 import { readFileSync } from 'node:fs'
 import { Glob } from 'bun'
@@ -18,17 +18,18 @@ import { Glob } from 'bun'
 // References that ship with a different shape. Adding to this list
 // requires a comment explaining why the 5-part shape doesn't apply.
 const SHAPE_EXEMPT = new Set([
-  '.gaia/reference/code.md', // the original 4-part shape; foundational
-  '.gaia/reference/security.md', // its own format with "Attacks defended"
-  '.gaia/reference/ax.md', // narrative meta-reference
-  '.gaia/reference/dx.md', // narrative meta-reference
-  '.gaia/reference/voice.md', // brand-voice doc; not principle-numbered
-  '.gaia/reference/workflow.md', // procedural — phases, not principles
-  '.gaia/reference/harness.md', // mechanics doc; mixed shape
-  '.gaia/reference/commands.md', // inventory, not principles
-  '.gaia/reference/ux.md', // narrative + patterns
-  '.gaia/reference/design.md', // pre-existing 12 principles in different shape
-  '.gaia/reference/tokens.md', // values doc
+  '.claude/skills/d-code/reference.md', // concatenated code+testing+errors; pre-existing 4-part shape
+  '.claude/skills/d-security/reference.md', // own format with "Attacks defended"
+  '.claude/skills/d-ax/reference.md', // narrative meta-reference
+  '.claude/skills/d-dx/reference.md', // narrative meta-reference
+  '.claude/skills/d-content/reference.md', // brand-voice doc; not principle-numbered
+  '.claude/skills/d-deploy/reference.md', // procedural deployment doc
+  '.claude/skills/d-ux/reference.md', // narrative + patterns
+  '.claude/skills/d-ai/reference.md', // narrative ai patterns
+  '.claude/skills/d-observability/reference.md', // mechanics doc; mixed shape
+  '.claude/skills/d-infra/reference.md', // scaffold; full content lands in 0004
+  '.gaia/reference/product/onboarding.md', // legacy product reference; preserved
+  '.gaia/reference/product/retention.md', // legacy product reference; preserved
 ])
 
 const PRINCIPLE_HEADER = /^###\s+\d+\.\s+/
@@ -89,15 +90,19 @@ function splitPrinciples(text: string): { title: string; body: string }[] {
 
 const failures: Failure[] = []
 
-for await (const file of new Glob('.gaia/reference/**/*.md').scan({ cwd: process.cwd() })) {
-  if (SHAPE_EXEMPT.has(file)) continue
-  const text = readFileSync(file, 'utf-8')
-  if (!PRINCIPLE_HEADER.test(text)) continue // no numbered principles; skip
-  const principles = splitPrinciples(text)
-  for (const { title, body } of principles) {
-    const { missing, bullets } = checkPrinciple(body)
-    if (missing.length > 0) {
-      failures.push({ file, principle: title, missing, bullets })
+const SCAN_PATTERNS = ['.claude/skills/*/reference.md', '.gaia/reference/**/*.md']
+
+for (const pattern of SCAN_PATTERNS) {
+  for await (const file of new Glob(pattern).scan({ cwd: process.cwd() })) {
+    if (SHAPE_EXEMPT.has(file)) continue
+    const text = readFileSync(file, 'utf-8')
+    if (!PRINCIPLE_HEADER.test(text)) continue // no numbered principles; skip
+    const principles = splitPrinciples(text)
+    for (const { title, body } of principles) {
+      const { missing, bullets } = checkPrinciple(body)
+      if (missing.length > 0) {
+        failures.push({ file, principle: title, missing, bullets })
+      }
     }
   }
 }
@@ -109,7 +114,7 @@ if (failures.length > 0) {
     for (const m of f.missing) console.error(`    missing: ${m}`)
   }
   console.error(
-    '\nEvery numbered principle (### 1. ...) needs the 5-part shape: description, Rules/Guidelines/Boundaries (2–4 bullets), Enforcement, Anti-pattern, Pattern. See .gaia/reference/references.md.',
+    '\nEvery numbered principle (### 1. ...) needs the 5-part shape: description, Rules/Guidelines/Boundaries (2–4 bullets), Enforcement, Anti-pattern, Pattern. See .claude/skills/d-reference/reference.md.',
   )
   process.exit(1)
 }

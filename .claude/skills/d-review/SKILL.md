@@ -21,13 +21,13 @@ Fix-first: every issue found is fixed immediately. Report leads with findings, n
 
 ## Pipeline
 
-d-tdd → **d-review** → /ship
+d-code → **d-review** → /ship
 
 ## When to run
 
 - Before every commit
 - Before /ship
-- After d-tdd completes a project
+- After d-code completes a project
 
 ---
 
