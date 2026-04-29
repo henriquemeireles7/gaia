@@ -1,7 +1,17 @@
 ---
+parent: .gaia/initiatives/CLAUDE.md
 hypothesis: Stage 2a — paid Gaia Cloud ($49/$149) + CMS Hub Mintlify-replacement + Admin v1 (Linear-shaped) + mini-CRM — is monetizable at >25 paying customers in 90 days post-launch, gated on 0003 hitting ≥500 stars and 0004 having an alpha.
 falsifier: <5 paying customers at $49 in first 30 days post-launch.
-status: not started
+measurement:
+  {
+    metric: 'paying customers at $49 within 30 days post-launch',
+    source: 'Polar billing dashboard',
+    baseline: '0',
+    threshold: '≥5',
+    window_days: 30,
+    verdict: 'pending',
+  }
+status: not-started
 ---
 
 # Initiative 0005 — Gaia Platform + CMS Hub + Admin v1

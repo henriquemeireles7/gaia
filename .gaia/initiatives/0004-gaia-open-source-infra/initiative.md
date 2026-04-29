@@ -1,7 +1,17 @@
 ---
+parent: .gaia/initiatives/CLAUDE.md
 hypothesis: A one-command Kamal deploy (`bun gaia infra deploy`) that puts the template on the user's own VPS in <10 min beats Railway-locked deploy as the moat moment for the no-code-graduate ICP.
 falsifier: 0/10 alphas attempt self-host post-0003 launch.
-status: not started
+measurement:
+  {
+    metric: '% of alphas who attempt self-host within 14 days of 0003 launch',
+    source: 'alpha session logs + telemetry',
+    baseline: '0',
+    threshold: '≥3/10',
+    window_days: 14,
+    verdict: 'pending',
+  }
+status: not-started
 ---
 
 # Initiative 0004 — Gaia Open-Source Infra (Kamal)

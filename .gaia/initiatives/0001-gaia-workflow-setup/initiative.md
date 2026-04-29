@@ -1,4 +1,5 @@
 ---
+parent: .gaia/initiatives/CLAUDE.md
 hypothesis: Collapsing Gaia's methodology to three meta-concepts (skill, reference, rules) with 1:1 skill↔reference pairing and fractal CLAUDE.md replacing the flat reference folder reduces context-load cost per task by ≥40% and removes the workflow re-decisions that taxed prior initiatives.
 falsifier: After 0001 ships, 0002 + 0003 still spend >20% of their hours on "where does this principle live?" or "what does the agent load?" type questions. Window: through 0003 ship-date.
 measurement: { metric: "% time on workflow questions vs feature work in 0002+0003 commits", source: "git log + commit message tagging", baseline: "~30% inferred from prior autoplan rounds", threshold: "<20%", window_days: 60, verdict: "TBD" }
