@@ -793,6 +793,46 @@ export const rules: readonly Rule[] = [
     tier: 'architecture',
     mechanism: { kind: 'pending', note: 'code review; no LLM-call detection in hooks' },
   },
+  {
+    id: 'harness/skill-reference-pairing',
+    reference: 'methodology',
+    description:
+      'Every skill has exactly one reference.md sibling. The skill-reference hook auto-loads it on Skill invocation; fails closed if absent.',
+    tier: 'lint',
+    mechanism: { kind: 'script', script: 'scripts/check-skills.ts' },
+  },
+  {
+    id: 'harness/auto-load-fractal-claude',
+    reference: 'methodology',
+    description:
+      'Editing a file walks the folder tree from edit target to repo root, loading every CLAUDE.md found. Folder-scoped principles live in fractal CLAUDE.md, not skill folders.',
+    tier: 'hook',
+    mechanism: { kind: 'hook', hook: '.claude/hooks/domain-context.ts' },
+  },
+  {
+    id: 'harness/adr-numbering',
+    reference: 'methodology',
+    description:
+      'ADRs at .gaia/adrs/NNNN-<title>.md use append-only numbering; superseded ADRs stay with status updated, never deleted.',
+    tier: 'lint',
+    mechanism: { kind: 'pending', note: 'scripts/check-adr-numbering.ts (planned)' },
+  },
+  {
+    id: 'harness/memory-decay',
+    reference: 'methodology',
+    description:
+      'memory/episodic/* entries older than 90 days auto-archive. Promotion to a skill reference is manual via d-rules.',
+    tier: 'architecture',
+    mechanism: { kind: 'pending', note: 'scripts/memory-decay.ts (planned)' },
+  },
+  {
+    id: 'harness/loop-coverage',
+    reference: 'methodology',
+    description:
+      'bun run rules:coverage lists rules without references and references without rules. CI surfaces on every PR.',
+    tier: 'architecture',
+    mechanism: { kind: 'script', script: 'scripts/rules-coverage.ts' },
+  },
   // ─── ai.md (gaps from previous PR) ───────────────────────────
   {
     id: 'ai/prompts-as-constants',
