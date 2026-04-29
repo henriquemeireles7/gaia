@@ -119,78 +119,33 @@ Wait for the user to answer ALL questions before proceeding.
 Determine the next initiative number. Use Bash:
 
 ```sh
-ls decisions/{domain}/ | sort -n | tail -1
+ls .gaia/initiatives/ | grep -E '^[0-9]{4}' | sort -n | tail -1
 ```
 
-If no numbered folders exist, start with `01`. Otherwise increment the highest number.
-Increment by 1. Create the folder.
+If no numbered folders exist, start with `0001`. Otherwise increment the highest number by 1 (4-digit zero-padded). Create `.gaia/initiatives/NNNN-<slug>/initiative.md`.
 
-#### 3a. document.md
+#### 3a. initiative.md (canonical 6-section shape)
 
-```markdown
-# {Initiative Title}
+The template has six sections. Frontmatter requires `parent`, `hypothesis`, `measurement` (the three fields `validate-artifacts.ts` enforces). See an existing initiative (e.g. `.gaia/initiatives/0001-gaia-workflow-setup/initiative.md`) for a populated reference.
 
-> Domain: {product|growth|harness}
-> Created: {YYYY-MM-DD}
-> Status: draft
+Section outline:
 
-## Context
-
-{2-3 paragraphs: what exists, what's missing, why now}
-
-## Goal
-
-{1 sentence: what success looks like}
-
-## Constraint
-
-{1 sentence: the tightest constraint}
-
-## Projects (suggested breakdown)
-
-### Project 1: {name}
-
-- **Scope:** {1-2 sentences}
-- **Deliverables:** {bullet list}
-- **Acceptance criteria:** {bullet list}
-- **Risk:** {1 sentence}
-
-### Project 2: {name}
-
-...
-
-## Decision Log
-
-| Decision                  | Choice   | Why         |
-| ------------------------- | -------- | ----------- |
-| {first decision from Q&A} | {choice} | {reasoning} |
-
-## Open Questions
-
-- {anything unresolved from the Q&A}
-```
-
-#### 3b. future-work.md
-
-```markdown
-# Future Work — {Initiative Title}
-
-> Updated: {YYYY-MM-DD}
-
-Items deferred from this initiative for future consideration.
-
-(empty — populated by w-code as projects complete)
-```
+1. **Context / Research** — 2-3 paragraphs: what exists, what's missing, why now, named demand evidence, prior session learnings.
+2. **Strategy** — Problem, Approach (chosen), Cap table (Ships v1.0 / Capped).
+3. **Folder Structure** — ASCII tree of files/folders this initiative adds or modifies. Mark new paths with `# NEW`, extended paths with `# EXTENDS`. Copy-paste-ready so `w-code` can scaffold without ambiguity.
+4. **Implementation** — Order of operations + Risks (priority-ordered with mitigations) + Out-of-scope list.
+5. **PR Breakdown** — Table (`PR | Title | Files | Status`) — `w-code` reads this and codes PR by PR.
+6. **Decision Audit Trail** — Table (`ID | Decision | Source`) — every decision traces to founder, autoplan voice, or AD-N mechanical.
 
 ### Step 4: Suggest Next Steps
 
 ```
-Initiative created: decisions/{domain}/NN-name/
+Initiative created: .gaia/initiatives/NNNN-<slug>/initiative.md
 
 Next steps:
 1. Run gstack reviews to refine: /plan-ceo-review, /plan-eng-review, /plan-design-review
-2. After reviews settle the project breakdown: /w-initiative
-3. Then execute per-project: w-code or w-write
+2. After reviews settle the PR breakdown: re-run /w-initiative for any expansions
+3. Then execute per-PR: w-code (reads §5) or w-write
 ```
 
 ---

@@ -134,7 +134,7 @@ if (issues.length > 0) {
     }
   }
   console.error(
-    '\nNamespace voice triggers when they collide. See Initiative 0006 §2a constraint C3-bis.',
+    '\nNamespace voice triggers when they collide. See Initiative 0011 §2a constraint C3-bis.',
   )
   process.exit(1)
 }

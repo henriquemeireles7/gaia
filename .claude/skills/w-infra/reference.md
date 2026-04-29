@@ -1,7 +1,7 @@
 # Infra — Reference
 
 > Sibling skill: `w-infra` (this folder's `SKILL.md`).
-> Initiative 0001 shipped the scaffold; Initiative 0006 (CEO-4) grew this to operative depth; Initiative 0004 will extend it with the full Kamal-based self-hosting story.
+> Initiative 0001 shipped the scaffold; Initiative 0011 (CEO-4) grew this to operative depth.
 
 ## What this is
 
@@ -90,5 +90,4 @@ A single multi-stage Dockerfile per app. Build → prune → run. Identical arti
 - Sibling skill: `.claude/skills/w-infra/SKILL.md`
 - Companion (execution): `.claude/skills/w-deploy/reference.md`
 - Recovery: `.claude/skills/w-debug/reference.md`
-- Initiative 0004 (`.gaia/initiatives/0004-gaia-open-source-infra/initiative.md`) extends Kamal coverage post-launch.
 - Runbooks: `docs/runbooks/rollback.md` (rollback), future `docs/runbooks/scale-up.md`, `docs/runbooks/disaster.md`.

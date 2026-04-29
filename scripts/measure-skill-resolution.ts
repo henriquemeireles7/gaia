@@ -1,4 +1,4 @@
-// scripts/measure-skill-resolution.ts — baseline measurement for Initiative 0006
+// scripts/measure-skill-resolution.ts — baseline measurement for Initiative 0011
 //
 // Falsifier instrumentation per CEO-1 of the autoplan review. Captures:
 //   - cold-start TTHW (tokens read between Skill invocation and first phase output)
@@ -25,7 +25,7 @@
 //
 // Pre-rename: run on `master` to capture baseline.
 // Post-rename: run on `skills-committee` after merge to capture new state.
-// PR 5 of Initiative 0006 compares the two and writes the verdict to the falsifier.
+// PR 5 of Initiative 0011 compares the two and writes the verdict to the falsifier.
 
 import { existsSync, readFileSync, readdirSync, writeFileSync, mkdirSync } from 'node:fs'
 import { homedir } from 'node:os'

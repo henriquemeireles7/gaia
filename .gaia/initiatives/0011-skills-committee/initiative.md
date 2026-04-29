@@ -1,13 +1,13 @@
 ---
 parent: .gaia/initiatives/CLAUDE.md
 hypothesis: Re-prefixing the 17 d-* skills into three explicit categories (h- harness, w- workflow, a- audit) AND mechanically enforcing 10 cold-start invariants raises agent cold-start TTHW from ~30s to ~5s (6× faster) and reduces "which skill?" round-trips ≥50% in 0002+.
-falsifier: After 0006 ships, the cold-start TTHW measurement script (`scripts/measure-skill-resolution.ts`, landing in PR 0) still reports >15s average from "user intent" to "skill phase 1" across a sample of 0002+0003 sessions. Window: 60 days post-ship.
+falsifier: After 0011 ships, the cold-start TTHW measurement script (`scripts/measure-skill-resolution.ts`, landing in PR 0) still reports >15s average from "user intent" to "skill phase 1" across a sample of 0002+0003 sessions. Window: 60 days post-ship.
 measurement: { metric: "cold-start TTHW (tokens read before phase 1) + skill-resolution round-trips per session", source: "scripts/measure-skill-resolution.ts parses ~/.claude/sessions/*.jsonl and counts (a) tokens between Skill invocation and first phase output, (b) AskUserQuestion 'which skill' or 'what does X do' patterns", baseline: "captured by PR 0 BEFORE rename — written to .context/skill-baseline.json", threshold: "TTHW <8s avg AND <1.5 round-trips/session", window_days: 60, verdict: "TBD" }
 status: draft
 autoplan_review: 2026-04-29 (CEO + Eng + DX phases, single-reviewer mode — Codex unavailable in Conductor sandbox)
 ---
 
-# Initiative 0006 — Skills 10x: Committee of Garry + h/w/a Categories
+# Initiative 0011 — Skills 10x: Committee of Garry + h/w/a Categories
 
 ## 1. Context / Research
 
@@ -118,7 +118,7 @@ Findings from a SELECTIVE EXPANSION mode review. All decisions auto-decided per 
 | ENG-6 | Voice triggers can fire fix-mode skills without confirmation. Theoretically a trojan vector.                                                        | Out of scope here. Note in §5 audit trail; future initiative. (P3 — don't expand into security)                                                                         |
 | ENG-7 | TASTE — reference normalization metric: lines vs tokens.                                                                                            | Tokens. LLMs care about tokens. PR 3 measurement uses a token counter. (P1)                                                                                             |
 
-**Architecture: skill resolver post-0006**
+**Architecture: skill resolver post-0011**
 
 ```
    user message
@@ -168,7 +168,7 @@ Findings from a SELECTIVE EXPANSION mode review. All decisions auto-decided per 
 
 Apply our own 8 DX dimensions to **our own skills**.
 
-| #   | Dimension                           | Today (5.1 avg) | After 0006 (7.7 avg) | Δ               |
+| #   | Dimension                           | Today (5.1 avg) | After 0011 (7.7 avg) | Δ               |
 | --- | ----------------------------------- | --------------- | -------------------- | --------------- |
 | 1   | TTHW (cold-start invocation)        | 4/10            | 8/10                 | +4              |
 | 2   | API/CLI naming                      | 5/10            | 8/10                 | +3              |
@@ -184,7 +184,7 @@ Apply our own 8 DX dimensions to **our own skills**.
 
 **Developer journey map (cold-start agent):**
 
-| Stage    | Today                                          | After 0006                                         |
+| Stage    | Today                                          | After 0011                                         |
 | -------- | ---------------------------------------------- | -------------------------------------------------- |
 | Discover | scans CLAUDE.md (17 d-\*, 1 implicit category) | scans CLAUDE.md (3 categories visible from prefix) |
 | Route    | reads ~14 candidate descriptions               | reads ~5 in matching category                      |
@@ -241,7 +241,7 @@ Apply our own 8 DX dimensions to **our own skills**.
 | #   | Risk                                                                                                | Mitigation                                                                                                               |
 | --- | --------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------ |
 | R1  | Cross-ref drift mid-rename (15 skills × ~3 callsites each ≈ 45 edits).                              | PR 3 is mechanical and atomic. New `check-skill-triggers.ts` + extended `check-skills.ts` catch any broken reference.    |
-| R2  | `0001`'s in-progress PR breakdown still mentions old names.                                         | Append-only audit trail rule applies; `0001` is not edited. `0006` is the new authority.                                 |
+| R2  | `0001`'s in-progress PR breakdown still mentions old names.                                         | Append-only audit trail rule applies; `0001` is not edited. `0011` is the new authority.                                 |
 | R3  | `w-debug` scope expansion bloats the skill body past cold-start budget.                             | Frontmatter `description:` capped at ~250 tokens. Body ≤200 lines. PR 3 linter enforces.                                 |
 | R4  | Voice triggers conflict with gstack global commands.                                                | C3-bis namespaces collisions ("debug review", "review my code"). Linter validates against `.context/gstack-globals.txt`. |
 | R5  | **NEW (CEO-1)** — falsifier unfalsifiable without a baseline measurement.                           | PR 0 ships baseline BEFORE PR 1. PR 5 re-measures; verdict written into frontmatter.                                     |
@@ -281,7 +281,7 @@ Apply our own 8 DX dimensions to **our own skills**.
 | 10  | Eng   | Fix `'something's wrong'` → `"something broke"` in w-debug voice trigger                   | mechanical | P5        | YAML accepts the apostrophe but it's fragile. Ship in this PR.                             |
 | 11  | Eng   | Extend check-skills.ts linter for C3, C3-bis, C4, C5, C6, C7, C8                           | mechanical | P1        | Frontmatter is the contract; linter is the enforcer.                                       |
 | 12  | Eng   | SkillDomain enum bulk rename is mechanically safe (only 1 rule entry uses strings)         | mechanical | P3        | Confirmed via grep. PR 3 ships rewrite without risk.                                       |
-| 13  | Eng   | Voice-trigger trojan vector → out of scope for 0006                                        | mechanical | P3        | Future initiative. Tracked.                                                                |
+| 13  | Eng   | Voice-trigger trojan vector → out of scope for 0011                                        | mechanical | P3        | Future initiative. Tracked.                                                                |
 | 14  | Eng   | Reference normalization metric: tokens (vs lines)                                          | **TASTE**  | P1        | LLMs care about tokens. Auto-decided.                                                      |
 | 15  | DX    | C2 cold-start: frontmatter description must be self-contained                              | mechanical | P1        | Linter enforces. Frontmatter is the contract.                                              |
 | 16  | DX    | C7 failure modes: every fix-mode skill needs `## Failure modes` section                    | mechanical | P1        | Linter enforces; audits in report-mode are exempt.                                         |

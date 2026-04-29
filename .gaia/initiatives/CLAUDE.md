@@ -1,15 +1,22 @@
 # Initiatives — index
 
-Strategic bets, ordered by 4-digit folder prefix. Each initiative is a single `initiative.md` file with research + strategy + implementation + PR breakdown.
+Strategic bets, ordered by 4-digit folder prefix. Each initiative is a single `initiative.md` file with research + strategy + folder structure + implementation + PR breakdown + audit trail.
 
-| #    | Folder                         | One-liner                                                                                            | Status       |
-| ---- | ------------------------------ | ---------------------------------------------------------------------------------------------------- | ------------ |
-| 0001 | `0001-gaia-workflow-setup/`    | Methodology refactor: 1:1 skill↔reference, fractal CLAUDE.md, 3 meta-skills, drop reference folder.  | in-progress  |
-| 0002 | `0002-gaia-bootstrap/`         | Clone-to-deploy in 30 min via CLI alone (no orchestrator skill). Template + onboarding CLI verbs.    | draft (stub) |
-| 0003 | `0003-gaia-launch-hardening/`  | Public OSS launch: security audit, claim hygiene, X thread, Show HN.                                 | draft (stub) |
-| 0004 | `0004-gaia-open-source-infra/` | Self-hostable Kamal-based deploy platform.                                                           | draft (stub) |
-| 0005 | `0005-gaia-platform-and-cms/`  | Hosted Gaia Cloud paid runtime + CMS Hub v1 + Admin Panel v1 + mini-CRM.                             | draft (stub) |
-| 0006 | `0006-skills-committee/`       | Committee-of-Garry skills review: 10 common constraints + h/w/a category prefixes + 2 scope changes. | draft        |
+The 0004–0010 block implements Vision v5 — six waves, with Wave 0 split into substrate (0004) and runtime (0005). Source: `_archive/2026-04-29-vision-v5-source.md`.
+
+| #    | Folder                           | Wave | One-liner                                                                                                  | Status       |
+| ---- | -------------------------------- | ---- | ---------------------------------------------------------------------------------------------------------- | ------------ |
+| 0001 | `0001-gaia-workflow-setup/`      | —    | Methodology refactor: 1:1 skill↔reference, fractal CLAUDE.md, 3 meta-skills, drop reference folder.        | in-progress  |
+| 0002 | `0002-gaia-bootstrap/`           | —    | Clone-to-deploy in 30 min via CLI alone. Template + onboarding CLI verbs.                                  | draft (stub) |
+| 0003 | `0003-gaia-launch-hardening/`    | —    | Public OSS launch: security audit, claim hygiene, X thread, Show HN.                                       | draft (stub) |
+| 0004 | `0004-foundation-substrate/`     | 0a   | Wave 0 substrate: events, hexagonal, tenancy, agent-native runtime, metering, telemetry.                   | not-started  |
+| 0005 | `0005-foundation-runtime/`       | 0b   | Wave 0 runtime: materialization, replicas, iii Function budgets, streaming spine, MCP push.                | not-started  |
+| 0006 | `0006-projections-materialized/` | 1    | Triple-rendered projections (admin + MCP + pricing) with per-projection materialization workers.           | not-started  |
+| 0007 | `0007-contracts-network/`        | 2    | Contract surface + docs app, hybrid retrieval (BM25 + embeddings + cache), network discovery via replicas. | not-started  |
+| 0008 | `0008-distribution-composer/`    | 3    | Composer + marketing, channels (newsletter/social/broadcast) as backpressured iii Functions, syndication.  | not-started  |
+| 0009 | `0009-capabilities-runtime/`     | 4    | Capability primitives + bundles + sandbox + labor app + `gaia-cloud/` separate repo + revenue-share.       | not-started  |
+| 0010 | `0010-subscribers-autonomous/`   | 5    | Time/domain/cross-instance subscribers as iii Functions, escalations, playbooks; `d-autonomous` skill.     | not-started  |
+| 0011 | `0011-skills-committee/`         | —    | Committee-of-Garry skills review: 10 common constraints + h/w/a category prefixes + 2 scope changes.       | draft        |
 
 Archive: `_archive/` preserves prior initiative documents as research input.
 

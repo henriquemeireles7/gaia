@@ -10,7 +10,7 @@
 // are aspirational — the rule is documented but not yet enforced.
 //
 // Schema renamed from ReferenceDomain → SkillDomain in Initiative 0001;
-// skill prefix re-categorized in Initiative 0006 (h- harness, w- workflow,
+// skill prefix re-categorized in Initiative 0011 (h- harness, w- workflow,
 // a- audit).
 
 export type SkillDomain =

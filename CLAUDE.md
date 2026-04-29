@@ -45,7 +45,7 @@ Principles live in two surfaces:
 | Writing reference files       | `.claude/skills/h-reference/reference.md`                                       |
 | Onboarding / activation       | `.gaia/reference/product/onboarding.md`                                         |
 | Retention / dunning           | `.gaia/reference/product/retention.md`                                          |
-| Currently being worked on     | `.gaia/initiatives/CLAUDE.md` (6-row index of 0001–0006)                        |
+| Currently being worked on     | `.gaia/initiatives/CLAUDE.md` (11-row index of 0001–0011)                       |
 | Latest data snapshot          | `.gaia/initiatives/context.md`                                                  |
 | What's allowed/blocked        | `.gaia/protocols/permissions.md`                                                |
 

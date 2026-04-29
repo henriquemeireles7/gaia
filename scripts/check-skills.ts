@@ -103,10 +103,10 @@ function checkSkill(dir: string, name: string) {
     })
   }
 
-  // 1b. skills/frontmatter-constraints — Initiative 0006 cold-start invariants.
+  // 1b. skills/frontmatter-constraints — Initiative 0011 cold-start invariants.
   // Per autoplan DX-1/2/3, the description field is the contract. As of the
-  // 0006 sweep, every Gaia-authored skill passes — flipped from 'warn' to
-  // 'error' (Task 24, Initiative 0006 §5 audit trail).
+  // 0011 sweep, every Gaia-authored skill passes — flipped from 'warn' to
+  // 'error' (Task 24, Initiative 0011 §5 audit trail).
   const desc = fm.match(/^\s*description\s*:\s*['"]?(.+?)['"]?\s*$/m)?.[1] ?? ''
   const top = name.split('/')[0] ?? ''
   const requiresTier =

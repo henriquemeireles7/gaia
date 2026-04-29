@@ -6,12 +6,12 @@ The repo is pre-1.0. Breaking changes happen freely until v1.0.0.
 
 ## [0.2.0] - 2026-04-29
 
-Initiative 0006 — Skills Committee. Renames the 17 d-\* skills into three role-prefixed categories (h- harness, w- workflow, a- audit) and mechanically enforces 10 cold-start invariants. Agents now route by prefix instead of reading every skill description; the constraint linter blocks any new SKILL.md missing Mode/Tier/Artifact/Failure-modes/After fields.
+Initiative 0011 — Skills Committee. Renames the 17 d-\* skills into three role-prefixed categories (h- harness, w- workflow, a- audit) and mechanically enforces 10 cold-start invariants. Agents now route by prefix instead of reading every skill description; the constraint linter blocks any new SKILL.md missing Mode/Tier/Artifact/Failure-modes/After fields.
 
 ### Added
 
-- Initiative 0006 (`.gaia/initiatives/0006-skills-committee/initiative.md`) — Committee-of-Garry review + 10 cold-start invariants + h/w/a category proposal + autoplan review (CEO + Eng + DX phases) baked in.
-- `scripts/measure-skill-resolution.ts` — TTHW + skill-resolution round-trip baseline measurement (Initiative 0006 PR 0).
+- Initiative 0011 (`.gaia/initiatives/0011-skills-committee/initiative.md`) — Committee-of-Garry review + 10 cold-start invariants + h/w/a category proposal + autoplan review (CEO + Eng + DX phases) baked in.
+- `scripts/measure-skill-resolution.ts` — TTHW + skill-resolution round-trip baseline measurement (Initiative 0011 PR 0).
 - `scripts/check-skill-triggers.ts` — validates trigger uniqueness across Gaia skills + against gstack global namespace; runs in `bun run check`.
 - `scripts/gstack-globals.txt` — snapshot of 49 gstack global skill names for collision detection.
 - `## Failure modes` section on every fix-mode skill (8 skills).
@@ -67,6 +67,8 @@ Initiative 0006 — Skills Committee. Renames the 17 d-\* skills into three role
 
 ### Added
 
+- Vision v5 carved into 7 wave-aligned initiatives in `.gaia/initiatives/`: `0004-foundation-substrate` (Wave 0a — events/hexagonal/tenancy/runtime/MCP/conversation/metering/telemetry), `0005-foundation-runtime` (Wave 0b — materialization/replicas/budgets/streaming/MCP push), `0006-projections-materialized` (Wave 1), `0007-contracts-network` (Wave 2), `0008-distribution-composer` (Wave 3), `0009-capabilities-runtime` (Wave 4), `0010-subscribers-autonomous` (Wave 5). Each follows the canonical 6-section initiative shape with hypothesis, falsifier, measurement, folder structure, PR breakdown, and decision audit trail. v5 source archived at `.gaia/initiatives/_archive/2026-04-29-vision-v5-source.md`.
+- `## 3. Folder Structure` is now a required section in every initiative — ASCII tree marking `# NEW` and `# EXTENDS` paths so `d-code` can scaffold without ambiguity. `d-initiative/reference.md` documents the 6-section shape; `d-initiative/SKILL.md` template updated to match.
 - ast-grep replaces the broken Biome GritQL plugin path. 4 active rules in `tools/ast-grep/rules/`.
 - `packages/security/{protected-route,public-route,security-headers,audit-log}.ts` — vision §Backend-5 middleware.
 - `packages/ui/tokens.ts` + generated `styles.css` — three-tier design tokens (vision §Stack, tokens.md).
@@ -81,6 +83,7 @@ Initiative 0006 — Skills Committee. Renames the 17 d-\* skills into three role
 
 ### Removed
 
+- Stub initiatives `0004-gaia-open-source-infra` (self-host Kamal) and `0005-gaia-platform-and-cms` (Stage 2a paid runtime) — deferred and superseded by the v5 wave breakdown. Material preserved in git history and the `_archive/`.
 - `tools/gritql/` — the Biome GritQL drafts didn't fire in 2.4.x; replaced by `tools/ast-grep/rules/`.
 
 ## 0.1.0 — bootstrap (2026-04)
