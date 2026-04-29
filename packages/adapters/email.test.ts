@@ -1,7 +1,9 @@
 import { afterEach, describe, expect, it, mock, spyOn } from 'bun:test'
 
 // Mock the Resend SDK before importing the module under test
-const mockSend = mock(() => Promise.resolve({ data: { id: 'email_123' }, error: null }))
+const mockSend = mock(() =>
+  Promise.resolve({ data: { id: 'email_123' }, error: null, headers: null }),
+)
 
 mock.module('resend', () => ({
   Resend: class MockResend {
@@ -37,7 +39,7 @@ describe('sendEmail', () => {
 
   it('returns the Resend response', async () => {
     const result = await sendEmail('user@example.com', validMsg)
-    expect(result).toEqual({ data: { id: 'email_123' }, error: null })
+    expect(result).toEqual({ data: { id: 'email_123' }, error: null, headers: null })
   })
 
   it('logs the email being sent', async () => {

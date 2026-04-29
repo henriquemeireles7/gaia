@@ -19,8 +19,7 @@ export type GaiaInngest = typeof inngest
  * the platform primitive: durable, retryable, idempotent step.run.
  */
 export const sendWelcome = inngest.createFunction(
-  { id: 'send-welcome' },
-  { event: 'user/created' },
+  { id: 'send-welcome', triggers: [{ event: 'user/created' }] },
   async ({ event, step }) => {
     const email = (event.data as { email?: string }).email
     if (!email) return { skipped: 'no-email' }

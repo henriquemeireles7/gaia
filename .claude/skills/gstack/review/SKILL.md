@@ -18,9 +18,9 @@ Independent diff review against the base branch. Flags:
 
 ## Pipeline
 
-Per vision §W9, **`d-review` runs first** (principles review). `review` runs after on principles-passing diffs.
+Per vision §W9, **`w-review` runs first** (principles review). `review` runs after on principles-passing diffs.
 
-`d-tdd → d-review → review → /ship`
+`w-code → w-review → review → /ship`
 
 ## Verify
 

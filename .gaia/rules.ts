@@ -4,36 +4,36 @@
 // integrations, and optional pre-commit hooks. Drift is structurally
 // impossible because there is exactly one source.
 //
-// Each rule maps to a `skill` (the owner: a d-* skill, a fractal CLAUDE.md
-// folder, or a preserved product reference) and a `mechanism` describing
-// where enforcement lives. Mechanisms with `kind: 'pending'` are aspirational
-// — the rule is documented but not yet enforced.
+// Each rule maps to a `skill` (the owner: an h-/w-/a- skill, a fractal
+// CLAUDE.md folder, or a preserved product reference) and a `mechanism`
+// describing where enforcement lives. Mechanisms with `kind: 'pending'`
+// are aspirational — the rule is documented but not yet enforced.
 //
-// Schema renamed from ReferenceDomain → SkillDomain in Initiative 0001:
-// principles now live in skill folders and fractal CLAUDE.mds, not the
-// flat reference folder.
+// Schema renamed from ReferenceDomain → SkillDomain in Initiative 0001;
+// skill prefix re-categorized in Initiative 0011 (h- harness, w- workflow,
+// a- audit).
 
 export type SkillDomain =
-  // Workflow / coding
-  | 'd-code'
-  | 'd-content'
-  | 'd-deploy'
-  | 'd-infra'
-  | 'd-initiative'
-  | 'd-review'
-  | 'd-health'
-  | 'd-fail'
-  // Audit skills
-  | 'd-security'
-  | 'd-ai'
-  | 'd-ax'
-  | 'd-ux'
-  | 'd-observability'
-  | 'd-dx'
-  // Meta skills (the SRR triad authors)
-  | 'd-rules'
-  | 'd-reference'
-  | 'd-skill'
+  // Workflow (w-*) — does the work
+  | 'w-code'
+  | 'w-write'
+  | 'w-deploy'
+  | 'w-infra'
+  | 'w-initiative'
+  | 'w-review'
+  | 'w-debug'
+  // Audit (a-*) — scores the work
+  | 'a-health'
+  | 'a-security'
+  | 'a-ai'
+  | 'a-ax'
+  | 'a-ux'
+  | 'a-observability'
+  | 'a-dx'
+  // Harness (h-*) — meta-authoring of the SRR triad
+  | 'h-rules'
+  | 'h-reference'
+  | 'h-skill'
   // Fractal CLAUDE.md folders
   | 'apps/api'
   | 'apps/web'
@@ -85,28 +85,28 @@ export const rules: readonly Rule[] = [
   // ─── code.md (the constitution itself) ───────────────────────
   {
     id: 'code/run-check-before-commit',
-    skill: 'd-code',
+    skill: 'w-code',
     description: '`bun run check` (lint + typecheck + harden + test) must pass before any commit.',
     tier: 'hook',
     mechanism: { kind: 'hook', hook: '.claude/hooks/pre-commit-check.ts' },
   },
   {
     id: 'code/no-as-any',
-    skill: 'd-code',
+    skill: 'w-code',
     description: '`as any` is banned in feature/service code; types must be earned.',
     tier: 'lint',
     mechanism: { kind: 'oxlint', rule: 'typescript/no-explicit-any' },
   },
   {
     id: 'code/agents-duplicate-humans-extract',
-    skill: 'd-code',
+    skill: 'w-code',
     description:
       'Agents do not invent abstractions. Humans extract after 3+ occurrences with shared change reason.',
     tier: 'architecture',
     mechanism: {
       kind: 'review',
-      skill: 'd-review',
-      heuristic: '.claude/skills/d-review/heuristics/check-agents-duplicate.ts',
+      skill: 'w-review',
+      heuristic: '.claude/skills/w-review/heuristics/check-agents-duplicate.ts',
     },
   },
 
@@ -154,7 +154,7 @@ export const rules: readonly Rule[] = [
   // ─── testing.md ───────────────────────────────────────────────
   {
     id: 'testing/colocated-tests',
-    skill: 'd-code',
+    skill: 'w-code',
     description: 'Tests live next to source: foo.ts → foo.test.ts in same folder.',
     tier: 'architecture',
     mechanism: { kind: 'script', script: 'scripts/check-tests-exist.ts' },
@@ -165,7 +165,7 @@ export const rules: readonly Rule[] = [
   // ─── errors.md ────────────────────────────────────────────────
   {
     id: 'errors/no-throw-literal',
-    skill: 'd-code',
+    skill: 'w-code',
     description:
       'Throwing string literals is banned (`throw "fail"`); throw `new AppError("CODE")` instead.',
     tier: 'lint',
@@ -175,7 +175,7 @@ export const rules: readonly Rule[] = [
   // ─── security.md ──────────────────────────────────────────────
   {
     id: 'security/protect-config',
-    skill: 'd-security',
+    skill: 'a-security',
     description: 'Block edits to locked config files unless explicitly authorized.',
     tier: 'hook',
     mechanism: { kind: 'hook', hook: '.claude/hooks/protect-config.ts' },
@@ -183,7 +183,7 @@ export const rules: readonly Rule[] = [
   },
   {
     id: 'security/no-secrets-committed',
-    skill: 'd-security',
+    skill: 'a-security',
     description: 'Block .env and *.key/*.pem files from being staged or committed.',
     tier: 'hook',
     mechanism: { kind: 'hook', hook: '.claude/hooks/protect-files.ts' },
@@ -191,7 +191,7 @@ export const rules: readonly Rule[] = [
   },
   {
     id: 'security/no-dangerous-shell',
-    skill: 'd-security',
+    skill: 'a-security',
     description:
       'Block destructive shell commands (rm -rf, force-push, git reset --hard, etc.) at PreToolUse.',
     tier: 'hook',
@@ -199,7 +199,7 @@ export const rules: readonly Rule[] = [
   },
   {
     id: 'security/no-raw-env',
-    skill: 'd-security',
+    skill: 'a-security',
     description:
       'Code outside packages/config/env.ts must not read process.env directly. Import `env` instead.',
     tier: 'hook',
@@ -207,21 +207,21 @@ export const rules: readonly Rule[] = [
   },
   {
     id: 'security/no-hardcoded-secrets',
-    skill: 'd-security',
+    skill: 'a-security',
     description: 'Block hardcoded production secrets matching common provider prefixes.',
     tier: 'hook',
     mechanism: { kind: 'hook', hook: 'packages/security/harden-check.ts' },
   },
   {
     id: 'security/no-eval',
-    skill: 'd-security',
+    skill: 'a-security',
     description: 'eval() and new Function() are banned in shipped code.',
     tier: 'hook',
     mechanism: { kind: 'hook', hook: 'packages/security/harden-check.ts' },
   },
   {
     id: 'security/no-log-secrets',
-    skill: 'd-security',
+    skill: 'a-security',
     description: 'console calls must not log password/secret/token/apiKey/auth_token variables.',
     tier: 'hook',
     mechanism: { kind: 'hook', hook: 'packages/security/harden-check.ts' },
@@ -230,14 +230,14 @@ export const rules: readonly Rule[] = [
   // ─── observability.md ────────────────────────────────────────
   {
     id: 'observability/no-console-log-in-prod',
-    skill: 'd-observability',
+    skill: 'a-observability',
     description: 'console.log in shipped code is a smell — use the structured logger.',
     tier: 'hook',
     mechanism: { kind: 'hook', hook: '.claude/hooks/warn-console-log.ts' },
   },
   {
     id: 'observability/init-at-boot',
-    skill: 'd-observability',
+    skill: 'a-observability',
     description: 'apps/api/server/app.ts must call initObservability(env) before listen().',
     tier: 'lint',
     mechanism: { kind: 'script', script: 'scripts/check-observability-init.ts' },
@@ -246,14 +246,14 @@ export const rules: readonly Rule[] = [
   // ─── harness.md ──────────────────────────────────────────────
   {
     id: 'harness/security-harden-gate',
-    skill: 'd-rules',
+    skill: 'h-rules',
     description: 'Mechanical security validations gate every commit (env, secrets, eval, SQL).',
     tier: 'hook',
     mechanism: { kind: 'hook', hook: '.claude/hooks/harden-gate.ts' },
   },
   {
     id: 'harness/auto-load-references',
-    skill: 'd-rules',
+    skill: 'h-rules',
     description:
       'Editing a file in domain X advises the agent to read .gaia/reference/<X>.md first.',
     tier: 'hook',
@@ -261,7 +261,7 @@ export const rules: readonly Rule[] = [
   },
   {
     id: 'harness/permissions-immutable',
-    skill: 'd-rules',
+    skill: 'h-rules',
     description:
       '.gaia/protocols/permissions.md and delegation.md cannot be modified by hook or skill.',
     tier: 'hook',
@@ -270,14 +270,14 @@ export const rules: readonly Rule[] = [
   },
   {
     id: 'harness/manifest-coverage',
-    skill: 'd-rules',
+    skill: 'h-rules',
     description: '.gaia/MANIFEST.md lists every folder with a CLAUDE.md and vice versa.',
     tier: 'lint',
     mechanism: { kind: 'script', script: 'scripts/check-manifest.ts' },
   },
   {
     id: 'code/knip-gate-production',
-    skill: 'd-code',
+    skill: 'w-code',
     description:
       'Dead code / unused dependencies fail CI. Knip runs as a gate (not advisory) on every PR.',
     tier: 'hook',
@@ -287,7 +287,7 @@ export const rules: readonly Rule[] = [
   // ─── commands.md ─────────────────────────────────────────────
   {
     id: 'commands/use-bun-not-npm',
-    skill: 'd-rules',
+    skill: 'h-rules',
     description: 'Bun is the package manager and runtime; npm/pnpm/yarn invocations are wrong.',
     tier: 'hook',
     mechanism: { kind: 'hook', hook: 'packages/security/harden-check.ts' },
@@ -296,7 +296,7 @@ export const rules: readonly Rule[] = [
   // ─── code.md (additions) ─────────────────────────────────────
   {
     id: 'code/named-errors-no-bare-throw',
-    skill: 'd-code',
+    skill: 'w-code',
     description:
       'Feature/service code must not `throw new Error(...)` — use AppError from @gaia/errors.',
     tier: 'lint',
@@ -304,7 +304,7 @@ export const rules: readonly Rule[] = [
   },
   {
     id: 'code/one-schema-many-consumers',
-    skill: 'd-code',
+    skill: 'w-code',
     description:
       'Shapes flow from one source (Drizzle schema → drizzle-typebox → Eden Treaty types). No manual `type Foo = {...}` paralleling a schema.',
     tier: 'lint',
@@ -406,7 +406,7 @@ export const rules: readonly Rule[] = [
   // ─── testing.md (additions) ──────────────────────────────────
   {
     id: 'testing/no-test-only',
-    skill: 'd-code',
+    skill: 'w-code',
     description:
       '`it.only` / `describe.only` / `test.only` must not be committed — they hide skipped tests.',
     tier: 'hook',
@@ -414,7 +414,7 @@ export const rules: readonly Rule[] = [
   },
   {
     id: 'testing/integration-uses-eden-treaty',
-    skill: 'd-code',
+    skill: 'w-code',
     description:
       '*.integration.test.ts uses Eden Treaty (treaty(app)) against the live app instance.',
     tier: 'lint',
@@ -424,7 +424,7 @@ export const rules: readonly Rule[] = [
   // ─── errors.md (additions) ───────────────────────────────────
   {
     id: 'errors/no-leak-secrets-in-messages',
-    skill: 'd-code',
+    skill: 'w-code',
     description:
       'Error messages must not interpolate password/secret/token/api_key into user-visible strings.',
     tier: 'hook',
@@ -432,7 +432,7 @@ export const rules: readonly Rule[] = [
   },
   {
     id: 'errors/no-bare-catch',
-    skill: 'd-code',
+    skill: 'w-code',
     description:
       '`catch` blocks must rethrow, handle a specific error type, or call a typed handler.',
     tier: 'lint',
@@ -442,21 +442,21 @@ export const rules: readonly Rule[] = [
   // ─── security.md (additions) ─────────────────────────────────
   {
     id: 'security/cve-scan-ci',
-    skill: 'd-security',
+    skill: 'a-security',
     description: 'osv-scanner runs on every PR; high/critical CVEs block merge.',
     tier: 'hook',
     mechanism: { kind: 'ci', job: 'deps' },
   },
   {
     id: 'security/secret-scan-ci',
-    skill: 'd-security',
+    skill: 'a-security',
     description: 'gitleaks runs on every PR; committed secrets block merge.',
     tier: 'hook',
     mechanism: { kind: 'ci', job: 'secrets' },
   },
   {
     id: 'security/csrf-on-mutations',
-    skill: 'd-security',
+    skill: 'a-security',
     description:
       'POST/PUT/PATCH/DELETE routes apply CSRF middleware (better-auth provides it on protectedRoute).',
     tier: 'lint',
@@ -464,7 +464,7 @@ export const rules: readonly Rule[] = [
   },
   {
     id: 'security/rate-limit-on-public',
-    skill: 'd-security',
+    skill: 'a-security',
     description: 'Public routes apply rate-limit middleware (publicRoute composes it).',
     tier: 'lint',
     mechanism: { kind: 'ast-grep', rule: 'security-rate-limit-on-public' },
@@ -473,7 +473,7 @@ export const rules: readonly Rule[] = [
   // ─── observability.md (additions) ────────────────────────────
   {
     id: 'observability/no-pii-in-logs',
-    skill: 'd-observability',
+    skill: 'a-observability',
     description:
       'Logger calls must not log objects keyed `password|secret|token|email` — redact first.',
     tier: 'hook',
@@ -493,7 +493,7 @@ export const rules: readonly Rule[] = [
   // ─── ax.md ───────────────────────────────────────────────────
   {
     id: 'ax/skill-md-frontmatter',
-    skill: 'd-skill',
+    skill: 'h-skill',
     description: 'Every SKILL.md ships with YAML frontmatter declaring `name:` and `description:`.',
     tier: 'lint',
     mechanism: { kind: 'script', script: 'scripts/check-skills.ts' },
@@ -502,7 +502,7 @@ export const rules: readonly Rule[] = [
   // ─── voice.md ────────────────────────────────────────────────
   {
     id: 'voice/no-marketing-vocabulary',
-    skill: 'd-content',
+    skill: 'w-write',
     description:
       'Avoid marketing buzzwords (revolutionize, seamless, leverage, unlock, cutting-edge) in content/ and root README.md.',
     tier: 'lint',
@@ -512,7 +512,7 @@ export const rules: readonly Rule[] = [
   // ─── workflow.md ─────────────────────────────────────────────
   {
     id: 'workflow/initiative-frontmatter-required',
-    skill: 'd-rules',
+    skill: 'h-rules',
     description:
       'Initiative .md files in .gaia/initiatives/*/ declare parent, hypothesis, and measurement fields.',
     tier: 'lint',
@@ -520,7 +520,7 @@ export const rules: readonly Rule[] = [
   },
   {
     id: 'workflow/project-touches-required',
-    skill: 'd-rules',
+    skill: 'h-rules',
     description: 'Project .md files declare `touches:` (files/modules) and `depends_on:` arrays.',
     tier: 'lint',
     mechanism: { kind: 'script', script: 'scripts/validate-artifacts.ts' },
@@ -529,7 +529,7 @@ export const rules: readonly Rule[] = [
   // ─── dx.md ───────────────────────────────────────────────────
   {
     id: 'dx/stdout-data-stderr-narration',
-    skill: 'd-dx',
+    skill: 'a-dx',
     description:
       'CLI scripts print data to stdout and narration to stderr — enables piping without corruption.',
     tier: 'lint',
@@ -539,7 +539,7 @@ export const rules: readonly Rule[] = [
   // ─── references.md (the meta-reference) ──────────────────────
   {
     id: 'references/voice-consulted',
-    skill: 'd-reference',
+    skill: 'h-reference',
     description:
       'References are imperative and consulted-during-action; tutorial-style narration belongs in dx.md or README.',
     tier: 'lint',
@@ -547,7 +547,7 @@ export const rules: readonly Rule[] = [
   },
   {
     id: 'references/principle-shape',
-    skill: 'd-reference',
+    skill: 'h-reference',
     description:
       'Every numbered reference principle has the 5-part shape: title+description, 2-4 rules bullets, enforcement, anti-pattern, pattern.',
     tier: 'lint',
@@ -555,7 +555,7 @@ export const rules: readonly Rule[] = [
   },
   {
     id: 'references/principle-has-rule',
-    skill: 'd-reference',
+    skill: 'h-reference',
     description:
       'Every reference principle maps 1:1 to a rules.ts entry (even pending). Reference principles without a rule are aspirational.',
     tier: 'lint',
@@ -563,7 +563,7 @@ export const rules: readonly Rule[] = [
   },
   {
     id: 'references/feature-scope',
-    skill: 'd-reference',
+    skill: 'h-reference',
     description:
       'Per-feature references live at .gaia/reference/features/<feature>.md and load only when editing that feature.',
     tier: 'architecture',
@@ -571,27 +571,27 @@ export const rules: readonly Rule[] = [
   },
   {
     id: 'references/adversarial-review',
-    skill: 'd-reference',
+    skill: 'h-reference',
     description:
       'New reference files (or major rewrites) include a 6-specialist adversarial review per principle in the PR.',
     tier: 'architecture',
     mechanism: {
       kind: 'review',
-      skill: 'd-review',
-      heuristic: '.claude/skills/d-review/heuristics/check-adversarial-review.ts',
+      skill: 'w-review',
+      heuristic: '.claude/skills/w-review/heuristics/check-adversarial-review.ts',
     },
   },
   {
     id: 'references/staleness',
-    skill: 'd-reference',
+    skill: 'h-reference',
     description:
-      'References declare a Last verified date; >180 days without re-verification is debt, surfaced by d-health.',
+      'References declare a Last verified date; >180 days without re-verification is debt, surfaced by a-health.',
     tier: 'lint',
     mechanism: { kind: 'script', script: 'scripts/check-reference-staleness.ts' },
   },
   {
     id: 'references/voice-imperative',
-    skill: 'd-reference',
+    skill: 'h-reference',
     description:
       'Reference principles use imperative present tense; avoid hedge words ("tend to", "usually", "you might want to").',
     tier: 'lint',
@@ -605,7 +605,7 @@ export const rules: readonly Rule[] = [
     description:
       "Time-to-first-value ≤60 seconds (p50). Don't gate first value behind email verification.",
     tier: 'architecture',
-    mechanism: { kind: 'script', script: '.claude/skills/d-health/checks/check-ttv-budget.ts' },
+    mechanism: { kind: 'script', script: '.claude/skills/a-health/checks/check-ttv-budget.ts' },
   },
   {
     id: 'onboarding/activation-defined-once',
@@ -631,7 +631,7 @@ export const rules: readonly Rule[] = [
     tier: 'architecture',
     mechanism: {
       kind: 'script',
-      script: '.claude/skills/d-health/checks/check-progressive-disclosure.ts',
+      script: '.claude/skills/a-health/checks/check-progressive-disclosure.ts',
     },
   },
   {
@@ -642,7 +642,7 @@ export const rules: readonly Rule[] = [
     tier: 'architecture',
     mechanism: {
       kind: 'script',
-      script: '.claude/skills/d-health/checks/check-persist-anonymous.ts',
+      script: '.claude/skills/a-health/checks/check-persist-anonymous.ts',
     },
   },
   {
@@ -653,7 +653,7 @@ export const rules: readonly Rule[] = [
     tier: 'architecture',
     mechanism: {
       kind: 'script',
-      script: '.claude/skills/d-health/checks/check-silent-failure.ts',
+      script: '.claude/skills/a-health/checks/check-silent-failure.ts',
     },
   },
   {
@@ -679,7 +679,7 @@ export const rules: readonly Rule[] = [
     skill: 'product/retention',
     description: 'DAU/WAU ratio target ≥40%. Sub-40% sustained four weeks signals weak retention.',
     tier: 'architecture',
-    mechanism: { kind: 'script', script: '.claude/skills/d-health/checks/check-dau-wau.ts' },
+    mechanism: { kind: 'script', script: '.claude/skills/a-health/checks/check-dau-wau.ts' },
   },
   {
     id: 'retention/notification-quality',
@@ -689,7 +689,7 @@ export const rules: readonly Rule[] = [
     tier: 'architecture',
     mechanism: {
       kind: 'script',
-      script: '.claude/skills/d-health/checks/check-notification-quality.ts',
+      script: '.claude/skills/a-health/checks/check-notification-quality.ts',
     },
   },
   {
@@ -708,7 +708,7 @@ export const rules: readonly Rule[] = [
     tier: 'architecture',
     mechanism: {
       kind: 'script',
-      script: '.claude/skills/d-health/checks/check-click-to-cancel.ts',
+      script: '.claude/skills/a-health/checks/check-click-to-cancel.ts',
     },
   },
   {
@@ -716,7 +716,7 @@ export const rules: readonly Rule[] = [
     skill: 'product/retention',
     description: 'Cancel flow surfaces tier-down + pause options BEFORE confirming cancellation.',
     tier: 'architecture',
-    mechanism: { kind: 'script', script: '.claude/skills/d-health/checks/check-haircut.ts' },
+    mechanism: { kind: 'script', script: '.claude/skills/a-health/checks/check-haircut.ts' },
   },
   {
     id: 'retention/cohort-dashboards',
@@ -746,21 +746,21 @@ export const rules: readonly Rule[] = [
   // ─── deployment.md (gaps from previous PR) ───────────────────
   {
     id: 'deployment/promote-digest',
-    skill: 'd-deploy',
+    skill: 'w-deploy',
     description: 'Image deploys reference content-addressable digests, not floating tags.',
     tier: 'architecture',
     mechanism: { kind: 'ci', job: 'digest-deploy' },
   },
   {
     id: 'deployment/preview-env-per-pr',
-    skill: 'd-deploy',
+    skill: 'w-deploy',
     description: 'Every PR opens a preview deployment + preview database (Neon branch).',
     tier: 'architecture',
     mechanism: { kind: 'ci', job: 'preview-env' },
   },
   {
     id: 'deployment/three-health-checks',
-    skill: 'd-deploy',
+    skill: 'w-deploy',
     description:
       'Three endpoints: /health (liveness), /health/ready (readiness), post-deploy synthetic test.',
     tier: 'lint',
@@ -768,14 +768,14 @@ export const rules: readonly Rule[] = [
   },
   {
     id: 'deployment/rollback-mttr',
-    skill: 'd-deploy',
+    skill: 'w-deploy',
     description: '≤5 minute rollback MTTR; previous image digest reachable; runbook exists.',
     tier: 'architecture',
     mechanism: { kind: 'ci', job: 'rollback-runbook' },
   },
   {
     id: 'deployment/ttfd-30min',
-    skill: 'd-deploy',
+    skill: 'w-deploy',
     description: 'New operator reaches green /health/ready in ≤30 minutes from clone.',
     tier: 'architecture',
     mechanism: { kind: 'script', script: 'scripts/first-deploy-audit.ts' },
@@ -784,7 +784,7 @@ export const rules: readonly Rule[] = [
   // ─── methodology.md (constitutional loop principles) ─────────
   {
     id: 'methodology/constitutional-loop',
-    skill: 'd-rules',
+    skill: 'h-rules',
     description:
       'Every concern has up to three forms (Reference, Rule, Skill). A concern in only one substrate is debt.',
     tier: 'architecture',
@@ -792,7 +792,7 @@ export const rules: readonly Rule[] = [
   },
   {
     id: 'methodology/principle-rule-mapping',
-    skill: 'd-rules',
+    skill: 'h-rules',
     description:
       'Every reference principle maps 1:1 to rules.ts entries. Pending → enforced cycle SLO 14 days.',
     tier: 'architecture',
@@ -800,7 +800,7 @@ export const rules: readonly Rule[] = [
   },
   {
     id: 'methodology/hooks-deterministic',
-    skill: 'd-rules',
+    skill: 'h-rules',
     description:
       'Hooks execute <100ms, no LLM calls, fail-closed. Judgment goes in CLAUDE.mds, not hooks.',
     tier: 'architecture',
@@ -808,14 +808,14 @@ export const rules: readonly Rule[] = [
   },
   {
     id: 'methodology/memory-decay',
-    skill: 'd-rules',
+    skill: 'h-rules',
     description: 'memory/episodic/ entries older than 90 days without re-trigger are archived.',
     tier: 'architecture',
     mechanism: { kind: 'ci', job: 'memory-decay' },
   },
   {
     id: 'harness/skill-reference-pairing',
-    skill: 'd-rules',
+    skill: 'h-rules',
     description:
       'Every skill has exactly one reference.md sibling. The skill-reference hook auto-loads it on Skill invocation; fails closed if absent.',
     tier: 'lint',
@@ -823,7 +823,7 @@ export const rules: readonly Rule[] = [
   },
   {
     id: 'harness/auto-load-fractal-claude',
-    skill: 'd-rules',
+    skill: 'h-rules',
     description:
       'Editing a file walks the folder tree from edit target to repo root, loading every CLAUDE.md found. Folder-scoped principles live in fractal CLAUDE.md, not skill folders.',
     tier: 'hook',
@@ -831,7 +831,7 @@ export const rules: readonly Rule[] = [
   },
   {
     id: 'harness/adr-numbering',
-    skill: 'd-rules',
+    skill: 'h-rules',
     description:
       'ADRs at .gaia/adrs/NNNN-<title>.md use append-only numbering; superseded ADRs stay with status updated, never deleted.',
     tier: 'lint',
@@ -841,7 +841,7 @@ export const rules: readonly Rule[] = [
   // ─── ai.md (gaps from previous PR) ───────────────────────────
   {
     id: 'ai/prompts-as-constants',
-    skill: 'd-ai',
+    skill: 'a-ai',
     description:
       'System prompts are TypeScript constants in apps/api/server/<feature>/prompts.ts; no inline strings.',
     tier: 'lint',
@@ -849,7 +849,7 @@ export const rules: readonly Rule[] = [
   },
   {
     id: 'ai/bounded-calls',
-    skill: 'd-ai',
+    skill: 'a-ai',
     description:
       'Every complete() call provides maxTokens; output structure pinned via JSON mode or tool-use.',
     tier: 'lint',
@@ -857,7 +857,7 @@ export const rules: readonly Rule[] = [
   },
   {
     id: 'ai/model-pinned',
-    skill: 'd-ai',
+    skill: 'a-ai',
     description:
       'Model identity is a named constant (MODELS.<feature>); no string literals scattered.',
     tier: 'lint',
@@ -865,7 +865,7 @@ export const rules: readonly Rule[] = [
   },
   {
     id: 'ai/cache-hit-target',
-    skill: 'd-ai',
+    skill: 'a-ai',
     description: 'Per-feature cache-hit rate target ≥30%; alerts when sustained below.',
     tier: 'architecture',
     mechanism: {
@@ -876,25 +876,25 @@ export const rules: readonly Rule[] = [
   },
   {
     id: 'ai/stream-cancel',
-    skill: 'd-ai',
+    skill: 'a-ai',
     description: 'Streaming routes propagate AbortSignal upstream and set X-Accel-Buffering: no.',
     tier: 'lint',
     mechanism: { kind: 'ast-grep', rule: 'ai-stream-cancel' },
   },
   {
     id: 'observability/ai-trace-tags',
-    skill: 'd-observability',
+    skill: 'a-observability',
     description:
       'Every AI call emits a trace span with tags: model, tokens (in/out/cache), latency, cost, tool_use_count, error_class.',
     tier: 'lint',
     mechanism: {
       kind: 'script',
-      script: '.claude/skills/d-review/heuristics/check-ai-trace-tags.ts',
+      script: '.claude/skills/w-review/heuristics/check-ai-trace-tags.ts',
     },
   },
   {
     id: 'ai/tool-loop-bounded',
-    skill: 'd-ai',
+    skill: 'a-ai',
     description:
       'Tool-use loops bounded (max depth 10, max same-tool retries 3). Audit log on every tool call.',
     tier: 'lint',
@@ -904,7 +904,7 @@ export const rules: readonly Rule[] = [
   // ─── skills.md (gaps from previous PR) ───────────────────────
   {
     id: 'skills/output-mode-required',
-    skill: 'd-skill',
+    skill: 'h-skill',
     description:
       'Every SKILL.md ends with an Output section naming its mode (fix, report, or question).',
     tier: 'lint',
@@ -912,7 +912,7 @@ export const rules: readonly Rule[] = [
   },
   {
     id: 'skills/cold-start-safe',
-    skill: 'd-skill',
+    skill: 'h-skill',
     description:
       'Skills run from a cold start; no "as I mentioned" assumptions; references-by-path for shared content.',
     tier: 'lint',
@@ -920,25 +920,25 @@ export const rules: readonly Rule[] = [
   },
   {
     id: 'skills/numbered-phases',
-    skill: 'd-skill',
+    skill: 'h-skill',
     description: 'Skills with non-trivial work use ## Phase N: headers (sequential by default).',
     tier: 'lint',
     mechanism: { kind: 'script', script: 'scripts/check-skills.ts' },
   },
   {
     id: 'skills/sandwich-gates',
-    skill: 'd-skill',
+    skill: 'h-skill',
     description:
       'Skills mutating files have an identical pre-condition (Phase 0) and final-gate phase running the same check.',
     tier: 'architecture',
     mechanism: {
       kind: 'script',
-      script: '.claude/skills/d-review/heuristics/check-sandwich-gates.ts',
+      script: '.claude/skills/w-review/heuristics/check-sandwich-gates.ts',
     },
   },
   {
     id: 'skills/typed-output',
-    skill: 'd-skill',
+    skill: 'h-skill',
     description:
       'Skill output: one mode per line (fix, report, or question). Reports include numeric confidence.',
     tier: 'lint',
@@ -946,7 +946,7 @@ export const rules: readonly Rule[] = [
   },
   {
     id: 'skills/sibling-layout',
-    skill: 'd-skill',
+    skill: 'h-skill',
     description:
       'Sibling files typed by location: <skill>/scripts/* for code, <skill>/templates/* for inputs, <skill>/rules-*.md for sub-instructions.',
     tier: 'architecture',

@@ -17,7 +17,7 @@ status: draft
 
 # Initiative 0003 — Gaia Launch Hardening
 
-Stub. Carries forward the existing launch hardening doc (archived). To be expanded by `d-initiative` after 0002 tags v1.0.
+Stub. Carries forward the existing launch hardening doc (archived). To be expanded by `w-initiative` after 0002 tags v1.0.
 
 Key carry-overs:
 

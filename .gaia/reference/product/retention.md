@@ -28,7 +28,7 @@ The product earns retention by becoming part of a routine the user already has �
 - Email digests are routine-anchors; tie them to the user's natural cadence (daily / weekly)
 - Measure: % of users who use the product at least 3 days per week (DAU/WAU ratio target ≥40%)
 
-**Enforcement:** rule `retention/dau-wau-floor` (mechanism: pending — `d-health` audit reads PostHog for DAU/WAU; alert if <40% sustained 4 weeks).
+**Enforcement:** rule `retention/dau-wau-floor` (mechanism: pending — `a-health` audit reads PostHog for DAU/WAU; alert if <40% sustained 4 weeks).
 
 **Anti-pattern:**
 
@@ -66,7 +66,7 @@ Every notification carries a unit of value the user actively wanted. Anything el
 - Each notification has an unsubscribe-this-type link (granular, not all-or-nothing)
 - Notification content includes the action's outcome, not just an event ("Your report finished — here are 3 insights" beats "Report ready")
 
-**Enforcement:** rule `retention/notification-quality` (mechanism: pending — `d-review` reads notification templates for vague subjects; PostHog opens-rate floor of 30%).
+**Enforcement:** rule `retention/notification-quality` (mechanism: pending — `w-review` reads notification templates for vague subjects; PostHog opens-rate floor of 30%).
 
 **Anti-pattern:**
 
@@ -134,7 +134,7 @@ A user wanting to cancel should reach the cancel button in ≤2 clicks. Friction
 - Polar customer-portal handles the actual cancel; we render the link
 - Track cancellation reason and time-since-signup in analytics; don't ask for free-text justification
 
-**Enforcement:** rule `retention/click-to-cancel` (mechanism: pending — `d-review` checks `/billing` page surfaces cancel; counts clicks-to-cancel ≤2).
+**Enforcement:** rule `retention/click-to-cancel` (mechanism: pending — `w-review` checks `/billing` page surfaces cancel; counts clicks-to-cancel ≤2).
 
 **Anti-pattern:**
 
@@ -169,7 +169,7 @@ When a user reduces usage or attempts to cancel, offer a smaller-tier or pause-t
 - Track `haircut_taken` event vs `cancel_taken` for funnel metrics
 - Don't manipulate — show the haircut as an option, not a manipulative interstitial
 
-**Enforcement:** rule `retention/haircut-offered` (mechanism: pending — `d-review` checks cancel flow surfaces tier-down + pause options).
+**Enforcement:** rule `retention/haircut-offered` (mechanism: pending — `w-review` checks cancel flow surfaces tier-down + pause options).
 
 **Anti-pattern:**
 
@@ -208,7 +208,7 @@ Aggregate retention lies. A 50% retention "headline" can hide a 90% week-1 cohor
 - PostHog dashboards: cohort retention week-1, week-4, week-12
 - Cohorts measured by signup week; events = "any meaningful action that week"
 - Target: week-12 retention ≥40% to claim PMF (Reforge / a16z benchmark for SaaS)
-- Cohort comparisons in `decisions/health.md` quarterly; flag drops >5pp week-over-week
+- Cohort comparisons in `.gaia/audits/a-health/<YYYY-MM-DD>.md` quarterly; flag drops >5pp week-over-week
 
 **Enforcement:** rule `retention/cohort-dashboards` (mechanism: pending — script verifies PostHog dashboards exist for the named cohorts).
 
@@ -222,7 +222,7 @@ Aggregate retention number with no cohort breakdown.
 **Pattern:**
 
 ```text
-# ✅ Cohort table from decisions/health.md
+# ✅ Cohort table from .gaia/audits/a-health/<YYYY-MM-DD>.md
                  Week 1   Week 4   Week 12
 Apr cohort       72%      45%      38%
 May cohort       69%      48%      42%   ← PMF improving
@@ -313,11 +313,11 @@ for (const u of middleReady) await sendEmail(u.email, POWER_FEATURE_INTRO(u))
 
 | Principle               | Mechanism                                   | rules.ts entry                   |
 | ----------------------- | ------------------------------------------- | -------------------------------- |
-| 1. Routine over novelty | `d-health` DAU/WAU audit                    | `retention/dau-wau-floor`        |
-| 2. Notification quality | `d-review` template scan + opens-rate floor | `retention/notification-quality` |
+| 1. Routine over novelty | `a-health` DAU/WAU audit                    | `retention/dau-wau-floor`        |
+| 2. Notification quality | `w-review` template scan + opens-rate floor | `retention/notification-quality` |
 | 3. State machine        | Schema check + ast-grep                     | `retention/state-machine`        |
-| 4. Click-to-cancel      | `d-review` UI check                         | `retention/click-to-cancel`      |
-| 5. Haircut before churn | `d-review` cancel-flow check                | `retention/haircut-offered`      |
+| 4. Click-to-cancel      | `w-review` UI check                         | `retention/click-to-cancel`      |
+| 5. Haircut before churn | `w-review` cancel-flow check                | `retention/haircut-offered`      |
 | 6. Cohort dashboards    | Script verifies dashboards exist            | `retention/cohort-dashboards`    |
 | 7. Dunning configured   | Script checks webhook handler               | `retention/dunning-configured`   |
 | 8. Usage tiers          | Schema check + analytics event              | `retention/usage-tiers`          |

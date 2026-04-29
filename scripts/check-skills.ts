@@ -40,18 +40,12 @@ const PHASE_EXEMPT = new Set([
   'gstack/init',
   'gstack/review',
   'gstack/security-review',
-  // d-health uses 10 numbered "## Session N:" headers — its phase vocabulary.
-  'd-health',
-  // d-fail uses "## Steps" with numbered substeps — recovery, not a phased build.
-  'd-fail',
-  // d-strategy uses "## Flow" — interactive Q&A, not a build pipeline.
-  'd-strategy',
-  // d-roadmap uses "## Process" — mechanical extraction, not phased.
-  'd-roadmap',
-  // d-content uses "## Process" — type-routed pipeline, not phased.
-  'd-content',
-  // d-harness uses "## The Loop: Error → Classify → Encode → Verify" — its phase shape.
-  'd-harness',
+  // a-health uses 10 numbered "## Session N:" headers — its phase vocabulary.
+  'a-health',
+  // w-debug uses "## Steps" with numbered substeps — debug recovery, not a phased build.
+  'w-debug',
+  // w-write uses "## Process" — type-routed pipeline, not phased.
+  'w-write',
 ])
 
 const SIBLING_TYPES = ['scripts', 'templates', 'checks', 'heuristics'] as const
@@ -105,6 +99,78 @@ function checkSkill(dir: string, name: string) {
       skill: name,
       rule: 'ax/skill-md-frontmatter',
       problem: 'frontmatter missing `description:` field',
+      severity: 'error',
+    })
+  }
+
+  // 1b. skills/frontmatter-constraints — Initiative 0011 cold-start invariants.
+  // Per autoplan DX-1/2/3, the description field is the contract. As of the
+  // 0011 sweep, every Gaia-authored skill passes — flipped from 'warn' to
+  // 'error' (Task 24, Initiative 0011 §5 audit trail).
+  const desc = fm.match(/^\s*description\s*:\s*['"]?(.+?)['"]?\s*$/m)?.[1] ?? ''
+  const top = name.split('/')[0] ?? ''
+  const requiresTier =
+    top.startsWith('a-') || top === 'w-debug' || top === 'w-write' || top === 'a-health'
+  const isFixSkill = top.startsWith('w-') || top.startsWith('h-')
+
+  // C3 — Triggers must be declared.
+  if (!/Triggers?:/i.test(desc)) {
+    issues.push({
+      skill: name,
+      rule: 'skills/c3-triggers-declared',
+      problem: 'description missing `Triggers:` (C3)',
+      severity: 'error',
+    })
+  }
+
+  // C4 — Mode must be declared.
+  if (!/Mode:/i.test(desc)) {
+    issues.push({
+      skill: name,
+      rule: 'skills/c4-mode-declared',
+      problem: 'description missing `Mode:` (C4 — declare report or fix)',
+      severity: 'error',
+    })
+  }
+
+  // C5 — Tier must be declared where invocation cost varies.
+  if (requiresTier && !/Tier:/i.test(desc)) {
+    issues.push({
+      skill: name,
+      rule: 'skills/c5-tier-declared',
+      problem: 'description missing `Tier:` (C5 — audits/composites need tier discipline)',
+      severity: 'error',
+    })
+  }
+
+  // C6 — Output artifact must be pinned.
+  if (!/Artifact:/i.test(desc)) {
+    issues.push({
+      skill: name,
+      rule: 'skills/c6-artifact-pinned',
+      problem: 'description missing `Artifact:` (C6 — name where output lands)',
+      severity: 'error',
+    })
+  }
+
+  // C7 — Failure modes section must exist for fix-mode skills.
+  if (isFixSkill && !/^##\s+Failure modes\b/m.test(body)) {
+    issues.push({
+      skill: name,
+      rule: 'skills/c7-failure-modes',
+      problem:
+        'missing `## Failure modes` section (C7 — fix-mode skills must declare failure paths)',
+      severity: 'error',
+    })
+  }
+
+  // C8 — Chain hint (After: or Pair:) for non-isolated skills.
+  // Harness skills (h-*) work alone; everything else benefits from a chain hint.
+  if (!top.startsWith('h-') && !/(After|Pair):/i.test(desc)) {
+    issues.push({
+      skill: name,
+      rule: 'skills/c8-chain-hint',
+      problem: 'description missing `After:` or `Pair:` (C8 — declare the chain)',
       severity: 'error',
     })
   }
@@ -193,12 +259,15 @@ function checkSkill(dir: string, name: string) {
         })
       }
     } else if (entry.name.endsWith('.md')) {
-      // Sub-instructions must match rules-*.md.
-      if (!entry.name.startsWith('rules-')) {
+      // Allowed sibling markdowns:
+      //   reference.md         — canonical sibling (post-Initiative 0001 SRR triad)
+      //   rules-<type>.md      — per-mode sub-instructions (e.g. w-write/rules-blog.md)
+      const allowed = entry.name === 'reference.md' || entry.name.startsWith('rules-')
+      if (!allowed) {
         issues.push({
           skill: name,
           rule: 'skills/sibling-layout',
-          problem: `sibling markdown "${entry.name}" should be named rules-*.md`,
+          problem: `sibling markdown "${entry.name}" should be reference.md or rules-*.md`,
           severity: 'warn',
         })
       }
@@ -206,12 +275,12 @@ function checkSkill(dir: string, name: string) {
   }
 }
 
-// Only enforce on Gaia-authored skills (d-*). Vendored/installed skills
-// (gstack, init, review, security-review, third-party Claude-Code skills)
-// are out of our control and would generate noise.
+// Only enforce on Gaia-authored skills (h-* harness, w-* workflow, a-* audit).
+// Vendored/installed skills (gstack, init, review, security-review, third-party
+// Claude-Code skills) are out of our control and would generate noise.
 function isGaiaSkill(name: string): boolean {
   const top = name.split('/')[0] ?? ''
-  return top.startsWith('d-')
+  return top.startsWith('h-') || top.startsWith('w-') || top.startsWith('a-')
 }
 
 function walkSkills(dir: string, parentName = '') {

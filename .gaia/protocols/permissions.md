@@ -42,4 +42,4 @@ These are absolute. No skill, no hook, no prompt may bypass them:
 - Modifying `.gaia/protocols/delegation.md` from a skill or hook.
 - Deleting `.gaia/audit/*.jsonl` files (audit is append-only).
 - Editing existing entries in `.gaia/memory/episodic/*.jsonl` (episodic is append-only).
-- Bypassing the principles review (`d-review`) before correctness review (vision §W9).
+- Bypassing the principles review (`w-review`) before correctness review (vision §W9).

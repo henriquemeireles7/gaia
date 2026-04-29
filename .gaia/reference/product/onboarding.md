@@ -28,7 +28,7 @@ The clock starts when the user opens the app and stops when they see meaningful 
 - Pre-fill anything you can infer (timezone, locale, name from email)
 - "Try it without an account" path exists for any feature where it's sensible
 
-**Enforcement:** rule `onboarding/ttv-budget` (mechanism: pending — analytics check + `d-health` audit reads activation latency from PostHog and fails if >60s p50).
+**Enforcement:** rule `onboarding/ttv-budget` (mechanism: pending — analytics check + `a-health` audit reads activation latency from PostHog and fails if >60s p50).
 
 **Anti-pattern:**
 
@@ -142,7 +142,7 @@ A new user sees the minimum surface needed to reach the activation event. Advanc
 - Feature flags drive disclosure (use `packages/config/flags.ts` patterns)
 - Re-disclosure: re-show advanced features when a user upgrades plan or reaches a usage milestone
 
-**Enforcement:** rule `onboarding/progressive-disclosure` (mechanism: pending — code review heuristic; `d-review` flag for nav components with >7 items).
+**Enforcement:** rule `onboarding/progressive-disclosure` (mechanism: pending — code review heuristic; `w-review` flag for nav components with >7 items).
 
 **Anti-pattern:**
 
@@ -192,7 +192,7 @@ If a user starts using the product before signing up (uploading a doc, drafting 
 - Files uploaded by anonymous users go to a temp object-store path and re-key on signup
 - Drafts auto-save every 5 seconds while anonymous
 
-**Enforcement:** rule `onboarding/persist-anonymous` (mechanism: pending — `d-review` checks signup routes for state-rehydration pattern).
+**Enforcement:** rule `onboarding/persist-anonymous` (mechanism: pending — `w-review` checks signup routes for state-rehydration pattern).
 
 **Anti-pattern:**
 
@@ -231,7 +231,7 @@ A user's first experience cannot be a permission-denied or 401. If signup is inc
 - Critical errors (database down, payment) surface as a soft "we're having trouble; you can keep going" message
 - Once the user is activated, error surfacing reverts to standard (visible Alert + retry)
 
-**Enforcement:** rule `onboarding/silent-first-failure` (mechanism: pending — `d-review` reads `/onboarding/*`, `/signup` routes and flags raw `<Alert type="error">` rendering).
+**Enforcement:** rule `onboarding/silent-first-failure` (mechanism: pending — `w-review` reads `/onboarding/*`, `/signup` routes and flags raw `<Alert type="error">` rendering).
 
 **Anti-pattern:**
 
@@ -334,12 +334,12 @@ emailVerification: {
 
 | Principle                        | Mechanism                                 | rules.ts entry                       |
 | -------------------------------- | ----------------------------------------- | ------------------------------------ |
-| 1. TTV <60s                      | Analytics + `d-health` audit              | `onboarding/ttv-budget`              |
+| 1. TTV <60s                      | Analytics + `a-health` audit              | `onboarding/ttv-budget`              |
 | 2. Activation defined once       | ast-grep (planned)                        | `onboarding/activation-defined-once` |
 | 3. Empty states are the tutorial | harden-check pattern (planned)            | `onboarding/no-tour-modals`          |
-| 4. Progressive disclosure        | `d-review` heuristic                      | `onboarding/progressive-disclosure`  |
-| 5. Persist anonymous work        | `d-review` check for rehydration          | `onboarding/persist-anonymous`       |
-| 6. First failure is silent       | `d-review` check on onboarding routes     | `onboarding/silent-first-failure`    |
+| 4. Progressive disclosure        | `w-review` heuristic                      | `onboarding/progressive-disclosure`  |
+| 5. Persist anonymous work        | `w-review` check for rehydration          | `onboarding/persist-anonymous`       |
+| 6. First failure is silent       | `w-review` check on onboarding routes     | `onboarding/silent-first-failure`    |
 | 7. Funnel events                 | Script scans for required `track()` calls | `onboarding/funnel-events`           |
 | 8. First email <5 min            | ast-grep on auth config                   | `onboarding/email-on-signup`         |
 

@@ -5,7 +5,7 @@
 //   - drizzle.config.ts points the output at packages/db/migrations/
 //
 // Manual edits to live DB never appear here, so the check is structural,
-// not behavioural. d-fail / runtime checks catch missing migrations.
+// not behavioural. w-debug / runtime checks catch missing migrations.
 
 import { readFileSync, existsSync, readdirSync } from 'node:fs'
 import { join } from 'node:path'

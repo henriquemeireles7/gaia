@@ -1,6 +1,6 @@
 {
   "$schema": "https://unpkg.com/knip@5/schema.json",
-  "ignore": [".claude/**", ".gaia/**", "decisions/**", "tools/gritql/**"],
+  "ignore": [".claude/**", ".gaia/**"],
   "tags": ["-public"],
   "workspaces": {
     ".": {
@@ -20,5 +20,5 @@
       ]
     }
   },
-  "ignoreDependencies": ["@types/bun", "@gaia/api-server", "@gaia/security", "@gaia/web"]
+  "ignoreDependencies": ["@gaia/web"]
 }

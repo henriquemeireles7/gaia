@@ -1,0 +1,53 @@
+# gstack global skill names — one per line, lowercase.
+# Snapshot from Claude Code's available-skills surface (April 2026).
+# Used by scripts/check-skill-triggers.ts to detect Gaia voice-trigger collisions.
+# Refresh by running `bun run scripts/refresh-gstack-snapshot.ts` if/when one exists.
+
+ship
+review
+qa
+qa-only
+plan
+investigate
+codex
+autoplan
+canary
+benchmark
+benchmark-models
+browse
+scrape
+skillify
+land-and-deploy
+setup-deploy
+setup-browser-cookies
+setup-gbrain
+gstack
+gstack-upgrade
+open-gstack-browser
+pair-agent
+freeze
+unfreeze
+guard
+careful
+cso
+context-save
+context-restore
+office-hours
+plan-ceo-review
+plan-eng-review
+plan-design-review
+plan-devex-review
+design-shotgun
+design-html
+design-review
+design-consultation
+devex-review
+document-release
+make-pdf
+retro
+landing-report
+learn
+health
+plan-tune
+init
+security-review

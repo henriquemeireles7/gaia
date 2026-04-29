@@ -17,7 +17,7 @@ status: draft
 
 # Initiative 0002 — Gaia Template Bootstrap
 
-Stub. Full strategy + implementation + PR breakdown will be expanded by `d-initiative` once Initiative 0001 (methodology refactor) ships.
+Stub. Full strategy + implementation + PR breakdown will be expanded by `w-initiative` once Initiative 0001 (methodology refactor) ships.
 
 Carry-overs from research input (the prior bootstrap doc, archived):
 
@@ -25,6 +25,6 @@ Carry-overs from research input (the prior bootstrap doc, archived):
 - TTHW <5 min and TTFD ≤30 min targets (both via CLI alone — no `d-onboard` skill).
 - CLI ships two modes from day 1: `bun create gaia@latest <name>` (full template) and `--bare` (methodology only).
 - Onboarding flow becomes CLI verbs: `bun gaia onboard verify-keys`, `bun gaia onboard deploy`, `bun gaia onboard smoke`.
-- Self-healing deploy recovery via `d-fail` is the magical moment.
+- Self-healing deploy recovery via `w-debug` (deploy mode) is the magical moment.
 
 See `_archive/2026-04-27-gaia-bootstrap-source.md` for the full prior thinking.
