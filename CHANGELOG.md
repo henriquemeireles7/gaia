@@ -4,6 +4,14 @@ All notable changes to Gaia. Format adapted from [Keep a Changelog](https://keep
 
 The repo is pre-1.0. Breaking changes happen freely until v1.0.0.
 
+## [0.2.3] - 2026-04-29
+
+Hardens initiative 0005 (Wave 0 runtime). Adds a substrate clarification (Inngest is today's runtime; the wrapper insulates from a future iii.dev migration), expands risks from 5 to 15 (replication slot leakage, replay attacks, push storms, partial-response corruption, thundering herd, snapshot/WAL gap, cross-tenant filtering), and adds §7 Hardening Specification with per-PR file lists — 147 files specified across the 13 PRs (what each does, why it exists). 24 mechanical fix rows (AD-1..AD-24) appended to the audit trail. Source: `/autoplan` Claude subagent dual review (CEO + Eng), Codex unavailable. No scope expansion.
+
+### Changed
+
+- `.gaia/initiatives/0005-foundation-runtime/initiative.md`: substrate clarification + 10 new risks + §7 Hardening Specification + 24 audit-trail rows. File grew from 145 to 558 lines (no scope expansion — all hardening detail).
+
 ## [0.2.2] - 2026-04-29
 
 a-health rebuild — composite dispatcher with a 12-axis vector. The kaz-era 10-session checklist is gone; a-health now runs the existing `bun run check` harness, dispatches each a-\* sibling audit (a-security, a-ai, a-ax, a-ux, a-dx, a-observability, a-perf), and aggregates findings into a vector + trend + worst-file leaderboard. New a-perf skill scaffolded so the performance axis has an owner.
