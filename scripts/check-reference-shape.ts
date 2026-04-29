@@ -18,16 +18,16 @@ import { Glob } from 'bun'
 // References that ship with a different shape. Adding to this list
 // requires a comment explaining why the 5-part shape doesn't apply.
 const SHAPE_EXEMPT = new Set([
-  '.claude/skills/d-code/reference.md', // concatenated code+testing+errors; pre-existing 4-part shape
-  '.claude/skills/d-security/reference.md', // own format with "Attacks defended"
-  '.claude/skills/d-ax/reference.md', // narrative meta-reference
-  '.claude/skills/d-dx/reference.md', // narrative meta-reference
-  '.claude/skills/d-content/reference.md', // brand-voice doc; not principle-numbered
-  '.claude/skills/d-deploy/reference.md', // procedural deployment doc
-  '.claude/skills/d-ux/reference.md', // narrative + patterns
-  '.claude/skills/d-ai/reference.md', // narrative ai patterns
-  '.claude/skills/d-observability/reference.md', // mechanics doc; mixed shape
-  '.claude/skills/d-infra/reference.md', // scaffold; full content lands in 0004
+  '.claude/skills/w-code/reference.md', // concatenated code+testing+errors; pre-existing 4-part shape
+  '.claude/skills/a-security/reference.md', // own format with "Attacks defended"
+  '.claude/skills/a-ax/reference.md', // narrative meta-reference
+  '.claude/skills/a-dx/reference.md', // narrative meta-reference
+  '.claude/skills/w-write/reference.md', // brand-voice doc; not principle-numbered
+  '.claude/skills/w-deploy/reference.md', // procedural deployment doc
+  '.claude/skills/a-ux/reference.md', // narrative + patterns
+  '.claude/skills/a-ai/reference.md', // narrative ai patterns
+  '.claude/skills/a-observability/reference.md', // mechanics doc; mixed shape
+  '.claude/skills/w-infra/reference.md', // scaffold; full content lands in 0004
   '.gaia/reference/product/onboarding.md', // legacy product reference; preserved
   '.gaia/reference/product/retention.md', // legacy product reference; preserved
 ])
@@ -114,7 +114,7 @@ if (failures.length > 0) {
     for (const m of f.missing) console.error(`    missing: ${m}`)
   }
   console.error(
-    '\nEvery numbered principle (### 1. ...) needs the 5-part shape: description, Rules/Guidelines/Boundaries (2–4 bullets), Enforcement, Anti-pattern, Pattern. See .claude/skills/d-reference/reference.md.',
+    '\nEvery numbered principle (### 1. ...) needs the 5-part shape: description, Rules/Guidelines/Boundaries (2–4 bullets), Enforcement, Anti-pattern, Pattern. See .claude/skills/h-reference/reference.md.',
   )
   process.exit(1)
 }

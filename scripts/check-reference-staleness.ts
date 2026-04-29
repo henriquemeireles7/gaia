@@ -4,7 +4,7 @@
 // reference unverified for >180 days is debt — the world has moved
 // since it was last reviewed. Surface stale files; never block CI.
 //
-// Exit 0 with a printed list. d-health folds these findings into the
+// Exit 0 with a printed list. a-health folds these findings into the
 // trend report.
 
 import { readFileSync } from 'node:fs'

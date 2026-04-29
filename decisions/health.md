@@ -19,7 +19,7 @@
 
 ## Incident Log
 
-<!-- Populated by d-harness when errors occur -->
+<!-- Populated by h-rules when errors occur -->
 
 ## Audit History
 

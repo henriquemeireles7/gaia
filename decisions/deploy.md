@@ -185,7 +185,7 @@ git push
 
 - Rollback: UI broken, API errors, startup crash — anything that blocks ALL users
 - Hotfix-forward: data migration issue, partial feature broken, edge case — rollback would lose data
-- After any rollback: invoke `/d-harness` to generate prevention artifact
+- After any rollback: invoke `/h-rules` to generate prevention artifact
 
 ## Post-Deploy Verification (5-minute checklist)
 
@@ -218,10 +218,10 @@ Verify manually: check that every path in `railway.toml` commands has a matching
 
 If `package.json` is modified (new dependencies, version bumps), `bun.lock` MUST also be committed. Otherwise Docker builds use a stale lockfile and `bun install` installs wrong versions or fails entirely.
 
-Use `bun .claude/skills/d-code/scripts/lockfile-check.ts` to verify automatically.
+Use `bun .claude/skills/w-code/scripts/lockfile-check.ts` to verify automatically.
 
 ### Incident: 2026-04-08 — Lockfile + Migration Files Missing
 
 **What happened:** Railway build failed because `package.json` had new dependencies but `bun.lock` wasn't committed. Additionally, migration files needed by `preDeployCommand` were not included in the Dockerfile runtime COPY stage.
 **Root cause:** No automated check for lockfile sync or Dockerfile completeness.
-**Fix:** Added `lockfile-check.ts` script and Dockerfile verification rules. Checked during d-review.
+**Fix:** Added `lockfile-check.ts` script and Dockerfile verification rules. Checked during w-review.

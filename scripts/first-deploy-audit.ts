@@ -5,7 +5,7 @@
 // fresh-machine simulation, but it surfaces the friction points: missing
 // env, stale lockfile, broken db:migrate, undocumented setup steps.
 //
-// Output is a checklist printed to stdout. d-health folds it in.
+// Output is a checklist printed to stdout. a-health folds it in.
 
 import { existsSync, readFileSync } from 'node:fs'
 import { join } from 'node:path'
@@ -58,6 +58,6 @@ for (const i of passed) console.error(`  PASS  ${i.name}`)
 for (const i of failed) console.error(`  FAIL  ${i.name}${i.note ? ` — ${i.note}` : ''}`)
 console.error('')
 console.error(
-  `${passed.length}/${items.length} items pass. Run quarterly; track trend in d-health.`,
+  `${passed.length}/${items.length} items pass. Run quarterly; track trend in a-health.`,
 )
 process.exit(failed.length > 0 ? 1 : 0)

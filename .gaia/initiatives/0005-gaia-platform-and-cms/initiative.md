@@ -26,4 +26,4 @@ Anticipated scope (from prior research):
 - Polar plans wired; pricing page; Polar checkout/portal end-to-end.
 - "Migrate from X" guides published as SEO + funnel category.
 
-To be expanded by `d-initiative` when its time arrives.
+To be expanded by `w-initiative` when its time arrives.

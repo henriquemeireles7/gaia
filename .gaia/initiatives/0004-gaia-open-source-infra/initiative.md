@@ -16,7 +16,7 @@ status: not-started
 
 # Initiative 0004 — Gaia Open-Source Infra (Kamal)
 
-Stub. Self-hostable Kamal-based deploy platform. Owns the `d-infra` skill content fully. Gates: 0003 must hit ≥50 stars before this starts.
+Stub. Self-hostable Kamal-based deploy platform. Owns the `w-infra` skill content fully. Gates: 0003 must hit ≥50 stars before this starts.
 
 Anticipated scope:
 
@@ -24,4 +24,4 @@ Anticipated scope:
 - `bun gaia infra init` / `bun gaia infra deploy` CLI verbs.
 - Migration guides: `migration-from-railway-to-kamal.md`.
 
-To be expanded by `d-initiative` when its time arrives.
+To be expanded by `w-initiative` when its time arrives.

@@ -4,6 +4,46 @@ All notable changes to Gaia. Format adapted from [Keep a Changelog](https://keep
 
 The repo is pre-1.0. Breaking changes happen freely until v1.0.0.
 
+## [0.2.0] - 2026-04-29
+
+Initiative 0006 — Skills Committee. Renames the 17 d-\* skills into three role-prefixed categories (h- harness, w- workflow, a- audit) and mechanically enforces 10 cold-start invariants. Agents now route by prefix instead of reading every skill description; the constraint linter blocks any new SKILL.md missing Mode/Tier/Artifact/Failure-modes/After fields.
+
+### Added
+
+- Initiative 0006 (`.gaia/initiatives/0006-skills-committee/initiative.md`) — Committee-of-Garry review + 10 cold-start invariants + h/w/a category proposal + autoplan review (CEO + Eng + DX phases) baked in.
+- `scripts/measure-skill-resolution.ts` — TTHW + skill-resolution round-trip baseline measurement (Initiative 0006 PR 0).
+- `scripts/check-skill-triggers.ts` — validates trigger uniqueness across Gaia skills + against gstack global namespace; runs in `bun run check`.
+- `scripts/gstack-globals.txt` — snapshot of 49 gstack global skill names for collision detection.
+- `## Failure modes` section on every fix-mode skill (8 skills).
+
+### Changed
+
+- 17 skill folders renamed to h-/w-/a- prefixes:
+  - `h-skill`, `h-reference`, `h-rules` (harness — meta-authoring)
+  - `w-initiative`, `w-code`, `w-write`, `w-review`, `w-deploy`, `w-debug`, `w-infra` (workflow)
+  - `a-ai`, `a-ax`, `a-dx`, `a-ux`, `a-observability`, `a-security`, `a-health` (audit)
+- `d-content → w-write` (rename) — frontmatter declares Mode/Tier/Artifact/After.
+- `d-fail → w-debug` (rename + scope expansion) — now covers deploy + runtime + checks + bug-repro debugging with `hot-fix | forensic` tiers, not just Railway recovery.
+- All 17 SKILL.md `description:` fields now declare `Mode:` (fix or report), `Tier:` (where invocation cost varies), `Triggers:`, `Voice:` (where applicable), `After:`/`Pair:`, and `Artifact:`.
+- `scripts/check-skills.ts` extended with frontmatter constraint validators C3-C8 (error-mode, blocking).
+- `scripts/check-skills.ts` `sibling-layout` linter now accepts `reference.md` as canonical sibling (was: only `rules-*.md`).
+- `.gaia/rules.ts` `SkillDomain` enum rewritten to h-/w-/a- variants.
+- `.claude/skills/w-infra/reference.md` grown from 14 lines to ~95 lines (Kamal patterns + Railway escape hatches + Docker stages + GH Actions matrix).
+- Resolver tables refreshed in `CLAUDE.md`, `.gaia/CLAUDE.md`, `.gaia/vision.md`.
+- 91 cross-reference files updated (skill bodies, references, scripts, hooks, runbooks).
+
+### Fixed
+
+- Stale references to skills deleted in Initiative 0001:
+  - `d-tdd` → `w-code` (h-skill, h-reference, a-health)
+  - `d-harness` → `h-rules` (decisions/health.md, decisions/deploy.md)
+  - `d-roadmap` → annotated as deleted (gstack/plan, .gaia/initiatives/context.md)
+- `w-debug` voice trigger `'something's wrong'` → `"something broke"` (apostrophe parser fragility).
+
+### Removed
+
+- Dead names from `scripts/check-skills.ts` PHASE_EXEMPT (`d-strategy`, `d-roadmap`, `d-harness` — deleted in 0001).
+
 ## Unreleased
 
 ### Added
