@@ -55,7 +55,7 @@ When the user's request matches one of these, invoke the skill BEFORE any other 
 | --------------------------------------- | ------------- |
 | Start an initiative, brainstorm a bet   | `d-initiative`  |
 | Extract projects from an initiative     | `d-roadmap`   |
-| Implement a project (TDD)               | `d-tdd`       |
+| Implement a project (TDD)               | `d-code`       |
 | Write blog/handbook/social/clip content | `d-content`   |
 | Pre-commit principles review            | `d-review`    |
 | Deep audit, scoring, trend tracking     | `d-health`    |

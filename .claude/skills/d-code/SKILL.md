@@ -1,9 +1,9 @@
 ---
-name: d-tdd
-description: "TDD implementation from project roadmaps. Five phases: plan decomposition, TDD implementation, completion audit, wiring audit, handoff. Triggers: 'd-tdd', 'implement', 'start coding', 'code this project'."
+name: d-code
+description: "TDD implementation from project roadmaps. Five phases: plan decomposition, TDD implementation, completion audit, wiring audit, handoff. Triggers: 'd-code', 'implement', 'start coding', 'code this project'."
 ---
 
-# d-tdd — TDD Implementation
+# d-code — TDD Implementation
 
 ## What this does
 
@@ -12,7 +12,7 @@ plan decomposition, TDD implementation, completion audit, wiring audit, and hand
 
 ## Pipeline
 
-d-initiative → gstack reviews → d-roadmap → **d-tdd** → d-review → /ship
+d-initiative → gstack reviews → d-roadmap → **d-code** → d-review → /ship
 
 ## When to use
 

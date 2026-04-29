@@ -7,7 +7,7 @@ description: "Extract project roadmaps from a reviewed strategy initiative. Mech
 
 ## What this does
 
-Takes a reviewed initiative document.md and extracts each project into its own subfolder with a self-contained roadmap.md. Pure extraction — no new thinking. Makes each project independently executable by d-tdd or d-content.
+Takes a reviewed initiative document.md and extracts each project into its own subfolder with a self-contained roadmap.md. Pure extraction — no new thinking. Makes each project independently executable by d-code or d-content.
 
 ## Pipeline
 
@@ -114,10 +114,10 @@ Extracted N projects from {initiative}:
 ...
 
 Each project has a self-contained roadmap.md ready for:
-- d-tdd (implementation)
+- d-code (implementation)
 - d-content (content creation)
 
-Start execution: read any project/roadmap.md → d-tdd or d-content
+Start execution: read any project/roadmap.md → d-code or d-content
 ```
 
 ---

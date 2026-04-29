@@ -163,7 +163,7 @@ Locked decisions as of v6. Each choice traces back to one or more of the 15 prin
 
 - **Primary IDE:** Claude Code
 - **Skill foundation:** gstack (`plan`, `review`, `qa` — vendored under `.claude/skills/gstack/`)
-- **Gaia skills:** d-initiative, d-roadmap, d-tdd, d-content, d-review, d-harness, d-health, d-fail
+- **Gaia skills:** d-initiative, d-roadmap, d-code, d-content, d-review, d-harness, d-health, d-fail
 - **Hooks runtime:** TypeScript + Bun, consuming `.gaia/rules.ts`, living in `.claude/hooks/`
 - **Protocols:** typed tool schemas with preconditions, side-effects, approval gates
 - **Permissions:** `.gaia/protocols/permissions.md` — always-allowed / requires-approval / never-allowed
@@ -267,7 +267,7 @@ gaia/                                    # Repo root
 │       │   └── qa/SKILL.md
 │       ├── d-initiative/                  # Initiative Q&A → initiative.md
 │       ├── d-roadmap/                   # Initiative → projects/*.md
-│       ├── d-tdd/                       # TDD orchestration from project (was d-code)
+│       ├── d-code/                       # TDD orchestration from project (was d-code)
 │       ├── d-content/                   # Strategy → branded content
 │       ├── d-review/                    # Pre-commit principles review
 │       ├── d-harness/                   # Error → prevention artifact at correct tier
@@ -496,7 +496,7 @@ If the harness starts thinking — loading context intelligently, matching skill
 
 Gstack has no `code` skill. Neither does Gaia. **Coding is not a skill; it is the surface every other skill operates on.** The guideline lives in `.gaia/reference/code.md` as context (destinations and fences), not procedure.
 
-Agents code by loading the relevant CLAUDE.mds, the architecture references, the feature's local context, and the current task — then writing. No skill wraps the act of writing code itself. Skills wrap the acts _around_ writing code: planning (`plan`), reviewing (`review`, `d-review`), testing (`qa`), TDD orchestration (`d-tdd`), refactoring, documenting.
+Agents code by loading the relevant CLAUDE.mds, the architecture references, the feature's local context, and the current task — then writing. No skill wraps the act of writing code itself. Skills wrap the acts _around_ writing code: planning (`plan`), reviewing (`review`, `d-review`), testing (`qa`), TDD orchestration (`d-code`), refactoring, documenting.
 
 The four engineering disciplines (think before, simplify, surgical, goal-driven) are operating instructions in the root `CLAUDE.md`, not principles in this document. Their place is at the point of work, not in vision.
 
@@ -513,7 +513,7 @@ Cloning Gaia gives you a working harness on day one:
 - `.claude/settings.json` — hook wiring + skill registration
 - `.claude/hooks/` — lifecycle hooks in Bun TS (incl. `domain-context.ts` auto-loader)
 - `.claude/skills/gstack/` — vendored `plan`, `review`, `qa`
-- `.claude/skills/d-*/` — Gaia skills (d-initiative, d-roadmap, d-tdd, d-content, d-review, d-harness, d-health, d-fail, d-reference, d-skill)
+- `.claude/skills/d-*/` — Gaia skills (d-initiative, d-roadmap, d-code, d-content, d-review, d-harness, d-health, d-fail, d-reference, d-skill)
 - `CLAUDE.md` — root resolver (~100 lines)
 
 Users clone, run `bun install`, configure env vars, and have a fully operational agent-native development environment. No Python runtime for hooks. No jq. No external memory service. All state is markdown + JSONL + TypeScript in git.
@@ -655,7 +655,7 @@ Ordered by blocking priority:
 
 9. **Custom Biome GritQL ruleset** — encoded enforcement rules. One per principle that needs codebase-pattern enforcement (estimated 30–50 rules across reference files).
 
-10. **Workflow skill artifacts** — for each workflow skill (`d-initiative`, `d-roadmap`, `d-tdd`, `d-content`, `d-review`, `d-harness`, `d-health`, `d-fail`), produce `SKILL.md` + walkthrough template + research/acknowledgements file.
+10. **Workflow skill artifacts** — for each workflow skill (`d-initiative`, `d-roadmap`, `d-code`, `d-content`, `d-review`, `d-harness`, `d-health`, `d-fail`), produce `SKILL.md` + walkthrough template + research/acknowledgements file.
 
 11. **Domain-scoped project enforcement** — CI/pre-spawn script reads project `domain:` and `touches:` frontmatter; refuses overlap. Replaces conductor's runtime role until conductor.build ships.
 
