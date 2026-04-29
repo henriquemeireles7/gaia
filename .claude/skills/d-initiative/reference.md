@@ -21,13 +21,14 @@ status: draft | approved | in-progress | shipped | killed
 
 The `validate-artifacts.ts` script enforces `parent`, `hypothesis`, and `measurement` on every initiative. Missing fields fail `bun run check`.
 
-## The 5 sections
+## The 6 sections
 
 1. **Context / Research** — data, prior sessions, named users, demand evidence, status quo, competitor analysis.
 2. **Strategy** — problem, hypothesis, target user, narrowest wedge, constraints, premises (each with falsifier), approaches considered, recommended approach, cap table, abandonment ladder.
-3. **Implementation** — architecture decisions, files-touched inventory, risks priority-ordered with mitigations, dependencies, out-of-scope explicit list.
-4. **PR Breakdown** — table of PR rows (`d-code` reads this and codes PR by PR).
-5. **Decision Audit Trail** — every changed line traces to a decision (founder, autoplan voice, AD-N mechanical).
+3. **Folder Structure** — the ASCII tree of files/folders the initiative adds or modifies, copy-paste-ready. Mirrors the layout that lands in the repo. New paths marked NEW; extended paths marked EXTENDS.
+4. **Implementation** — architecture decisions, files-touched inventory, risks priority-ordered with mitigations, dependencies, out-of-scope explicit list.
+5. **PR Breakdown** — table of PR rows (`d-code` reads this and codes PR by PR).
+6. **Decision Audit Trail** — every changed line traces to a decision (founder, autoplan voice, AD-N mechanical).
 
 ## Workflow
 
