@@ -5,7 +5,7 @@
 
 ## What this is
 
-Comprehensive codebase health audit: 10 sessions across security, performance, UI, coherence, dead weight, test health, architecture, dependencies, content, and scoring. Report-only — never fixes code. Produces a scored report + fix plan + trend in `decisions/health.md`.
+Comprehensive codebase health audit: 10 sessions across security, performance, UI, coherence, dead weight, test health, architecture, dependencies, content, and scoring. Report-only — never fixes code. Produces a scored report + fix plan + trend in `.gaia/audits/a-health/<YYYY-MM-DD>.md`.
 
 ## When to run
 
@@ -28,7 +28,7 @@ Comprehensive codebase health audit: 10 sessions across security, performance, U
 
 ## Output
 
-`decisions/health.md` — scored report. Comparison with the last audit shows trend. The scored axis identifies what to fix first.
+`.gaia/audits/a-health/<YYYY-MM-DD>.md` — scored report. Comparison with the last audit shows trend. The scored axis identifies what to fix first.
 
 ## Cross-references
 

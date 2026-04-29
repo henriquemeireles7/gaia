@@ -216,7 +216,7 @@ if (import.meta.main) app.listen(env.PORT)
 
 Rollback uses the platform's promote-previous-image (Railway "Promote"). Because schema changes are additive (P3), rolling back code does not require schema rollback. Data corruption is recovered via Neon point-in-time restore (RPO ≤5 minutes). Rollback fires a Slack hook + Sentry release marker so the incident is observable.
 
-**Enforcement:** Railway "Promote" button + retention policy from P1 ensures the previous image is reachable. Rollback runbook lives at `decisions/deploy.md`. MTTR measured from incident detection to readiness-restored.
+**Enforcement:** Railway "Promote" button + retention policy from P1 ensures the previous image is reachable. Rollback runbook lives in the Operational runbook section below. MTTR measured from incident detection to readiness-restored.
 
 **Anti-pattern:**
 
@@ -264,7 +264,7 @@ Preview DB: postgres://...neon.../br_pr_42
 
 A new operator clones the repo, sets 8 env vars (the required list in `packages/config/env.ts`), runs `railway up`, and reaches a green `/health/ready` in under 30 minutes. If they can't, the deploy doc is the bug.
 
-**Enforcement:** Quarterly deploy-time audit (in `decisions/maturity.md`). New-operator script (`scripts/first-deploy.ts`) outputs a timed report. CI runs it once per quarter against a fresh Railway project.
+**Enforcement:** Quarterly deploy-time audit. New-operator script (`scripts/first-deploy.ts`) outputs a timed report. CI runs it once per quarter against a fresh Railway project.
 
 **Anti-pattern:**
 
@@ -359,14 +359,134 @@ The `_pending_` entries are visible debt — `rules-coverage` lists them.
 
 ---
 
+## Operational runbook
+
+> Concrete commands and platform-specific rules that enforce the principles above. Drift here means the principles drift.
+
+### Config-as-code (`railway.toml`)
+
+All build and deploy settings are version-controlled in `railway.toml` at the repo root. **Code config always overrides Railway dashboard settings.**
+
+What it controls:
+
+- **Builder:** `DOCKERFILE` — multi-stage Dockerfile
+- **Start command:** `bun run dist/app.js`
+- **Healthcheck:** `GET /health/ready` with 300s timeout — Railway rolls back if it fails (P6, P8)
+- **Restart policy:** `ON_FAILURE` with 5 retries
+- **Replicas:** 1 (scale by changing `numReplicas`)
+
+What it does NOT control (use `railway variable set` or dashboard):
+
+- Environment variables (use platform secret store, P4)
+- Custom domains and networking
+- Volume mounts
+
+Rules:
+
+- NEVER configure build/deploy settings in the Railway dashboard — `railway.toml` overrides them
+- Pre-deploy migrations: add `preDeployCommand = "bun run db:migrate"` to `[deploy]` (P3)
+- Per-environment overrides: `[environments.staging.deploy]` sections
+- `railway.toml` path does NOT follow Root Directory — always at repo root
+
+### Container build rules
+
+**Runtime stage must include all files referenced by `railway.toml`.**
+
+The Dockerfile runtime stage (final `FROM`) must `COPY` every path referenced by `railway.toml` commands. If `startCommand = "bun run dist/app.js"`, then `dist/` must be in a `COPY`. If `preDeployCommand = "bun run db:migrate"`, the migration files and `package.json` must be copied. Verify manually before merging Dockerfile changes.
+
+**Lockfile sync.**
+
+If `package.json` is modified (new deps, version bumps), `bun.lock` MUST be committed in the same commit. Otherwise Docker builds use a stale lockfile and `bun install` resolves wrong versions or fails. Enforced by `bun .claude/skills/w-code/scripts/lockfile-check.ts`, wired into `bun run check`.
+
+**Incident — 2026-04-08 — Lockfile + migration files missing.**
+Railway build failed because `package.json` had new dependencies but `bun.lock` wasn't committed, and migration files needed by `preDeployCommand` weren't included in the Dockerfile runtime `COPY` stage. Root cause: no automated check for lockfile sync or Dockerfile completeness. Fix: `lockfile-check.ts` + Dockerfile verification rules, checked during `w-review`.
+
+### Rollback procedure
+
+When a deploy breaks production:
+
+```bash
+# 1. Diagnose
+railway logs --latest
+
+# 2A. Rollback to previous digest (fastest, default — P8)
+railway service promote --to-deployment <previous-digest>
+
+# 2B. Hotfix-forward (when rollback would lose data)
+# Fix code → push → CI green → deploy
+
+# 2C. Revert the commit (when the change is isolated)
+git revert HEAD && git push
+```
+
+**When to rollback vs hotfix-forward:**
+
+- **Rollback:** UI broken, API errors, startup crash — anything blocking all users.
+- **Hotfix-forward:** data migration issue, partial feature broken, edge case — rollback would lose data.
+- After any rollback: invoke `/h-rules` to generate a prevention artifact.
+
+### Post-deploy verification (5-minute checklist)
+
+1. Liveness: `curl https://<app>/health` → 200
+2. Readiness: `curl https://<app>/health/ready` → 200 (DB + adapters reachable, P6)
+3. Sentry: no new release-tagged errors in the last 5 minutes
+4. Railway: deploy status = `Active`, no restart loops
+5. Polar webhooks: test endpoint responds (when payment changes deployed)
+6. Synthetic smoke test (Inngest): one critical user path, alert on fail
+
+### Environment strategy
+
+- **V1 (current):** No staging environment. CI runs all tests against per-PR Neon branches (P5). Deploy directly to Railway prod after merge.
+- **V2 trigger:** **First paying customer.** Add a Railway staging environment with separate DB.
+
+The trigger is _revenue at risk_, not team size or ambition.
+
+### CLI cheatsheets
+
+#### Railway
+
+```sh
+railway variable list --kv                            # list env vars
+railway variable set KEY=value                        # set env var (triggers redeploy)
+railway variable set KEY=value --skip-deploys         # set without redeploying
+railway variable delete KEY                           # remove env var
+railway logs                                          # tail production logs
+railway status                                        # current project/env/service
+railway up                                            # manual deploy
+railway redeploy                                      # redeploy current
+railway connect postgres                              # interactive psql against prod DB
+```
+
+If "No linked project": `railway link` and select the project.
+
+#### GitHub
+
+```sh
+gh pr create --title "..." --body "..."               # create PR
+gh pr merge <number>                                  # merge PR
+gh pr list                                            # list open PRs
+gh run list                                           # list CI runs
+gh run watch <id>                                     # watch a CI run
+gh api repos/{owner}/{repo}/...                       # raw API calls
+```
+
+#### PostHog (MCP, not CLI)
+
+`mcp__posthog__query-trends`, `mcp__posthog__query-funnel`, `mcp__posthog__feature-flag-get-all`, `mcp__posthog__create-feature-flag`, `mcp__posthog__insights-list`, `mcp__posthog__error-tracking-issues-list`.
+
+Act first, ask never. Use authenticated CLIs/tools directly — never tell the user to check a dashboard.
+
+---
+
 ## Decisions log
 
-| Date       | Decision                               | Rationale                                                                                                                         |
-| ---------- | -------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------- |
-| 2026-04-28 | Default platform: Railway + Neon       | Best Bun support; branchable previews; one project owns runtime + env + secrets — minimum cognitive overhead.                     |
-| 2026-04-28 | Schema changes additive across deploys | Old code + new schema is recoverable; new code + old schema is not. Order matters.                                                |
-| 2026-04-28 | Three health checks (live/ready/smoke) | One endpoint can't carry three semantics. Liveness must be cheap; readiness must verify deps; smoke must exercise a real path.    |
-| 2026-04-28 | Promote-by-digest, never rebuild       | Reproducibility across stages requires content-addressable artifacts. Tag drift is the canonical "works in staging" failure mode. |
-| 2026-04-28 | ≤30-minute time-to-first-deploy SLO    | Solo operators value time-to-prod. Staleness in the deploy doc is the most common cause of "it didn't work" — make it a metric.   |
+| Date       | Decision                                        | Rationale                                                                                                                                            |
+| ---------- | ----------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------- |
+| 2026-04-28 | Default platform: Railway + Neon                | Best Bun support; branchable previews; one project owns runtime + env + secrets — minimum cognitive overhead.                                        |
+| 2026-04-28 | Schema changes additive across deploys          | Old code + new schema is recoverable; new code + old schema is not. Order matters.                                                                   |
+| 2026-04-28 | Three health checks (live/ready/smoke)          | One endpoint can't carry three semantics. Liveness must be cheap; readiness must verify deps; smoke must exercise a real path.                       |
+| 2026-04-28 | Promote-by-digest, never rebuild                | Reproducibility across stages requires content-addressable artifacts. Tag drift is the canonical "works in staging" failure mode.                    |
+| 2026-04-28 | ≤30-minute time-to-first-deploy SLO             | Solo operators value time-to-prod. Staleness in the deploy doc is the most common cause of "it didn't work" — make it a metric.                      |
+| 2026-04-29 | Merge `decisions/deploy.md` into this reference | Operational runbook (Railway/Dockerfile/rollback/CLI cheatsheets) belongs next to the principles it enforces, not in a separate `decisions/` folder. |
 
 _Add to log when changing platform, build pipeline, or required-env shape. ADRs required for changes that affect rollback or required env vars._
