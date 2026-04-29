@@ -276,13 +276,6 @@ export const rules: readonly Rule[] = [
     blocked: ['.gaia/protocols/permissions.md', '.gaia/protocols/delegation.md'],
   },
   {
-    id: 'harness/manifest-coverage',
-    reference: 'harness',
-    description: '.gaia/MANIFEST.md lists every folder with a CLAUDE.md and vice versa.',
-    tier: 'lint',
-    mechanism: { kind: 'script', script: 'scripts/check-manifest.ts' },
-  },
-  {
     id: 'code/knip-gate-production',
     reference: 'code',
     description:
@@ -800,14 +793,6 @@ export const rules: readonly Rule[] = [
     tier: 'architecture',
     mechanism: { kind: 'pending', note: 'code review; no LLM-call detection in hooks' },
   },
-  {
-    id: 'methodology/memory-decay',
-    reference: 'methodology',
-    description: 'memory/episodic/ entries older than 90 days without re-trigger are archived.',
-    tier: 'architecture',
-    mechanism: { kind: 'pending', note: 'scripts/memory-decay.ts (planned cron)' },
-  },
-
   // ─── ai.md (gaps from previous PR) ───────────────────────────
   {
     id: 'ai/prompts-as-constants',

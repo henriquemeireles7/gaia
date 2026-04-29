@@ -44,7 +44,6 @@ These shape the agent's behavior at the point of work (vision §Harness):
 | Currently being worked on    | `.gaia/initiatives/roadmap.md`                           |
 | Latest data snapshot         | `.gaia/initiatives/context.md`                           |
 | What's allowed/blocked       | `.gaia/protocols/permissions.md`                         |
-| Index of folder CLAUDE.mds   | `.gaia/MANIFEST.md`                                      |
 
 ## Skills resolver — invoke as your first action
 
@@ -76,7 +75,7 @@ When the user's request matches one of these, invoke the skill BEFORE any other 
 ## Build order — never skip steps
 
 1. Read `.gaia/reference/<domain>.md` for the area you're touching.
-2. Read the folder's local `CLAUDE.md` if it has one (`.gaia/MANIFEST.md` is the index).
+2. Read the folder's local `CLAUDE.md` if it has one (each opens with a one-line "why this exists" preamble).
 3. Update schema (if applicable).
 4. Update error definitions (if needed).
 5. Update env config (if new env vars).

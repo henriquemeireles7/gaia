@@ -4,9 +4,9 @@ An opinionated, open-source template for building production SaaS in the agent-n
 
 The Rails of TypeScript, redesigned for a world where agents write most of the code.
 
-**Status:** Vision v6 — pre-MVP
+**Status:** Vision v7 — pre-MVP
 **Codename:** Gaia
-**Last updated:** April 2026 (v6 — Workflow added; Harness sharpened; self-evolving deferred to v2)
+**Last updated:** April 2026 (v7 — Constitutional Loop named; memory/adrs/audit/conductor removed; domain-as-axis introduced; references planned hierarchical)
 
 ⸻
 
@@ -74,7 +74,7 @@ These are load-bearing. Every decision in Gaia ties back to one of these. If a f
 
 ### Operations
 
-13. **CLI-first operations with audit trails.** Agents operate via CLIs, not dashboards. Every agent action produces a structured log entry — what was done, by whom, when, what state changed. The audit trail is the product of the action, not something separate.
+13. **CLI-first operations with observable outputs.** Agents operate via CLIs, not dashboards. State-changing actions emit structured logs to the event log store (Axiom; Architecture #1). No file-based audit folder — the event log IS the audit trail; nothing is duplicated to disk.
 
 14. **Brand rules are versioned, not frozen.** Design and voice constraints have their own decision log. Old rules deprecate, not delete. Agents read the current version but can see the evolution.
 
@@ -164,9 +164,7 @@ Locked decisions as of v6. Each choice traces back to one or more of the 15 prin
 - **Primary IDE:** Claude Code
 - **Skill foundation:** gstack (`plan`, `review`, `qa` — vendored under `.claude/skills/gstack/`)
 - **Gaia skills:** d-strategy, d-roadmap, d-tdd, d-content, d-review, d-harness, d-health, d-fail
-- **Conductor:** thin TypeScript loop in Bun, ~200 LOC (`.gaia/conductor.ts`)
 - **Hooks runtime:** TypeScript + Bun, consuming `.gaia/rules.ts`, living in `.claude/hooks/`
-- **Memory architecture:** three surfaces — working, episodic, reference
 - **Protocols:** typed tool schemas with preconditions, side-effects, approval gates
 - **Permissions:** `.gaia/protocols/permissions.md` — always-allowed / requires-approval / never-allowed
 - **Review flow:** `/d-review` runs a superset of CI and adds LLM judgment
@@ -223,9 +221,9 @@ Test: "If this data vanished, what would it take to recreate?" determines the st
 
 **Context**
 
-6. **CLAUDE.md exists where local rules differ from global.** The root CLAUDE.md covers global conventions (the resolver). A folder gets its own CLAUDE.md only when it has local rules that override or extend the global ones. `.gaia/MANIFEST.md` lists which folders have CLAUDE.mds and why.
+6. **CLAUDE.md exists where local rules differ from global.** The root CLAUDE.md covers global conventions (the resolver). A folder gets its own CLAUDE.md only when it has local rules that override or extend the global ones. Each local CLAUDE.md opens with a one-line "why this exists" preamble. The file system is the index — no hand-maintained MANIFEST.md.
 
-7. **Docs serve two roles by default: reference and initiatives.** `.gaia/reference/` is the constitution — long shelf life, agent-facing, the principles each domain follows. `.gaia/initiatives/` is the strategic bets — medium shelf life, daily-active, the work currently underway. Other genres (ADR, spec, memo, runbook) are deferred unless a specific recurring need justifies the addition.
+7. **Two doc genres ship: reference and initiatives.** `.gaia/reference/` is the constitution — long shelf life, agent-facing, organized by domain. `.gaia/initiatives/` is the strategic bets — medium shelf life, daily-active. Other genres (ADR, spec, memo, runbook, audit, memory) are explicitly NOT shipped — empty scaffolds tax both agent context and human onboarding. A genre re-enters only when a real reader/writer earns its place.
 
 **Dependencies**
 
@@ -239,9 +237,11 @@ Test: "If this data vanished, what would it take to recreate?" determines the st
 
 11. **Content is code when humans edit it.** Markdown files live in `content/` and git-track like source. When apps generate data, it goes to Postgres.
 
-**Enforcement**
+**Domain axis**
 
 12. **Every architectural rule has an enforcement mechanism.** A rule without a mechanism is aspirational, not real.
+
+13. **Domain is a first-class axis.** A domain (`backend`, `frontend`, `database`, `errors`, `security`, …) is the unit that ties together: a reference file, one or more code roots, optional CLAUDE.md placement, a `rules.ts` prefix, project scope, and hook routing. The canonical map lives in `.gaia/domains.ts` (planned); the docs resolver, the domain-context hook, and project frontmatter all derive from it. Adding a domain wires it everywhere or fails coverage. The exact category taxonomy (workflow-grouped vs experience-grouped) is open spec #16.
 
 ### Folder structure
 
@@ -277,28 +277,12 @@ gaia/                                    # Repo root
 ├── .gaia/                               # The methodology — everything Gaia-specific
 │   ├── CLAUDE.md                        # Methodology-internal resolver
 │   ├── vision.md                        # The locked source of truth (this doc)
-│   ├── MANIFEST.md                      # Index of folders with CLAUDE.mds
-│   ├── rules.ts                         # Single policy source
-│   ├── conductor.ts                     # Thin Bun/TS loop (~200 LOC)
+│   ├── rules.ts                         # Single policy source (consumed by hooks/CI)
+│   ├── domains.ts                       # Canonical domain map (planned, open spec #17)
 │   │
 │   ├── reference/                       # The CONSTITUTION — judgment loaded on demand
-│   │   ├── code.md
-│   │   ├── backend.md
-│   │   ├── frontend.md
-│   │   ├── database.md
-│   │   ├── testing.md
-│   │   ├── errors.md
-│   │   ├── security.md
-│   │   ├── observability.md
-│   │   ├── commands.md
-│   │   ├── design.md
-│   │   ├── tokens.md
-│   │   ├── ux.md
-│   │   ├── dx.md
-│   │   ├── ax.md
-│   │   ├── voice.md
-│   │   ├── workflow.md                  # Workflow principles + locked contracts
-│   │   └── harness.md                   # Harness implementation plan
+│   │   └── <category>/                  # Hierarchical; final taxonomy in open spec #16
+│   │       └── *.md                     # ~24 reference files across categories
 │   │
 │   ├── initiatives/                     # Strategic bets per workflow
 │   │   ├── roadmap.md                   # Current period's bets
@@ -306,23 +290,16 @@ gaia/                                    # Repo root
 │   │   └── YYYY-MM-DD-name/
 │   │       ├── initiative.md            # The bet, expanded
 │   │       └── projects/
-│   │           ├── 01-name.md           # Parallel-executable slice
+│   │           ├── 01-name.md           # Parallel-executable slice; declares `domain:`
 │   │           └── 02-name.md
 │   │
-│   ├── memory/                          # Agent memory (raw — no auto-promotion in v1)
-│   │   ├── working/                     # Volatile per-task state (WORKSPACE.md)
-│   │   ├── episodic/                    # Append-only action log (*.jsonl)
-│   │   └── personal/                    # Per-developer preferences (folder)
-│   │       ├── style.md
-│   │       ├── workflow.md
-│   │       └── ...
-│   │
-│   ├── protocols/                       # Trust layer
-│   │   ├── tool-schemas/                # Typed schemas per tool
-│   │   ├── permissions.md               # Hard boundaries
-│   │   └── delegation.md                # Sub-agent handoff rules
-│   │
-│   └── audit/                           # Structured action logs (append-only)
+│   └── protocols/                       # Trust layer
+│       ├── permissions.md               # Hard boundaries
+│       └── delegation.md                # Sub-agent handoff rules
+│
+# Explicitly NOT shipped (each was tried, none earned its place):
+#   .gaia/memory/  .gaia/audit/  .gaia/adrs/  .gaia/MANIFEST.md  .gaia/conductor.ts
+# Reintroduce only when a real reader/writer exists.
 │
 ├── apps/
 │   ├── web/                             # SolidStart frontend
@@ -434,7 +411,7 @@ Grouped into four clusters. Each principle states an enforcement mechanism. Full
 
 8. **Each phase transition is an artifact validation, not a ceremony.** No phase progresses without a schema-valid prior artifact.
 9. **Principles review runs before correctness review.** Gaia's `d-review` runs first; gstack `/review` and `/qa` only run on principles-passing diffs.
-10. **Projects are parallel by declared concern, not assumed concern.** Each project declares `touches:` (files, modules); Conductor refuses to spawn worktrees with overlapping scopes.
+10. **Projects are domain-scoped, declared parallel.** Each project frontmatter declares `domain:` (and optional `touches:`); a CI/pre-spawn script refuses overlapping scopes (the orchestrator's runtime role, until conductor.build ships). Domain-scoping is what makes parallelism real — an end-to-end project would have to load every reference and would blow the context budget.
 
 **Outcomes and honesty**
 
@@ -477,7 +454,7 @@ If the harness starts thinking — loading context intelligently, matching skill
 
 #### Separation
 
-1. **Four externalized modules, one thin conductor.** The harness composes four modules — memory (what happened), skills (how to do things), protocols (what's allowed), and a ~200-line conductor (the loop). The conductor reads files, calls tools, writes logs, runs hooks. It does not reason. If the conductor grows past 500 lines, intelligence has leaked into the wrong layer and must be pushed back into skills.
+1. **The Constitutional Loop: References, Rules, Skills.** The harness composes three substrates — **References** (loaded nouns: judgment in markdown), **Rules** (executed mechanisms: `rules.ts` consumed by hooks/CI/scripts), **Skills** (invoked verbs: procedures with phases) — bridged by two hooks (auto-load on edit; verify after edit). The loop closes when both bridges fire on the same concern; a concern in fewer than its applicable substrates is debt. Memory and a runtime conductor are deferred to v2 once a real reader/writer exists. Spec: `.gaia/reference/methodology.md`.
 
 2. **Skills are methods; markdown is the language; judgment is the runtime.** A skill is a markdown file with YAML frontmatter and (in v2) a self-rewrite hook. It takes parameters and produces different capabilities on each invocation. Same procedure, different world, different output. Markdown is a more perfect encapsulation of capability than rigid source code for anything involving judgment. This is software design, not prompt engineering.
 
@@ -489,7 +466,7 @@ If the harness starts thinking — loading context intelligently, matching skill
 
 5. **Resolvers are the management layer.** Resolvers are routing tables that compose fractally. The **skill resolver** lives in root `CLAUDE.md` (task intent → skill). The **docs resolver** also lives in root `CLAUDE.md` (content type → reference file). The **context resolver** lives inside each skill (sub-task → sub-procedure). No separate AGENTS.md, RESOLVER.md, or manifest files — Claude Code loads CLAUDE.md natively; routing tables don't need their own filenames. ~100 lines of routing in CLAUDE.md replace 20,000 lines of crammed context.
 
-6. **Nested CLAUDE.md, MANIFEST.md as index.** Layer 1: folder CLAUDE.mds auto-load by location, footers auto-regenerated by the Stop hook when code changes. Layer 2: reference files at `.gaia/reference/*.md` (the constitution). Layer 3: strategy artifacts at `.gaia/initiatives/`. `.gaia/MANIFEST.md` lists which folders have CLAUDE.mds and why — missing entries mean root applies. No cargo-culted per-folder CLAUDE.mds; every one earns its place.
+6. **Nested CLAUDE.md; file system as index.** Layer 1: folder CLAUDE.mds auto-load by location; footers auto-regenerated by the Stop hook when code changes. Layer 2: reference files at `.gaia/reference/<category>/*.md` (the constitution, hierarchical by domain). Layer 3: strategy artifacts at `.gaia/initiatives/`. The file system IS the index — no MANIFEST.md to drift. Each CLAUDE.md opens with one line stating why it exists; absence means root applies.
 
 #### Trust
 
@@ -501,15 +478,7 @@ If the harness starts thinking — loading context intelligently, matching skill
 
 #### Memory
 
-10. **Three memory surfaces, three retention policies.**
-
-| Surface  | Path                            | Lifecycle                              | Retrieval              |
-| -------- | ------------------------------- | -------------------------------------- | ---------------------- |
-| Working  | `.gaia/memory/working/`         | Volatile, cleared per task             | Always loaded          |
-| Episodic | `.gaia/memory/episodic/*.jsonl` | Append-only, kept indefinitely in v1   | Top-k by recency in v1 |
-| Personal | `.gaia/memory/personal/*.md`    | Stable per-developer (folder of files) | Always loaded          |
-
-Reference files (`.gaia/reference/*.md`) are also memory in the broad sense — they're the curated long-term knowledge. But they are human-authored and version-controlled, not agent-written; they carry a different name (constitution) to keep the writer/reader contract clear. **In v1, episodic memory accumulates raw — no automatic promotion to references.** Auto-promotion (the dream cycle) is v2 work.
+10. **Memory deferred to v2.** v1 has one curated knowledge surface: `.gaia/reference/<category>/*.md` (human-authored, version-controlled, agent-loaded on demand by the domain-context hook). Episodic capture, working state, and personal scratchpads are deferred until a real writer exists (the dream-cycle / self-evolving v2 work). The rule: ship a memory surface only when something actually writes to it. Empty scaffolds were tax on agent context with zero value delivered.
 
 #### Process
 
@@ -536,18 +505,15 @@ The four engineering disciplines (think before, simplify, surgical, goal-driven)
 Cloning Gaia gives you a working harness on day one:
 
 - `.gaia/rules.ts` — policy source, pre-populated with all enforcement rules
-- `.gaia/conductor.ts` — thin TypeScript loop (~200 LOC)
-- `.gaia/reference/` — the 17 reference files (constitution + workflow + harness)
+- `.gaia/domains.ts` — canonical domain map (planned)
+- `.gaia/reference/<category>/*.md` — ~24 reference files in hierarchical categories
 - `.gaia/initiatives/` — empty, ready for your first roadmap
-- `.gaia/memory/` — three-surface structure initialized empty
-- `.gaia/protocols/` — permissions.md, delegation.md, typed tool schemas
+- `.gaia/protocols/` — permissions.md, delegation.md
 - `.gaia/CLAUDE.md` — methodology-internal resolver
-- `.gaia/MANIFEST.md` — index of nested CLAUDE.mds
-- `.gaia/audit/` — empty append-only log
 - `.claude/settings.json` — hook wiring + skill registration
-- `.claude/hooks/` — lifecycle hooks in Bun TS
+- `.claude/hooks/` — lifecycle hooks in Bun TS (incl. `domain-context.ts` auto-loader)
 - `.claude/skills/gstack/` — vendored `plan`, `review`, `qa`
-- `.claude/skills/d-*/` — Gaia skills (d-strategy, d-roadmap, d-tdd, d-content, d-review, d-harness, d-health, d-fail)
+- `.claude/skills/d-*/` — Gaia skills (d-strategy, d-roadmap, d-tdd, d-content, d-review, d-harness, d-health, d-fail, d-reference, d-skill)
 - `CLAUDE.md` — root resolver (~100 lines)
 
 Users clone, run `bun install`, configure env vars, and have a fully operational agent-native development environment. No Python runtime for hooks. No jq. No external memory service. All state is markdown + JSONL + TypeScript in git.
@@ -556,13 +522,15 @@ Users clone, run `bun install`, configure env vars, and have a fully operational
 
 The following capabilities are explicitly **not** in v1, by design:
 
+- **Memory surfaces** — working/episodic/personal storage; reintroduced when a writer exists (dream cycle, conductor, etc.)
 - **Dream cycle** — nightly Bun cron that compresses episodic memory and promotes recurring patterns to reference files
 - **Skill self-rewrite** — skills proposing edits to themselves based on their own episodic history
 - **Salience-ranked retrieval** — pain × importance × recurrence × recency-decay scoring
 - **Constraint escalation** — local skill-level lessons promoted to global reference automatically
-- **Auto-promotion to LESSONS.md** — agent-authored writes to the constitution
+- **Auto-promotion to references** — agent-authored writes to the constitution
+- **Runtime conductor** (`.gaia/conductor.ts`) — orchestrates worktree spawn, schedules workflow loops; depends on conductor.build
 
-In v1, episodic memory accumulates raw. The user (or `d-harness` invoked manually) is the promotion path. This keeps v1 honest: the reference files only contain principles a human reviewed and approved. v2 adds self-evolution once the trigger-eval infrastructure exists to catch confidently-wrong promotions before they poison the constitution.
+In v1, the user (or `d-harness` invoked manually) is the promotion path; reference files only contain principles a human reviewed and approved. v2 adds self-evolution once trigger-eval infrastructure exists to catch confidently-wrong promotions before they poison the constitution.
 
 ⸻
 
@@ -590,10 +558,10 @@ The template ships with the following working out of the box:
 - Neon-ready Postgres schema with Drizzle migrations
 - Rate limiting, session security, helmet-style headers, audit logging
 - Full CI pipeline (type/lint/format/test/security/coverage/size)
-- **Complete static harness**: `.gaia/rules.ts`, Bun/TS hooks, three-surface memory, typed protocols, gstack foundation + Gaia d-skills
-- **Reference files** for code, backend, frontend, database, testing, errors, security, observability, commands, design, tokens, ux, dx, ax, voice, workflow, harness
-- **Initiatives folder** scaffolded with empty roadmap.md and the daily workflow ready to run
-- **Nested CLAUDE.md strategy** with `.gaia/MANIFEST.md`
+- **Complete static harness**: `.gaia/rules.ts`, `.gaia/domains.ts`, Bun/TS hooks (incl. domain-context auto-loader), protocols, gstack foundation + Gaia d-skills (incl. d-reference and d-skill meta-skills)
+- **Reference files** organized hierarchically by category (~24 files: engineering, experience, methodology, product domains)
+- **Initiatives folder** scaffolded with empty roadmap.md; projects declare `domain:` and run in parallel
+- **Nested CLAUDE.md strategy**, file-system-indexed (no MANIFEST)
 - **Root CLAUDE.md** as the resolver (~100 lines: principles overview, four engineering disciplines, skills resolver, docs resolver)
 - **`.gaia/CLAUDE.md`** as the methodology-internal resolver
 - Scalar-rendered API docs
@@ -669,11 +637,11 @@ Gaia is the first product combining (1) modern agent-native TypeScript stack + (
 
 Ordered by blocking priority:
 
-1. **`.gaia/rules.ts` schema** — single policy source consumed by hooks, CI, editor integrations. Blocks MVP.
+1. ✅ **DONE** — `.gaia/rules.ts` (36KB) ships; consumed by hooks + CI scripts.
 
-2. **Root `CLAUDE.md` content** — ~100 lines covering principles overview, four engineering disciplines (Karpathy), skills resolver, docs resolver, thin policy. Blocks MVP.
+2. ✅ **DONE** — Root `CLAUDE.md` is the resolver (~150 lines: principles overview, four engineering disciplines, skills resolver, docs resolver).
 
-3. **`.gaia/CLAUDE.md` content** — methodology-internal resolver. Short — points to vision, reference, initiatives.
+3. ✅ **DONE** — `.gaia/CLAUDE.md` methodology-internal resolver shipped.
 
 4. **Reference file inventory and mechanisms** — for v1, ship mechanisms for `code.md`, `backend.md`, `errors.md`, `testing.md`, `security.md` (engineering core). `frontend.md` ships with route-shape and accessibility mechanisms. Experience-axis files (`design.md`, `voice.md`, `ux.md`, `dx.md`, `ax.md`, `tokens.md`) ship with `/d-review` heuristics initially.
 
@@ -689,7 +657,13 @@ Ordered by blocking priority:
 
 10. **Workflow skill artifacts** — for each workflow skill (`d-strategy`, `d-roadmap`, `d-tdd`, `d-content`, `d-review`, `d-harness`, `d-health`, `d-fail`), produce `SKILL.md` + walkthrough template + research/acknowledgements file.
 
-11. **Conductor worktree-assignment algorithm** — how Conductor reads `touches:` declarations and resolves conflicts (deferred to Orchestration but specified here).
+11. **Domain-scoped project enforcement** — CI/pre-spawn script reads project `domain:` and `touches:` frontmatter; refuses overlap. Replaces conductor's runtime role until conductor.build ships.
+
+16. **Hierarchical reference taxonomy** — pick categories (workflow-grouped: gaia/planning/api/web/hardening/devops/content vs experience-grouped: engineering/experience/methodology/product). Codemod migrates 21 flat files; updates resolver, hook routing, cross-refs.
+
+17. **`.gaia/domains.ts` schema** — canonical domain map; derives docs resolver, domain-context routing, project validation, rules.ts prefixes. One source replaces four hand-maintained copies.
+
+18. **Initiative-type → project shape templates** — feature / api-only / polish / infra / content / methodology each define the project decomposition shape. Drives `d-roadmap` decomposition.
 
 12. **Positioning statement (one sentence)** — current draft: _"Gaia is Rails for TypeScript in the agent era — for solo operators building production SaaS, with a daily workflow loop and a harness that enforces every principle in your reference files."_
 
@@ -701,4 +675,4 @@ Ordered by blocking priority:
 
 ⸻
 
-_Vision v6. Decisions are locked; implementation is not. Architecture, Experience, Workflow, and Harness are parallel peers — none dominates. Self-evolving behavior is deferred to v2 by design. Orchestration is deferred to its own spec. Open specs above will be drafted in subsequent docs, one per open spec. The harness is what turns "idea to deployment in weeks" into "idea to deployment in minutes" — by making every principle in the reference files discoverable and enforceable for the AI coding agent._
+_Vision v7. Architecture, Experience, Workflow, and Harness are parallel peers. The harness is the **Constitutional Loop**: References (loaded), Rules (executed), Skills (invoked), with hooks bridging them. **Domain is the universal axis** tying every artifact together — references, code roots, projects, CLAUDE.md placement, rules.ts entries. Memory, conductor, ADRs, MANIFEST, and audit are explicitly NOT v1 — empty scaffolds were dead weight. The harness is what turns "idea to deployment in weeks" into "idea to deployment in minutes" by making every principle discoverable AND enforceable for the AI coding agent._
