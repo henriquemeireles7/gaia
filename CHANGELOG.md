@@ -50,6 +50,19 @@ Initiative 0006 — Skills Committee. Renames the 17 d-\* skills into three role
 - `drizzle-kit` ^0.30 → ^0.31.10 (drops `@esbuild-kit/core-utils` → clears esbuild 0.18/0.19).
 - Pinned overrides for transitive deps with no upstream release: `esbuild ^0.25.0`, `fast-xml-parser ^5.7.0` (`@aws-sdk/xml-builder` pin), `h3 ^1.15.9` (`vinxi` pin), `hono ^4.12.14`. Closes osv-scanner findings on PR #54.
 
+### Dependencies (major bumps)
+
+- `@anthropic-ai/sdk` ^0.39 → ^0.91.1
+- `@polar-sh/sdk` ^0.20 → ^0.47.1 — `polar.checkouts.custom.create` collapsed into `polar.checkouts.create({ products: [...] })`; `productId` → `products` array.
+- `@sentry/node` ^9 → ^10.50 — init signature compatible.
+- `@solidjs/router` ^0.15 → ^0.16.1
+- `inngest` ^3 → ^4.2.5 — `createFunction(opts, trigger, handler)` collapsed into `createFunction({ ...opts, triggers: [...] }, handler)`.
+- `posthog-node` ^4 → ^5.30.7
+- `resend` ^4 → ^6.12.2 — `CreateEmailResponse` now includes `headers`.
+- `knip` ^5 → ^6.8 (dev)
+- `typescript` ^5.9 → ^6.0.3 (dev)
+- Patch bumps: `@aws-sdk/client-s3` + `s3-request-presigner` 3.1030 → 3.1038, `better-auth` 1.6.2 → 1.6.9, `@types/bun` 1.3.12 → 1.3.13.
+
 ## Unreleased
 
 ### Added
