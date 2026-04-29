@@ -4,6 +4,20 @@ All notable changes to Gaia. Format adapted from [Keep a Changelog](https://keep
 
 The repo is pre-1.0. Breaking changes happen freely until v1.0.0.
 
+## [0.2.2] - 2026-04-29
+
+Hardens initiative 0005 (Wave 0 runtime). Adds a substrate clarification (Inngest is today's runtime; the wrapper insulates from a future iii.dev migration), expands risks from 5 to 15 (replication slot leakage, replay attacks, push storms, partial-response corruption, thundering herd, snapshot/WAL gap, cross-tenant filtering), and adds §7 Hardening Specification with per-PR file lists — 147 files specified across the 13 PRs (what each does, why it exists). 24 mechanical fix rows (AD-1..AD-24) appended to the audit trail. Source: `/autoplan` Claude subagent dual review (CEO + Eng), Codex unavailable. No scope expansion.
+
+### Changed
+
+- `.gaia/initiatives/0005-foundation-runtime/initiative.md`: substrate clarification + 10 new risks + §7 Hardening Specification + 24 audit-trail rows. File grew from 145 to 558 lines (no scope expansion — all hardening detail).
+
+### Fixed
+
+- `packages/workflows/index.ts`: `inngest.createFunction` 2-arg → 3-arg shape (matches Inngest v3 SDK + the example in `packages/workflows/CLAUDE.md`).
+- `apps/api/server/billing.ts`: `polar.checkouts.create` migrated to `polar.checkouts.custom.create` with `productId` + `metadata` (legacy API was deprecated; `products: [...]` field never existed).
+- `packages/adapters/email.test.ts`: drop `headers: null` from Resend mock + assertion (Resend SDK response type no longer carries `headers`).
+
 ## [0.2.1] - 2026-04-29
 
 Cleanup: `decisions/` folder retired. Operational deploy runbook (Railway config, Dockerfile rules, rollback, CLI cheatsheets) merged into `.claude/skills/w-deploy/reference.md` next to the principles it enforces. The empty `health.md` and the unfilled `maturity.md` template are gone — `a-health` now writes audits to `.gaia/audits/a-health/<YYYY-MM-DD>.md`, matching every other `a-*` skill.
