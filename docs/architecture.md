@@ -4,7 +4,7 @@
 
 ## TL;DR
 
-Gaia is a Bun + Elysia + SolidStart monorepo with a strict three-layer dependency graph. Apps depend on packages; packages never depend on apps. The CLI is published standalone (`@gaia/cli`) and shares a TYPE-ONLY protocol (`.gaia/protocols/cli.ts`) with the agent harness. Everything observable emits to one event log (Axiom) — no file-based audit folder.
+Gaia is a Bun + Elysia + SolidStart monorepo with a strict three-layer dependency graph. Apps depend on packages; packages never depend on apps. The CLI is published standalone on npm as `create-gaia` (one package, two bins: `create-gaia` and `gaia`) and shares a TYPE-ONLY protocol (`.gaia/protocols/cli.ts`) with the agent harness. Everything observable emits to one event log (Axiom) — no file-based audit folder.
 
 ## Layers
 
@@ -26,7 +26,7 @@ packages/                 # Primitives — concretely-named, single-purpose
 ├── ui/                   # Design tokens + components + styles
 └── workflows/            # Inngest job definitions
 
-cli/                      # Standalone-publishable @gaia/cli
+cli/                      # Standalone-publishable create-gaia
 └── src/                  # Bun + npm bin entry; no @gaia/* imports
 ```
 
@@ -58,7 +58,7 @@ Zero manual `type Foo = { ... }` for shapes that have a schema source. If you fi
 
 > **Abstract:** `.gaia/protocols/cli.ts` is type-only; CLI runtime lives in `cli/src/`; hooks may import the protocol.
 
-The CLI is published standalone as `@gaia/cli`. It cannot import from `@gaia/*` workspace packages — by design, so the npm tarball works on any developer's machine without monorepo context.
+The CLI is published standalone on npm as `create-gaia`. It cannot import from `@gaia/*` workspace packages — by design, so the npm tarball works on any developer's machine without monorepo context.
 
 To share the CLI surface contract (verbs, exit codes, NDJSON event names, state.json schema) with the agent harness, both sides import `.gaia/protocols/cli.ts` — a TYPE-ONLY file (types, constants, TypeBox schemas; no runtime). The CLI runtime (NDJSON emitter, state.json IO, telemetry, narration) lives in `cli/src/` and is not importable from elsewhere.
 

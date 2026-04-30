@@ -91,7 +91,7 @@ No. Gaia is opinionated: Bun + Elysia + SolidStart only. The architecture assume
 ├── .claude/          # Claude Code home — settings.json, hooks/, skills/ (h-* / w-* / a-* + gstack/)
 ├── apps/             # api/ (Elysia), web/ (SolidStart)
 ├── packages/         # core, config, errors, db, adapters, auth, ui, security, workflows
-├── cli/              # @gaia/cli — bun gaia <verb> (initiative 0002)
+├── cli/              # create-gaia — bun gaia <verb> (initiative 0002)
 ├── content/          # Human-authored markdown (blog, legal, emails)
 ├── tools/            # ast-grep config, custom rules
 ├── scripts/          # Cross-file checks (test ratio, manifest, coverage audit)

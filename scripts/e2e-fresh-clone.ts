@@ -55,7 +55,8 @@ const APP = 'fixture-app'
 
 try {
   // STEP 1 — bun create gaia@latest fixture-app
-  // Run cli/src/create.ts directly since we don't have a published @gaia/cli yet.
+  // Run cli/src/create.ts directly so the e2e test is hermetic — independent
+  // of whichever create-gaia version is currently published to npm.
   const createPath = join(REPO, 'cli/src/create.ts')
   const create = await run('bun', [createPath, APP], TMP)
   record(

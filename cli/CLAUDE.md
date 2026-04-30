@@ -1,6 +1,6 @@
 # cli/
 
-The Gaia CLI — published as `@gaia/cli` (and registered as the `gaia` and `create-gaia` npm bins). This is the front door of initiative 0002: a developer runs `bun create gaia@latest <name>` and the scaffolder takes them from `git clone` to live URL in ≤30 minutes.
+The Gaia CLI — published on npm as `create-gaia` with two bins: `create-gaia` (the scaffolder, invoked by `bun create gaia@latest <name>`) and `gaia` (the in-project verb runner, invoked by `bun gaia <verb>`). This is the front door of initiative 0002: a developer runs `bun create gaia@latest <name>` and the scaffolder takes them from `git clone` to live URL in ≤30 minutes.
 
 ## Folder layout
 
@@ -29,7 +29,7 @@ The Gaia CLI — published as `@gaia/cli` (and registered as the `gaia` and `cre
 
 ## Critical rules (cli-specific)
 
-- **Standalone publishable.** This package MUST work installed alone via `npm i -g @gaia/cli` with no monorepo context. Do NOT import from `@gaia/*` workspace packages — copy the code or duplicate the type. The CLI has its own minimal dependency tree.
+- **Standalone publishable.** This package MUST work installed alone via `bun add -g create-gaia` (or `npm i -g create-gaia`) with no monorepo context. Do NOT import from `@gaia/*` workspace packages — copy the code or duplicate the type. The CLI has its own minimal dependency tree.
 - **`.gitignore` before state.json.** The scaffolder writes `.gitignore` as the FIRST file. State.json and `.env.local` come AFTER. This invariant is unit-tested (AD-AP-17).
 - **No secrets in `state.json`.** State holds env-var **names**, never values (AD-AP-18). Validated by `scripts/check-state-json-no-secrets.ts` (lands in PR 3).
 - **TTHW-1 < 1000ms.** Banner must appear in <1s from `bun create gaia@latest` exec. Benchmark gate in `cli/test/banner.test.ts`.

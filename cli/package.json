@@ -1,7 +1,7 @@
 {
-  "name": "@gaia/cli",
+  "name": "create-gaia",
   "version": "0.2.0",
-  "description": "Gaia CLI — clone, install, deploy. Live URL in <30 minutes.",
+  "description": "Gaia template scaffolder + CLI — clone, install, deploy. Live URL in <30 minutes.",
   "keywords": [
     "agent-native",
     "claude-code",
