@@ -22,21 +22,36 @@ export const EnvSchema = Type.Object({
   // 'live' wires the real SDKs; the env vars below must be real keys.
   // Flip via `bun gaia live` (interactive) or set VENDOR_MODE=live in .env.local.
   VENDOR_MODE: Type.Union([Type.Literal('mock'), Type.Literal('live')], { default: 'mock' }),
-  DATABASE_URL: Type.String({ minLength: 1 }),
+  // The values below carry mock-mode defaults so `bun dev` boots with no
+  // configuration. In live mode (VENDOR_MODE=live) you MUST override these
+  // in .env.local with real keys. The startup-time check at the bottom of
+  // this file refuses to boot in live mode if any value still matches the
+  // 'mock_dev_only' marker — defense against accidental production deploy
+  // with placeholder secrets.
+  DATABASE_URL: Type.String({
+    minLength: 1,
+    default: 'postgresql://mock_dev_only:mock_dev_only@localhost:5432/mock_dev_only',
+  }),
   PORT: Type.Integer({ minimum: 1, maximum: 65535, default: 3000 }),
-  BETTER_AUTH_SECRET: Type.String({ minLength: 32 }),
+  BETTER_AUTH_SECRET: Type.String({
+    minLength: 32,
+    default: 'mock_dev_only_better_auth_secret_replace_in_live_mode_with_real_value',
+  }),
   PUBLIC_APP_URL: Type.String({ minLength: 1, default: 'http://localhost:3000' }),
 
   // ─── Payments: Polar ───────────────────────────────────────────
-  POLAR_ACCESS_TOKEN: Type.String({ minLength: 1 }),
-  POLAR_WEBHOOK_SECRET: Type.String({ minLength: 1 }),
-  POLAR_PRODUCT_ID: Type.String({ minLength: 1 }),
+  POLAR_ACCESS_TOKEN: Type.String({ minLength: 1, default: 'polar_at_mock_dev_only' }),
+  POLAR_WEBHOOK_SECRET: Type.String({ minLength: 1, default: 'polar_whsec_mock_dev_only' }),
+  POLAR_PRODUCT_ID: Type.String({ minLength: 1, default: 'prod_mock_dev_only' }),
 
   // ─── Email: Resend ─────────────────────────────────────────────
-  RESEND_API_KEY: Type.String({ minLength: 1 }),
+  RESEND_API_KEY: Type.String({ minLength: 1, default: 're_mock_dev_only' }),
 
   // ─── AI: Anthropic ─────────────────────────────────────────────
-  ANTHROPIC_API_KEY: Type.String({ pattern: '^sk-ant-' }),
+  ANTHROPIC_API_KEY: Type.String({
+    pattern: '^sk-ant-',
+    default: 'sk-ant-mock_dev_only',
+  }),
   // Per-user daily AI cost budget (USD). Free-tier defaults to $0.50;
   // pro-tier defaults to $5.00. Tune per business model. Admin role
   // bypasses budget. See packages/security/ai-budget.ts.
@@ -92,3 +107,24 @@ export function parseEnv(raw: Record<string, string | undefined>): Env {
 }
 
 export const env = parseEnv(process.env as Record<string, string | undefined>)
+
+// Live-mode safety net: refuse to boot if any required vendor value is
+// still the mock-mode placeholder. Catches the most common production
+// footgun — deploying without filling in .env.local.
+if (env.VENDOR_MODE === 'live') {
+  const placeholders: string[] = []
+  if (env.DATABASE_URL.includes('mock_dev_only')) placeholders.push('DATABASE_URL')
+  if (env.BETTER_AUTH_SECRET.includes('mock_dev_only')) placeholders.push('BETTER_AUTH_SECRET')
+  if (env.POLAR_ACCESS_TOKEN.includes('mock_dev_only')) placeholders.push('POLAR_ACCESS_TOKEN')
+  if (env.POLAR_WEBHOOK_SECRET.includes('mock_dev_only')) placeholders.push('POLAR_WEBHOOK_SECRET')
+  if (env.POLAR_PRODUCT_ID.includes('mock_dev_only')) placeholders.push('POLAR_PRODUCT_ID')
+  if (env.RESEND_API_KEY.includes('mock_dev_only')) placeholders.push('RESEND_API_KEY')
+  if (env.ANTHROPIC_API_KEY.includes('mock_dev_only')) placeholders.push('ANTHROPIC_API_KEY')
+  if (placeholders.length > 0) {
+    throw new Error(
+      `VENDOR_MODE=live but these variables are still the mock-mode placeholder:\n` +
+        placeholders.map((p) => `  - ${p}`).join('\n') +
+        `\n\nFix: run \`bun gaia live\` (interactive) or set real values in .env.local.\n`,
+    )
+  }
+}

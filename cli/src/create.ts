@@ -334,6 +334,12 @@ export function customizePackageJson(targetDir: string, projectSlug: string): bo
   }
   pkg.name = projectSlug
   pkg.version = '0.1.0'
+  // Drop the "cli" workspace entry — that's the create-gaia-app source,
+  // excluded from the user's project by EXCLUDE_PATHS. Leaving it in
+  // package.json crashes `bun install` with "Workspace not found 'cli'".
+  if (Array.isArray(pkg.workspaces)) {
+    pkg.workspaces = (pkg.workspaces as string[]).filter((w) => w !== 'cli')
+  }
   // Pretty-print preserving 2-space indent + trailing newline (npm convention).
   writeFileSync(pkgPath, `${JSON.stringify(pkg, null, 2)}\n`)
   return true
