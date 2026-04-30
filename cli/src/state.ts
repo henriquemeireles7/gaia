@@ -68,7 +68,7 @@ export function load(path: string): LoadResult {
     const first = errors.map((err) => `${err.path} ${err.message}`).join('; ')
     return {
       ok: false,
-      error: `state.json schema mismatch: ${first}. Run \`bun create gaia@latest <slug> --force\` to recreate, or hand-edit \`.gaia/state.json\` to match version 1.`,
+      error: `state.json schema mismatch: ${first}. Run \`bun create gaia-app@latest <slug> --force\` to recreate, or hand-edit \`.gaia/state.json\` to match version 1.`,
       reason: 'schema-mismatch',
     }
   }

@@ -1,7 +1,7 @@
 // cli/src/ui/banner.ts — the TTHW-1 banner.
 //
 // Per initiative 0002 AD-AP-13: the banner must render in <1000ms from
-// `bun create gaia@latest` exec. It's the first thing a developer sees
+// `bun create gaia-app@latest` exec. It's the first thing a developer sees
 // after cloning, and it sets the live-narration tone for the next 28 minutes.
 //
 // PR 2 ships the banner with synchronous ANSI output. PR 3 wires the NDJSON

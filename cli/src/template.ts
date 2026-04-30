@@ -4,7 +4,7 @@
 //   1. **In-source** — running from inside a Gaia repo checkout (e.g.
 //      `bun /path/to/gaia/cli/src/create.ts myapp`). Copy the repo's
 //      template tree directly. Used for local dev + CI.
-//   2. **Published** — `bun create gaia@latest myapp` from npm. Either the
+//   2. **Published** — `bun create gaia-app@latest myapp` from npm. Either the
 //      tarball ships a `template/` dir we copy from, OR we `git clone`
 //      the upstream repo at v1.0 tag. v1 ships the git-clone path; the
 //      bundled-tarball path is a future optimization.

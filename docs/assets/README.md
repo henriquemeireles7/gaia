@@ -10,11 +10,11 @@ Static assets referenced by README, docs site, and the launch announcement.
 
 ## What's coming
 
-| Asset       | Purpose                                                                                                            | Lands in |
-| ----------- | ------------------------------------------------------------------------------------------------------------------ | -------- |
-| `demo.cast` | Asciinema recording of a real founder run (`bun create gaia@latest` → `bun gaia verify-keys` → `deploy` → `smoke`) | PR 10    |
-| `og.png`    | Open Graph social-preview card (1200×630 PNG, GitHub social-preview spec)                                          | PR 10    |
-| `demo.tape` | [vhs.charm.sh](https://github.com/charmbracelet/vhs) script that regenerates `demo.gif` from a tape                | PR 10    |
+| Asset       | Purpose                                                                                                                | Lands in |
+| ----------- | ---------------------------------------------------------------------------------------------------------------------- | -------- |
+| `demo.cast` | Asciinema recording of a real founder run (`bun create gaia-app@latest` → `bun gaia verify-keys` → `deploy` → `smoke`) | PR 10    |
+| `og.png`    | Open Graph social-preview card (1200×630 PNG, GitHub social-preview spec)                                              | PR 10    |
+| `demo.tape` | [vhs.charm.sh](https://github.com/charmbracelet/vhs) script that regenerates `demo.gif` from a tape                    | PR 10    |
 
 ## Conventions
 

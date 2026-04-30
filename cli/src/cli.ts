@@ -62,7 +62,7 @@ function printHelp(): void {
       `  --state-file=<path>  Override ./.gaia/state.json location\n` +
       `  --version        Print versions (cli + bun + node)\n` +
       `  --help, -h       This help\n\n` +
-      `Bootstrap a new project: bun create gaia@latest <name>\n` +
+      `Bootstrap a new project: bun create gaia-app@latest <name>\n` +
       `Docs: https://github.com/henriquemeireles7/gaia\n\n`,
   )
 }

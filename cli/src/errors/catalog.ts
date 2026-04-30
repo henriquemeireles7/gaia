@@ -60,28 +60,28 @@ export const CATALOG: ReadonlyArray<ErrorEntry> = [
     cause: 'Bun runtime is missing or below the required version (≥1.2).',
     fix: 'Install or upgrade Bun: `curl -fsSL https://bun.sh/install | bash`',
     docsUrl: 'https://bun.sh/docs/installation',
-    nextCommand: 'bun create gaia@latest <project-slug>',
+    nextCommand: 'bun create gaia-app@latest <project-slug>',
   },
   {
     code: 'E1002',
     cause: 'Gaia v1 supports macOS and Linux only — Windows is not supported.',
     fix: 'Use WSL2 (Windows Subsystem for Linux). Native Windows support is tracked for v1.1.',
     docsUrl: 'https://learn.microsoft.com/windows/wsl/install',
-    nextCommand: 'wsl --install && bun create gaia@latest <project-slug>',
+    nextCommand: 'wsl --install && bun create gaia-app@latest <project-slug>',
   },
   {
     code: 'E1003',
     cause: 'The target directory already exists and --force was not passed.',
     fix: 'Pick a different name OR pass --force to overwrite (refuses to overwrite without --yes).',
     docsUrl: `${REPO}#faq`,
-    nextCommand: 'bun create gaia@latest <different-slug>',
+    nextCommand: 'bun create gaia-app@latest <different-slug>',
   },
   {
     code: 'E1004',
     cause: 'Cannot write to the parent directory.',
     fix: 'Run from a directory you own (e.g. ~/code/), not /tmp or a system path.',
     docsUrl: `${REPO}#faq`,
-    nextCommand: 'cd ~/code && bun create gaia@latest <project-slug>',
+    nextCommand: 'cd ~/code && bun create gaia-app@latest <project-slug>',
   },
   {
     code: 'E1005_INVALID_SLUG',
@@ -89,14 +89,14 @@ export const CATALOG: ReadonlyArray<ErrorEntry> = [
       'Project slug must be lowercase letters / digits / dashes (3-40 chars), starting with a letter.',
     fix: 'Pick a slug like `weekend-saas` or `myapp-2`. Avoid spaces, uppercase, leading dashes/digits.',
     docsUrl: `${REPO}#quick-start`,
-    nextCommand: 'bun create gaia@latest <valid-slug>',
+    nextCommand: 'bun create gaia-app@latest <valid-slug>',
   },
   {
     code: 'E1099_INTERNAL_CREATE',
-    cause: 'Internal scaffolder error — an exception escaped `bun create gaia@latest`.',
+    cause: 'Internal scaffolder error — an exception escaped `bun create gaia-app@latest`.',
     fix: 'Capture the stderr output and file an issue. Try a different target directory if the error mentions filesystem.',
     docsUrl: `${REPO}/issues/new`,
-    nextCommand: 'bun create gaia@latest <new-slug>',
+    nextCommand: 'bun create gaia-app@latest <new-slug>',
   },
 
   // ───── E2xxx — verify-keys (cli/src/providers/*)
@@ -274,7 +274,7 @@ export const CATALOG: ReadonlyArray<ErrorEntry> = [
   {
     code: 'E3098_DEPLOY_RUNNER_PENDING',
     cause:
-      'Railway runner is not wired in this build — the standalone-publishable create-gaia ships in a future PR.',
+      'Railway runner is not wired in this build — the standalone-publishable create-gaia-app ships in a future PR.',
     fix: 'Run `railway up` directly until the runner integration ships.',
     docsUrl: `${REPO}#what-if-the-deploy-breaks`,
     nextCommand: 'railway up',

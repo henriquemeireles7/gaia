@@ -648,7 +648,7 @@ Ordered by blocking priority:
 
 6. **Tool schemas library** — typed schemas for bash, github, deploy, database, and the Gaia CLI. Pre-populated with preconditions, side-effects, approval gates.
 
-7. **Onboarding / initial setup** — `bun create gaia@latest` first-run flow.
+7. **Onboarding / initial setup** — `bun create gaia-app@latest` first-run flow.
 
 8. **Security-by-default Elysia package** — rate limiting, headers, CSRF, validation gateway, session security, audit logging pre-wired in `packages/security/`.
 

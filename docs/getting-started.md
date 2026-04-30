@@ -5,7 +5,7 @@ A 15-minute walkthrough from `git clone` to a live URL. The CLI narrates every s
 ## 1. The four-line install
 
 ```bash
-bun create gaia@latest weekend-saas
+bun create gaia-app@latest weekend-saas
 cd weekend-saas
 claude
 # Then in Claude: "set me up"
@@ -17,7 +17,7 @@ The agent will run `bun gaia verify-keys` first. If you'd rather drive manually,
 
 ## 2. What just happened
 
-`bun create gaia@latest <slug>` ran a deterministic scaffolder with three invariants:
+`bun create gaia-app@latest <slug>` ran a deterministic scaffolder with three invariants:
 
 1. **`.gitignore` first.** Before any state file is written, `.gitignore` lands so a botched run followed by `git add .` cannot leak secrets.
 2. **`.env.local` template.** Empty values for the four keys you'll fill in next: `POLAR_ACCESS_TOKEN`, `RESEND_API_KEY`, `DATABASE_URL`, `RAILWAY_TOKEN`.

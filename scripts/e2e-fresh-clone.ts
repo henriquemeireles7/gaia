@@ -2,7 +2,7 @@
 //
 // Runs inside `.github/workflows/e2e-fresh-clone.yml` (matrix: ubuntu-latest +
 // macos-latest). Asserts the 6 invariants from the initiative:
-//   1. `bun create gaia@latest fixture-app` exits 0
+//   1. `bun create gaia-app@latest fixture-app` exits 0
 //   2. fixture-app/.gitignore contains `.env.local` (gitignore-first invariant)
 //   3. `bun gaia verify-keys --json --ci` exits 65 with empty .env.local (expected — no real keys in CI)
 //   4. State.json schema is valid (TypeBox v1)
@@ -54,9 +54,9 @@ const TMP = mkdtempSync(join(tmpdir(), 'gaia-e2e-'))
 const APP = 'fixture-app'
 
 try {
-  // STEP 1 — bun create gaia@latest fixture-app
+  // STEP 1 — bun create gaia-app@latest fixture-app
   // Run cli/src/create.ts directly so the e2e test is hermetic — independent
-  // of whichever create-gaia version is currently published to npm.
+  // of whichever create-gaia-app version is currently published to npm.
   const createPath = join(REPO, 'cli/src/create.ts')
   const create = await run('bun', [createPath, APP], TMP)
   record(

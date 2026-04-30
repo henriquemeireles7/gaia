@@ -30,7 +30,7 @@ The strategic premise: agents read first, humans second. Every architectural dec
 
 Why now: paying customers are not yet here. Once they arrive, the calcification begins — the four foundational v5 moves (event partition strategy, projection materialization model, cross-instance replication, async function discipline) become months-long migrations rather than design choices. Wave 0 is the only window where these decisions cost a discipline rather than a rewrite.
 
-Named demand evidence: solo founders shipping production SaaS in the agent era — the Lovable-graduate ICP from Initiative 0002 — need an opinionated, agent-native substrate where the first conversation with the system happens in the first 90 seconds after `bun create gaia my-app`.
+Named demand evidence: solo founders shipping production SaaS in the agent era — the Lovable-graduate ICP from Initiative 0002 — need an opinionated, agent-native substrate where the first conversation with the system happens in the first 90 seconds after `bun create gaia-app my-app`.
 
 ## 2. Strategy
 
@@ -50,7 +50,7 @@ Named demand evidence: solo founders shipping production SaaS in the agent era �
 | Metering             | `packages/metering/` — pricing, meter as iii Function, invoice projection                                                                                                  | —                                                                                                                                                                                    |
 | Telemetry            | `packages/telemetry/contribute/` (iii Function, batching, backoff) + `consume/` for registry-mode                                                                          | Cross-instance replicas (defer to 0005)                                                                                                                                              |
 | Apps                 | `apps/web/src/routes/chat.tsx` + `apps/web/src/routes/timeline.tsx` v0.1 (added to existing SolidStart app, not separate apps); MCP plugin mounted at `/mcp` in `apps/api` | Admin app (defers to 0006), composer/marketing/labor/docs (later waves); separate `apps/chat/` + `apps/timeline/` SolidStart instances (consolidated into apps/web routes per §7.15) |
-| Onboarding           | `bun create gaia my-app` → working SaaS in ≤90 seconds with auth, payments, MCP endpoint, chat surface, billing meter, telemetry opt-in, deployed URL                      | Self-healing deploy (Initiative 0002 territory)                                                                                                                                      |
+| Onboarding           | `bun create gaia-app my-app` → working SaaS in ≤90 seconds with auth, payments, MCP endpoint, chat surface, billing meter, telemetry opt-in, deployed URL                  | Self-healing deploy (Initiative 0002 territory)                                                                                                                                      |
 
 **Preserved**: every v4 invariant carries forward unchanged. v5's _additions_ on top of these primitives (materialization handlers, replicas, push, streaming spine, budgets) live in 0005.
 
@@ -170,7 +170,7 @@ gaia/  (working copy: san-diego)
 │   │   ├── contribute/src/{schema.ts, hash.ts, queue.ts, backoff.ts, contribute.ts}
 │   │   └── consume/src/consume.ts
 │   │
-│   └── create-gaia/                  # NEW (PR 14) — `bun create gaia my-app` scaffolder
+│   └── create-gaia-app/                  # NEW (PR 14) — `bun create gaia-app my-app` scaffolder
 │       ├── src/{cli.ts, online.ts, check-name.ts, validate-keys.ts, scaffold.ts, railway.ts, telemetry-prompt.ts, timing.ts}
 │       └── template/                 # snapshot of the repo state at PR 13 merge
 │
@@ -220,7 +220,7 @@ gaia/  (working copy: san-diego)
 11. **PR 11 — Timeline surface (routes in `apps/web`) + healthz.** `apps/web/src/routes/timeline.tsx` + `apps/web/src/routes/healthz.ts` (combined DB + MCP + iii.dev probe; Railway healthcheck pins here). Errors render as `error.*` events in the feed; no Sentry beyond what's already wired.
 12. **PR 12 — `.gaia/reference/architecture/`.** Six primitives + four surfaces canonical reference.
 13. **PR 13 — `.claude/skills/w-converse/`.** Harness skill operating the conversation surface during development.
-14. **PR 14 — `packages/create-gaia/` + Railway deploy.** Snapshot the repo at PR 13 merge as the template; CLI provisions Railway + validates Polar/Resend keys + telemetry opt-in default. Target: ≤90s `bun create gaia my-app` → deployed `/healthz` 200.
+14. **PR 14 — `packages/create-gaia-app/` + Railway deploy.** Snapshot the repo at PR 13 merge as the template; CLI provisions Railway + validates Polar/Resend keys + telemetry opt-in default. Target: ≤90s `bun create gaia-app my-app` → deployed `/healthz` 200.
 15. **PRs 15a / 15b / 15 — Audit checkpoints.** Mid-wave (after PR 4 + PR 9) and end-of-wave invariant audits.
 
 **Risks**:
@@ -639,19 +639,19 @@ apps/web/src/routes/healthz.test.ts # 200 only when all three healthy; 503 other
 └── reference.md                   # Conversation flow principles; how to invoke parser/planner/confirmation; progressive confirmation rules
 ```
 
-### PR 14 — bun create gaia onboarding script + Railway deploy
+### PR 14 — bun create gaia-app onboarding script + Railway deploy
 
-**Why:** F-5 — the 90-second-onboarding promise is the hypothesis test. §7.8 commits failure-mode handling. Telemetry opt-in default everywhere per founder F-13. Per §7.15 the **template is this monorepo at PR 13 merge state** — `packages/create-gaia/template/` is generated by a snapshot script, not authored by hand.
+**Why:** F-5 — the 90-second-onboarding promise is the hypothesis test. §7.8 commits failure-mode handling. Telemetry opt-in default everywhere per founder F-13. Per §7.15 the **template is this monorepo at PR 13 merge state** — `packages/create-gaia-app/template/` is generated by a snapshot script, not authored by hand.
 
 ```
-packages/create-gaia/             # The bun create gaia my-app entry point (per F-5)
-├── package.json                   # bin: { "create-gaia": "./dist/cli.js" }; published as @gaia/create
+packages/create-gaia-app/             # The bun create gaia-app my-app entry point (per F-5)
+├── package.json                   # bin: { "create-gaia-app": "./dist/cli.js" }; published as @gaia/create
 ├── src/
 │   ├── cli.ts                     # Main CLI; Commander/yargs entry; orchestrates the steps below
 │   ├── online.ts                  # Connectivity check; offline → fail fast with "you need internet for the deploy" (F28)
 │   ├── check-name.ts              # Railway name conflict check; suggests 3 alternatives if taken (F28)
 │   ├── validate-keys.ts           # Test calls to Polar + Resend with provided keys; fails before Railway provisioning if invalid (F28)
-│   ├── scaffold.ts                # Copies template into target dir (template lives at packages/create-gaia/template/)
+│   ├── scaffold.ts                # Copies template into target dir (template lives at packages/create-gaia-app/template/)
 │   ├── railway.ts                 # Provisions Railway services; rollback on validation failure (F28); pins healthcheck to /healthz
 │   ├── telemetry-prompt.ts        # Opt-in by default everywhere; one-line copy with reversal hint (F-13)
 │   ├── timing.ts                  # Wall-clock measurement; logs each step's duration; total target ≤90s
@@ -664,7 +664,7 @@ packages/create-gaia/             # The bun create gaia my-app entry point (per 
 │   ├── packages/                  # Empty workspace dirs
 │   ├── package.json               # Pre-pinned per PR 1
 │   └── README.md                  # First-run instructions
-└── scripts/test-onboarding.ts     # E2E: bun create gaia → deploy → /healthz 200, total ≤90s (timed test, F-5 verification)
+└── scripts/test-onboarding.ts     # E2E: bun create gaia-app → deploy → /healthz 200, total ≤90s (timed test, F-5 verification)
 ```
 
 ### PR 15a — Mid-wave audit checkpoint (after PR 4 merges)
@@ -711,7 +711,7 @@ If audit passes, the initiative `status:` frontmatter flips to `shipped` and the
 | F-2 | Six v4 invariants ship in 0004 unchanged from v4: events, hexagonal, tenancy, agent-native runtime, metering, telemetry contribution.                      | Founder 2026-04-29 (v5 vision §Wave 0) |
 | F-3 | Locked stack frozen v1.0: Bun, Elysia, SolidStart, Eden Treaty, TypeBox, Drizzle, Neon, Better Auth, Polar, Resend, Railway. No swaps allowed v1.0.        | Founder 2026-04-29 (v5 vision §Wave 0) |
 | F-4 | Logical replication enabled on Neon Postgres from day one. Consumer infrastructure ships in 0005 — but the _capability_ is on at the DB layer immediately. | Founder 2026-04-29 (v5 calcification)  |
-| F-5 | `bun create gaia my-app` target: ≤90 seconds to a deployed URL with auth, payments, MCP, chat, billing meter, telemetry opt-in.                            | Founder 2026-04-29 (v5 vision §Wave 0) |
+| F-5 | `bun create gaia-app my-app` target: ≤90 seconds to a deployed URL with auth, payments, MCP, chat, billing meter, telemetry opt-in.                        | Founder 2026-04-29 (v5 vision §Wave 0) |
 | F-6 | Telemetry contribution opt-in by default, reversible from chat. Cost in basis points of compute, not percent.                                              | Founder 2026-04-29 (v5 vision §Wave 0) |
 | F-7 | Hexagonal lint rule enforced in CI: `packages/domain/` may not import from `packages/adapters/`.                                                           | Founder 2026-04-29 (v5 vision §Wave 0) |
 | F-8 | Tenancy invariant enforced via `validate-artifacts.ts`: tables without `tenant_id` fail `bun run check`.                                                   | Founder 2026-04-29 (v5 vision §Wave 0) |
@@ -951,7 +951,7 @@ The original initiative §1 described the repo as a "methodology-and-harness ske
 | R-6  | **`packages/adapters/ai.ts` → `packages/adapters/llm/` is a refactor**, not a fresh build. Existing OpenTelemetry span tags (model/tokens/latency/cost/tool_use_count/error_class) are preserved verbatim in the streaming adapters. The non-streaming `complete()` becomes a thin wrapper over the new `AsyncIterable<LLMChunk>` contract so any current caller stays working.                                                                                                                                              | PR 6          | Medium — touches a vendor adapter; existing `ai.test.ts` ports forward |
 | R-7  | **Polar webhook reuses existing infrastructure.** `apps/api/server/app.ts:/webhooks/polar` already calls `verifyWebhook` (signature) and the `webhook_events` table provides idempotency. PR 8 does NOT add a new webhook route, signature handler, or dedup table — it adds `processPolarEvent` projection logic in `packages/metering/invoice/polar/processor.ts` and rewires `apps/api/server/billing.ts:processPolarEvent` to delegate. The "polar_webhook_dedup" table from the original §5b is **dropped from scope**. | PR 8          | Low — fewer moving parts                                               |
 | R-8  | **`tenant_id` retrofit on existing tables.** `subscriptions`, `webhook_events`, `api_keys` ship today without `tenant_id`. PR 4 adds the column with `DEFAULT 'default'` for existing rows + RLS policies. Better Auth tables (`users`, `sessions`, `accounts`, `verifications`) go on the permanent `validate-artifacts.ts` allowlist.                                                                                                                                                                                      | PR 4          | Medium — single migration window with RLS policy review                |
-| R-9  | **`packages/create-gaia/template/` is a snapshot of the repo at PR 13 merge**, not a hand-written template. Generated by a snapshot script run as part of PR 14. Whatever ships at PR 13 is what `bun create gaia` produces.                                                                                                                                                                                                                                                                                                 | PR 14         | Low — eliminates template-drift risk                                   |
+| R-9  | **`packages/create-gaia-app/template/` is a snapshot of the repo at PR 13 merge**, not a hand-written template. Generated by a snapshot script run as part of PR 14. Whatever ships at PR 13 is what `bun create gaia` produces.                                                                                                                                                                                                                                                                                             | PR 14         | Low — eliminates template-drift risk                                   |
 | R-10 | **`.gaia/rules/checks/validate-artifacts.ts` is extended, not replaced.** It exists today (initiative-frontmatter checks only). PR 4 adds rule modules under `.gaia/rules/checks/lib/{layer-table.ts,postgres-introspect.ts,ts-import-graph.ts}`; PRs 3, 5, 8 each contribute a rule. The single-script entrypoint stays, so `bun run check`'s long script list does not grow.                                                                                                                                               | PR 4 (+3,5,8) | Low                                                                    |
 
 **Existing-files-touched trace** (grep aid for w-code):
