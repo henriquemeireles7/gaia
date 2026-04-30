@@ -59,6 +59,7 @@ const EXCLUDE_GLOB =
 
 export type TemplateMode = 'in-source' | 'git-clone' | 'unavailable'
 
+/** @public */
 export type TemplateInput = {
   targetDir: string
   /** Override for tests: where to copy from in in-source mode. */
@@ -67,6 +68,7 @@ export type TemplateInput = {
   skipGitClone?: boolean
 }
 
+/** @public */
 export type TemplateResult = {
   mode: TemplateMode
   filesCopied: number

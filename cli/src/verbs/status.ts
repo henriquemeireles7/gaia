@@ -12,11 +12,13 @@ import { type StandardFlags } from '../flags.ts'
 import { defaultStatePath, load } from '../state.ts'
 import { colorize } from '../ui/banner.ts'
 
+/** @public */
 export type StatusInput = {
   projectDir: string
   flags: StandardFlags
 }
 
+/** @public */
 export type StatusResult = {
   exitCode: ExitCodeValue
 }

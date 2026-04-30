@@ -41,6 +41,7 @@ export type SmokeResult = {
   error?: { code: string; message: string }
 }
 
+/** @public */
 export type Assertion = (input: { baseUrl: string; fetcher: Fetcher }) => Promise<SmokeResult>
 
 // ---------------------------------------------------------------------------

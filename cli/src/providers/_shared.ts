@@ -6,7 +6,7 @@
 
 import type { Fetcher, VerifyResult } from './types.ts'
 
-export const PROVIDER_FETCH_TIMEOUT_MS = 15_000
+const PROVIDER_FETCH_TIMEOUT_MS = 15_000
 
 /** Build a VerifyResult.failure with consistent shape (#13). */
 export function failure(

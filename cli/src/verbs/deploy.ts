@@ -31,6 +31,7 @@ export type DeployRunner = {
   invokeDFail: (failure: ClassifiedFailure) => Promise<{ ok: true } | { ok: false; reason: string }>
 }
 
+/** @public */
 export type DeployInput = {
   projectDir: string
   flags: StandardFlags & { withCi?: boolean }
@@ -39,6 +40,7 @@ export type DeployInput = {
   sleep?: (ms: number) => Promise<void>
 }
 
+/** @public */
 export type DeployResult = {
   exitCode: ExitCodeValue
   url?: string

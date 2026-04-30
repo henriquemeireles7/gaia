@@ -35,6 +35,7 @@ const TELEMETRY_ALLOWLIST = [
 
 type AllowedField = (typeof TELEMETRY_ALLOWLIST)[number]
 
+/** @public */
 export type TelemetryEventName =
   | 'cli.create.start'
   | 'cli.verb.start'
@@ -43,12 +44,14 @@ export type TelemetryEventName =
   | 'cli.first_run'
   | 'cli.ttfd'
 
+/** @public */
 export type TelemetryEvent = {
   event: TelemetryEventName
   properties: Partial<Record<AllowedField, unknown>>
   ts: string
 }
 
+/** @public */
 export type TelemetryConfig = {
   /** Honors GAIA_TELEMETRY=off env var. */
   envOverride: string | undefined
@@ -103,6 +106,7 @@ export function sanitize(
   return out
 }
 
+/** @public */
 export type TelemetryClient = {
   enabled: boolean
   buffer: TelemetryEvent[]

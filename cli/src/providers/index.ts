@@ -9,6 +9,7 @@ import * as resend from './resend.ts'
 
 import type { Fetcher, ProviderSetupInfo, VerifyResult } from './types.ts'
 
+/** @public */
 export type ProviderName = 'polar' | 'resend' | 'neon' | 'railway'
 
 export const PROVIDERS: ReadonlyArray<{
@@ -28,6 +29,7 @@ export const PROVIDERS: ReadonlyArray<{
   },
 ]
 
+/** @public */
 export type EnvFile = Record<string, string>
 
 /**
@@ -60,4 +62,4 @@ export function loadEnvFile(path: string): EnvFile {
   return parseEnvFile(readFileSync(path, 'utf-8'))
 }
 
-export type { Fetcher, ProviderSetupInfo, VerifyResult } from './types.ts'
+export type { Fetcher, VerifyResult } from './types.ts'

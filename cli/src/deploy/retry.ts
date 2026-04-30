@@ -10,6 +10,7 @@ export type RetryOutcome<T> =
   | { ok: true; value: T; attempts: number }
   | { ok: false; lastError: Error; attempts: number }
 
+/** @public */
 export type RetryOptions<T> = {
   /** The operation to attempt; throws on failure. */
   attempt: () => Promise<T>

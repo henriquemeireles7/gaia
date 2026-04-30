@@ -17,11 +17,13 @@ import { loadEnvFile, PROVIDERS } from '../providers/index.ts'
 import { colorize } from '../ui/banner.ts'
 import { verifyKeys } from './verify-keys.ts'
 
+/** @public */
 export type SetupInput = {
   projectDir: string
   flags: StandardFlags
 }
 
+/** @public */
 export type SetupResult = {
   exitCode: ExitCodeValue
   filledKeys: readonly string[]

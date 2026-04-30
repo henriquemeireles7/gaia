@@ -17,6 +17,7 @@ export type StandardFlags = {
   help: boolean
 }
 
+/** @public */
 export type ParsedArgs = {
   flags: StandardFlags
   positional: readonly string[]
@@ -85,15 +86,4 @@ export function parseFlags(argv: readonly string[]): ParsedArgs {
   }
 
   return { flags, positional, unknownFlags }
-}
-
-/**
- * Compute whether colored output is allowed for this invocation.
- * Honors --no-color, NO_COLOR env, non-TTY stderr, and CI env.
- */
-export function shouldUseColor(flags: StandardFlags, isTty: boolean): boolean {
-  if (flags.noColor) return false
-  if (process.env.NO_COLOR === '1' || process.env.NO_COLOR === 'true') return false
-  if (process.env.CI === 'true') return false
-  return isTty
 }

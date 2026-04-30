@@ -13,6 +13,7 @@ import { defaultStatePath, load, update } from '../state.ts'
 import { colorize } from '../ui/banner.ts'
 import { createNarrator } from '../ui/narrate.ts'
 
+/** @public */
 export type SmokeInput = {
   projectDir: string
   baseUrl: string
@@ -20,6 +21,7 @@ export type SmokeInput = {
   fetcher?: Fetcher
 }
 
+/** @public */
 export type SmokeOutcome = {
   exitCode: ExitCodeValue
   results: readonly SmokeResult[]

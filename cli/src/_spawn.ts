@@ -11,6 +11,7 @@
 
 import { spawn } from 'node:child_process'
 
+/** @public */
 export type RunOptions = {
   cwd?: string
   /** Bytes piped into the child's stdin. Useful for `gh secret set --body -`. */
@@ -21,6 +22,7 @@ export type RunOptions = {
   forwardSignals?: boolean
 }
 
+/** @public */
 export type RunResult = {
   exitCode: number
   stdout: string

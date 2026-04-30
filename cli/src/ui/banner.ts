@@ -27,6 +27,7 @@ export function colorize(color: Color, text: string): string {
   return `${ANSI[color]}${text}${ANSI.reset}`
 }
 
+/** @public */
 export type BannerOptions = {
   projectSlug: string
   cliVersion: string

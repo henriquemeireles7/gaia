@@ -6,12 +6,14 @@
 
 import { runCommand } from '../_spawn.ts'
 
+/** @public */
 export type SyncResult = {
   ok: boolean
   synced: readonly string[]
   errors: readonly { name: string; message: string }[]
 }
 
+/** @public */
 export type SyncOptions = {
   envVarNames: readonly string[]
   envValues: Readonly<Record<string, string>>

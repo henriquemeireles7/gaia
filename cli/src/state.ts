@@ -30,6 +30,7 @@ import { StateSchemaV1, type StateV1 } from './state.schema.ts'
 const LOCK_TIMEOUT_MS = 5000
 const LOCK_POLL_MS = 50
 
+/** @public */
 export type LoadResult =
   | { ok: true; state: StateV1 }
   | { ok: false; error: string; reason: 'not-found' | 'corrupted' | 'schema-mismatch' }

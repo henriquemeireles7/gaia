@@ -13,6 +13,7 @@ import { findEntry } from '../errors/catalog.ts'
 import type { Emitter } from '../events.ts'
 import { colorize } from './banner.ts'
 
+/** @public */
 export type NarrateOptions = {
   emitter: Emitter
   /** When true, no stderr output. Events still emit if --json. */
@@ -21,6 +22,7 @@ export type NarrateOptions = {
   verbose: boolean
 }
 
+/** @public */
 export type Narrator = {
   step: <T>(name: string, fn: () => Promise<T> | T, opts?: { hint?: string }) => Promise<T>
   ok: (name: string, message?: string) => void

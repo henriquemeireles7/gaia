@@ -12,6 +12,7 @@ import { colorize } from '../ui/banner.ts'
 
 const ISSUES_URL = 'https://github.com/henriquemeireles7/gaia/issues/new?title=unknown+error+code'
 
+/** @public */
 export type ExplainInput = {
   code: string | undefined
   /** Free-text search — matches code, cause, fix, next. */
@@ -21,6 +22,7 @@ export type ExplainInput = {
   flags: StandardFlags
 }
 
+/** @public */
 export type ExplainResult = {
   exitCode: ExitCodeValue
   entry?: ErrorEntry

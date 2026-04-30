@@ -18,6 +18,7 @@ import { runCommand as spawnHelper } from '../_spawn.ts'
 import { type ClassifiedFailure } from './classifier.ts'
 import type { DeployRunner } from '../verbs/deploy.ts'
 
+/** @public */
 export type RunCommand = (
   cmd: string,
   args: readonly string[],
@@ -55,6 +56,7 @@ const runWithTimeout = async (
   }
 }
 
+/** @public */
 export type ProductionRunnerOptions = {
   projectDir: string
   /** Test seam — defaults to spawn(). */

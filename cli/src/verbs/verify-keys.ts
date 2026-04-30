@@ -14,6 +14,7 @@ import { loadEnvFile, PROVIDERS, type Fetcher, type VerifyResult } from '../prov
 import { defaultStatePath, load, update } from '../state.ts'
 import { createNarrator } from '../ui/narrate.ts'
 
+/** @public */
 export type VerifyKeysInput = {
   projectDir: string
   flags: StandardFlags
@@ -23,6 +24,7 @@ export type VerifyKeysInput = {
   fetcher?: Fetcher
 }
 
+/** @public */
 export type VerifyKeysResult = {
   exitCode: ExitCodeValue
   results: readonly VerifyResult[]

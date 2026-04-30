@@ -10,6 +10,7 @@
 
 import { randomBytes } from 'node:crypto'
 
+/** @public */
 export type Verb = 'create' | 'verify-keys' | 'deploy' | 'smoke' | 'explain' | 'setup' | 'status'
 
 export type EventName =
@@ -46,6 +47,7 @@ export function generateRunId(): string {
   return randomBytes(8).toString('hex')
 }
 
+/** @public */
 export type EmitterOptions = {
   verb: Verb
   runId: string
