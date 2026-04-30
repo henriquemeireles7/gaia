@@ -19,6 +19,65 @@ import { formatFailure, preflight } from './preflight.ts'
 import { layDownTemplate, type TemplateMode } from './template.ts'
 import { printBanner } from './ui/banner.ts'
 
+/**
+ * Initialize a fresh git repo in the scaffolded project. Three commands:
+ * `git init --initial-branch=main`, `git add .`, `git commit -m ...`.
+ *
+ * Two failure modes handled:
+ *   1. git not installed → returns ok:false, scaffolder logs a hint
+ *   2. user.email / user.name not configured globally → retry with
+ *      scaffolder defaults baked in via `-c`. The `commit.gpgsign=false`
+ *      override means the commit succeeds even if the user has GPG
+ *      signing enabled but no key on this machine — the scaffolder is
+ *      not the right place to fail on that.
+ */
+async function runGitInit(targetDir: string): Promise<{ ok: boolean; reason?: string }> {
+  const init = await runCommand('git', ['init', '--initial-branch=main'], {
+    cwd: targetDir,
+    timeoutMs: 30_000,
+  })
+  if (init.exitCode !== 0) {
+    return { ok: false, reason: `git init: ${init.stderr.slice(0, 120)}` }
+  }
+  const add = await runCommand('git', ['add', '.'], { cwd: targetDir, timeoutMs: 30_000 })
+  if (add.exitCode !== 0) {
+    return { ok: false, reason: `git add: ${add.stderr.slice(0, 120)}` }
+  }
+  // First try with the user's existing global config. If user.email is
+  // missing, retry with scaffolder defaults — common on fresh dev boxes.
+  const baseArgs = [
+    '-c',
+    'commit.gpgsign=false',
+    'commit',
+    '-m',
+    'Initial commit from create-gaia-app',
+  ]
+  const commit = await runCommand('git', baseArgs, { cwd: targetDir, timeoutMs: 30_000 })
+  if (commit.exitCode === 0) return { ok: true }
+  if (
+    commit.stderr.includes('user.email') ||
+    commit.stderr.includes('user.name') ||
+    commit.stderr.includes('Please tell me who you are')
+  ) {
+    const retryArgs = [
+      '-c',
+      'commit.gpgsign=false',
+      '-c',
+      'user.email=you@local',
+      '-c',
+      'user.name=You',
+      'commit',
+      '-m',
+      'Initial commit from create-gaia-app',
+    ]
+    const retry = await runCommand('git', retryArgs, { cwd: targetDir, timeoutMs: 30_000 })
+    if (retry.exitCode === 0)
+      return { ok: true, reason: 'used scaffolder default author (you@local)' }
+    return { ok: false, reason: `git commit retry: ${retry.stderr.slice(0, 120)}` }
+  }
+  return { ok: false, reason: `git commit: ${commit.stderr.slice(0, 120)}` }
+}
+
 async function runBunInstall(targetDir: string): Promise<{ ok: boolean; durationMs: number }> {
   // Use the shared spawn helper (#23) — gives us 5-min timeout + Ctrl-C
   // forwarding (#29) for free.
@@ -125,6 +184,10 @@ dist/
 .gaia/state.json.tmp.*
 .gaia/last-*
 
+# Mock-mode artifacts — local DB + sent-mail audit log. Never commit.
+.gaia/pglite-data/
+.gaia/sent-emails.jsonl
+
 # Local-only security reports (e.g. /cso output) — never commit.
 .gstack/
 
@@ -171,6 +234,77 @@ function buildInitialState(input: ScaffolderInput): Record<string, unknown> {
     required_env: ['POLAR_ACCESS_TOKEN', 'RESEND_API_KEY', 'DATABASE_URL', 'RAILWAY_TOKEN'],
     last_step: 'create.complete',
     next_step: 'verify-keys',
+  }
+}
+
+const PROJECT_README = (slug: string): string => `# ${slug}
+
+Built from the [Gaia](https://github.com/henriquemeireles7/gaia) template — a clone-to-deploy SaaS template for the agent-native era.
+
+## Quick start
+
+\`\`\`bash
+bun dev                       # mock mode — see your app at http://localhost:3000
+\`\`\`
+
+The app boots in **mock mode** by default. Polar, Resend, Anthropic, and the database all run as in-process fakes so you can iterate without signing up for any vendor.
+
+## Make it real
+
+Three paths from "scaffolded" to "shipped":
+
+### Recommended (Claude Code users)
+
+\`\`\`
+/w-launch                     # interview-driven onboarding — JTBD interview, first feature, your real landing
+\`\`\`
+
+### CLI
+
+\`\`\`bash
+bun gaia live                 # connect Polar / Resend / Neon / Railway interactively
+bun gaia deploy && bun gaia smoke
+\`\`\`
+
+### Just exploring
+
+\`\`\`bash
+bun dev                       # see the mock app, edit code, restart, iterate
+\`\`\`
+
+## What's where
+
+| Path | Contents |
+|---|---|
+| \`apps/api/\` | Elysia backend — TypeBox routes, Eden Treaty types |
+| \`apps/web/\` | SolidStart frontend (start here: \`apps/web/src/routes/index.tsx\`) |
+| \`packages/db/\` | Drizzle schema + migrations (Postgres in live, PGLite in mock) |
+| \`packages/adapters/\` | Vendor wrappers — \`mocks/\` subdir holds the mock-mode implementations |
+| \`packages/security/\` | Rate limits, AI budget, audit log, CORS |
+| \`.claude/skills/\` | Agent skills you can invoke from Claude Code |
+| \`.gaia/\` | Methodology — vision, rules, hooks |
+
+## Switch from mock to live
+
+Set \`VENDOR_MODE=live\` in \`.env.local\` and provide real keys, or run \`bun gaia live\` and we'll do it for you.
+
+## License
+
+MIT
+`
+
+/**
+ * Replace the template's README with a project-specific one. The template
+ * README sells Gaia + references its initiatives + has a CHANGELOG that
+ * doesn't apply to the user's project. Writing fresh is cleaner than
+ * trying to merge.
+ */
+export function customizeReadme(targetDir: string, projectSlug: string): boolean {
+  try {
+    writeFileSync(join(targetDir, 'README.md'), PROJECT_README(projectSlug))
+    return true
+  } catch {
+    return false
   }
 }
 
@@ -245,9 +379,14 @@ export function scaffold(input: ScaffolderInput): ScaffolderResult {
   }
   files.push({ path: '.gaia/state.json', order: 3 })
 
-  // Hand-off copy: explain WHAT each verb does, not how to type it. The
-  // setup verb itself prints the provider list + docs URL on first run.
-  const nextStep = `cd ${projectSlug}\n  bun gaia setup            # connects Polar, Resend, Neon, Railway\n  bun gaia deploy && bun gaia smoke   # ships to Railway + verifies live URL`
+  // Hand-off copy: three paths, ordered by how much hand-holding the user
+  // wants. /w-launch (Claude Code) is recommended for first-timers; the
+  // CLI path is for users who know what they want; bun dev alone is for
+  // exploration. Mock mode means the app already works at all three levels.
+  const nextStep = `cd ${projectSlug}
+  bun dev                    # see the mock app at http://localhost:3000
+  /w-launch                  # Claude Code: interview → first feature → your real landing
+  bun gaia live              # CLI: connect Polar, Resend, Neon, Railway`
 
   return { files, nextStep }
 }
@@ -333,6 +472,12 @@ async function main(): Promise<number> {
         `  ✓ package.json customized (name=${args.projectSlug}, version=0.1.0)\n`,
       )
     }
+    // Replace the template's README with a project-specific one — the
+    // template README sells Gaia + references its initiatives, not the
+    // user's app. Same rationale as customizePackageJson.
+    if (customizeReadme(targetDir, args.projectSlug)) {
+      process.stderr.write(`  ✓ README.md written for ${args.projectSlug}\n`)
+    }
   } else {
     process.stderr.write('  ✓ template tree (skipped in --dry-run)\n')
   }
@@ -368,6 +513,34 @@ async function main(): Promise<number> {
     } else {
       process.stderr.write(
         `  ! dependencies NOT installed — run \`cd ${args.projectSlug} && bun install\` manually before any verb.\n`,
+      )
+    }
+    // Run DB migrations so `bun dev` boots with tables. In mock mode this
+    // creates the local PGLite store under .gaia/pglite-data. Tolerate
+    // failure — happens in live mode without DATABASE_URL set, which is
+    // expected for users who'll run `bun gaia live` themselves.
+    if (install.ok) {
+      const migrate = await runCommand('bun', ['run', 'db:migrate'], {
+        cwd: targetDir,
+        timeoutMs: 60_000,
+      })
+      if (migrate.exitCode === 0) {
+        process.stderr.write(`  ✓ database migrated (PGLite mock store at .gaia/pglite-data)\n`)
+      } else {
+        process.stderr.write(
+          `  ! db:migrate skipped — fix later with \`cd ${args.projectSlug} && bun run db:migrate\`\n`,
+        )
+      }
+    }
+    // Initialize git AFTER bun install so the .lock + node_modules are
+    // present (lock tracked, node_modules excluded by template .gitignore).
+    process.stderr.write(`  → git init + first commit…\n`)
+    const git = await runGitInit(targetDir)
+    if (git.ok) {
+      process.stderr.write(`  ✓ git initialized${git.reason ? ` (${git.reason})` : ''}\n`)
+    } else {
+      process.stderr.write(
+        `  ! git init skipped — ${git.reason ?? 'git not available'}. Run \`git init && git add . && git commit -m "Initial"\` manually.\n`,
       )
     }
     void filesCopied // suppress unused — kept for future telemetry

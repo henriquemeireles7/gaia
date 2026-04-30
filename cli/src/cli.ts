@@ -14,6 +14,7 @@ import { ExitCode } from './exit-codes.ts'
 import { DEFAULT_FLAGS, parseFlags } from './flags.ts'
 import { deploy } from './verbs/deploy.ts'
 import { explain } from './verbs/explain.ts'
+import { live } from './verbs/live.ts'
 import { setup } from './verbs/setup.ts'
 import { smoke } from './verbs/smoke.ts'
 import { status } from './verbs/status.ts'
@@ -36,7 +37,8 @@ const CLI_VERSION = readPackageVersion()
 
 const VERBS = {
   status: 'Show project state + next-actionable command',
-  setup: 'Interactive: paste your 4 API keys (Polar, Resend, Neon, Railway)',
+  live: 'Flip VENDOR_MODE=mock → live: connect Polar / Resend / Neon / Railway',
+  setup: 'Alias of `live` (back-compat with v0.2.x)',
   'verify-keys': 'Verify Polar / Resend / Neon / Railway API keys',
   deploy: 'Deploy to Railway with d-fail self-heal',
   smoke: 'Post-deploy smoke test (auth round-trip + Polar webhook)',
@@ -121,7 +123,13 @@ async function main(): Promise<number> {
       const result = status({ projectDir, flags })
       return result.exitCode
     }
+    case 'live': {
+      const result = await live({ projectDir, flags })
+      return result.exitCode
+    }
     case 'setup': {
+      // Back-compat alias of `live` — keeps v0.2.x muscle memory working.
+      // The setup function itself does NOT flip VENDOR_MODE; live wraps it.
       const result = await setup({ projectDir, flags })
       return result.exitCode
     }

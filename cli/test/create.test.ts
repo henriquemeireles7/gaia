@@ -118,7 +118,7 @@ describe('scaffold', () => {
     }
   })
 
-  it('next-step routes to setup → deploy → smoke (post-Lee/Theo polish)', () => {
+  it('next-step lists all three on-ramps: bun dev, /w-launch, bun gaia live', () => {
     const tmp = mkdtempSync(join(tmpdir(), 'gaia-scaffold-'))
     try {
       const result = scaffold({
@@ -129,9 +129,10 @@ describe('scaffold', () => {
         dryRun: true,
       })
       expect(result.nextStep).toContain('cd app')
-      expect(result.nextStep).toContain('bun gaia setup')
-      expect(result.nextStep).toContain('bun gaia deploy')
-      expect(result.nextStep).toContain('bun gaia smoke')
+      // Three paths from "scaffolded" to "shipped" — ordered by guidance.
+      expect(result.nextStep).toContain('bun dev')
+      expect(result.nextStep).toContain('/w-launch')
+      expect(result.nextStep).toContain('bun gaia live')
     } finally {
       rmSync(tmp, { recursive: true, force: true })
     }

@@ -1,5 +1,12 @@
-import { describe, expect, it } from 'bun:test'
+import { beforeAll, describe, expect, it } from 'bun:test'
+import { env } from '@gaia/config'
 import { verifyWebhook } from './payments'
+
+// Force live mode — these tests assert the real HMAC verification.
+// Mock-mode behavior is tested in mocks/payments.test.ts.
+beforeAll(() => {
+  ;(env as { VENDOR_MODE: string }).VENDOR_MODE = 'live'
+})
 
 async function sign(secret: string, body: string): Promise<string> {
   const key = await crypto.subtle.importKey(

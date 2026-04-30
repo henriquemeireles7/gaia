@@ -59,6 +59,8 @@ const EXCLUDE_PATHS = new Set([
   '.gaia/last-smoke.json',
   '.gaia/initiatives',
   '.gaia/memory',
+  '.gaia/pglite-data', // mock-mode local DB store (per-project, gitignored)
+  '.gaia/sent-emails.jsonl', // mock-mode email audit log (per-project, gitignored)
   '.claude/projects',
 
   // (3) Template tooling — repo-only, not for user projects

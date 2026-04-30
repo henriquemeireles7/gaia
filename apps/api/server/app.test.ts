@@ -4,8 +4,15 @@
 // Tests the HTTP boundary: routing, error mapping, webhook signature
 // verification.
 
-import { describe, expect, it } from 'bun:test'
+import { beforeAll, describe, expect, it } from 'bun:test'
+import { env } from '@gaia/config'
 import { app } from './app'
+
+// Force live mode — these tests assert real HMAC webhook verification.
+// Mock-mode webhooks accept anything; that path is tested in mocks/.
+beforeAll(() => {
+  ;(env as { VENDOR_MODE: string }).VENDOR_MODE = 'live'
+})
 
 const baseUrl = 'http://localhost'
 
