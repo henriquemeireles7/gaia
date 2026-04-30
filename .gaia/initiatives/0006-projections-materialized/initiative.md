@@ -58,23 +58,36 @@ The conversational command palette inside the admin uses 0004's streaming conver
 
 ## 3. Folder Structure
 
+Disposition: **EXTEND** = additive change to existing module; **NEW** = wholly new; **EDIT** = modify existing scaffold file.
+
 ```
-santiago/
+gaia/
 ├── apps/
-│   └── admin/                        # NEW — visual operating surface, every read at memory speed
+│   └── web/                          # EDIT (PR 1) — admin lives as a SolidStart route in apps/web, NOT a separate apps/admin app, consistent with 0004 §7.15 R-4 (chat/timeline) and 0008 §7 R-1 (composer). Same auth context, same Better Auth bearer, same layout. The "apps/admin" cap-table line is the conceptual surface; the actual deploy is the apps/web route.
+│       └── src/
+│           ├── routes/
+│           │   └── admin.tsx         # NEW (PR 1) — admin shell + conversational command palette wired to packages/conversation/stream/ from 0005
+│           └── components/admin/     # NEW (PR 1+) — admin UI primitives (table, form, audit view); each projection contributes here
 │
-└── packages/
-    └── projections/                  # NEW — runtime views from schema/events (triple-rendered)
-        ├── crud/                     # NEW — schema → admin pages + MCP capabilities + pricing
-        │   └── materialize.ts        # event-to-state mutation handler (per projection)
-        ├── forms/                    # NEW — schema → typed forms + MCP write capabilities + pricing
-        │   └── materialize.ts
-        ├── client/                   # NEW — schema → typed Eden Treaty client (no materialize.ts)
-        └── audit/                    # NEW — event log → audit views + MCP queries + pricing
-            └── materialize.ts
+├── packages/
+│   ├── projections/                  # NEW package — runtime views from schema/events (triple-rendered: admin UI + MCP descriptor + pricing descriptor)
+│   │   └── src/
+│   │       ├── crud/                 # NEW — schema → admin pages + MCP entity capabilities + pricing; materialize.ts implements 0005 PR 5 handler contract
+│   │       ├── forms/                # NEW — schema → typed forms + MCP write capabilities + pricing; materialize.ts
+│   │       ├── client/               # NEW — schema → typed Eden Treaty client (compile-time, no materialize.ts)
+│   │       └── audit/                # NEW — event log → audit views + MCP query descriptors + pricing; materialize.ts
+│   │
+│   └── db/                           # EDIT — extend packages/db/schema/ per 0004 §7.15 R-3 with projection-specific read tables
+│       └── schema/
+│           ├── projection-versions.ts # NEW — projection version registry (for migration flow)
+│           └── saved-views.ts         # NEW — saved-view derived projection state (PR 7)
+│
+├── apps/api                          # EDIT (PRs 2-5) — Elysia server: each projection contributes typed routes (e.g. /api/projections/users for CRUD); the MCP plugin from 0004 PR 5 advertises new capabilities populated from projections/
+│
+└── packages/mcp/registry/            # EDIT (existing from 0004 PR 5) — gains entries for each projection's MCP descriptor
 ```
 
-The minimal addition reflects how much Wave 0 already shipped. The MCP server with push exists (0005). The streaming conversation package exists (0005). The metering package exists (0004). The materialization runtime exists (0005). This wave adds projections that _populate_ those surfaces, with each projection declaring its own materialization handler.
+The minimal addition reflects how much Wave 0 already shipped. The MCP server with push exists (0004 + 0005). The streaming conversation package exists (0004 + 0005). The metering package exists (0004). The materialization runtime exists (0005). This wave adds projections that _populate_ those surfaces, with each projection declaring its own materialization handler.
 
 ## 4. Implementation
 
@@ -127,3 +140,25 @@ The minimal addition reflects how much Wave 0 already shipped. The MCP server wi
 | F-5 | Cross-tenant audit out of scope v1.0. Single-tenant only.                                                                                   | Founder 2026-04-29                      |
 | F-6 | Conversational command palette is a specialized lens on `packages/conversation/stream/`, not a separate surface.                            | Founder 2026-04-29 (v5 vision §Wave 1)  |
 | F-7 | p99 admin render latency budget: <100ms under 1k concurrent users. Hard CI gate.                                                            | Founder 2026-04-29 (v5 vision §10x cut) |
+
+## 7. Existing-scaffold reconciliation (added 2026-04-29)
+
+| #   | Decision                                                                                                                                                   | PR(s)         |
+| --- | ---------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------- |
+| R-1 | Admin is a route in `apps/web/`, not a new SolidStart app. Pattern match with chat/timeline/composer/labor across 0004, 0008, 0009. Single auth context, shared design tokens, one deploy unit. | 1 |
+| R-2 | New tables (`projection-versions`, `saved-views`) go to `packages/db/schema/` per 0004 §7.15 R-3. | 6, 7 |
+| R-3 | Each projection's `materialize.ts` implements the 0005 PR 5 handler contract; do not invent a new contract here. | 2, 3, 5 |
+| R-4 | Each projection's MCP descriptor registers in `packages/mcp/registry/` (created in 0004 PR 5). Push notifications fire on registry change via 0005 PR 8's `packages/mcp/push/`. No new MCP plumbing in this initiative. | 2, 3, 4, 5 |
+| R-5 | Per-projection pricing descriptors emit `capability.invoked` events via `packages/events/emit/` (0004 PR 3). The meter Function (0004 PR 8) aggregates them; no new metering plumbing. | 2, 3, 5 |
+| R-6 | Conversational command palette in admin uses `packages/conversation/stream/` from 0005 PR 9 — the same streaming primitives the chat surface uses. Specialized lens, not new surface. | 1 |
+| R-7 | Schema migrations (PR 6) emit `migration.*` events to the existing event stream; the materialization replay reads from `packages/events/snapshot/` (0005 PR 3) to bootstrap new projection versions. | 6 |
+| R-8 | iii Functions (each materialize.ts becomes one) MUST declare `budget` per 0005 R-8 (validate-artifacts.ts). | 2, 3, 5 |
+
+**Existing-files-touched trace:**
+
+- `apps/web/src/routes/admin.tsx` — PR 1 NEW; subsequent PRs extend
+- `apps/web/src/components/admin/` — PRs 1, 2, 3, 5 add primitives
+- `apps/api/server/app.ts` — PRs 2, 3, 4, 5 mount projection-backed routes
+- `packages/mcp/registry/src/registry.ts` — PRs 2, 3, 4, 5 (registry entries)
+- `packages/db/schema/index.ts` — PRs 6, 7 add re-exports
+- `.gaia/rules/checks/validate-artifacts.ts` — PR 9 audit invokes the triple-rendering rule (every projection declares all three outputs)

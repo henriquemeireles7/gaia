@@ -22,13 +22,13 @@ status: not-started
 
 The second half of Wave 0 — the v5-specific commitments. Where 0004 establishes the substrate (events, hexagonal, tenancy, MCP, conversation, metering, telemetry), 0005 wraps that substrate in the runtime that prevents the four decisions that calcify the moment paying customers exist. These two initiatives ship together; Wave 1 (Initiative 0006) cannot start until both are in.
 
-> **Substrate clarification (added by /autoplan 2026-04-29).** This initiative refers to "iii Function" throughout. The runtime substrate today is Inngest (`inngest@^3.27.0` in `package.json`, `packages/workflows/index.ts`). Until and unless 0004 swaps Inngest for an iii.dev integration, every "iii Function" reference in this document maps 1:1 to an Inngest function declared via `inngest.createFunction(...)`. `packages/runtime/budgets/` (PR 1) is an adapter layer over the chosen substrate — not a from-scratch budget engine — and re-exports the substrate's concurrency/throttle/rate-limit primitives plus timeline event emission. If 0004 commits to the iii.dev migration, the wrapper insulates 0005 from the swap.
+> **Substrate clarification (founder decision 2026-04-29).** This initiative refers to "iii Function" throughout, and that means **iii.dev**. 0004 PR 2 (per 0004 §7.15 R-2) retires `packages/workflows/` and the `inngest` dependency, migrating `sendWelcome` to `packages/runtime/src/functions/send-welcome.ts`. Every "iii Function" reference in 0005 maps to an iii.dev function declared via `defineFunction(...)` from `packages/runtime/`. `packages/runtime/budgets/` (PR 1) is an adapter layer over iii.dev's primitives — not a from-scratch budget engine — and re-exports iii.dev's concurrency/throttle/rate-limit primitives plus timeline event emission. The earlier autoplan note that hedged "until and unless 0004 swaps" is superseded — 0004 commits to the swap.
 
 ## 1. Context / Research
 
 The v5 vision document (archived as `_archive/2026-04-29-vision-v5-source.md`) names this initiative's target precisely: "four foundational moves are committed in Wave 0… each preserves what v4 says the system _is_ while making it dramatically faster and operationally simpler." Those four moves are this initiative.
 
-Today's state (post-0004): the substrate exists. Events append, MCP advertises, conversation parses and plans, metering meters, telemetry posts. But every read still hits live state or live queries; every cross-instance composition (when it lands in Wave 4) would block on synchronous network calls; every async concern is implicit; every conversation surface waits for complete responses. v4 ships at this level. v5 adds the runtime layer.
+Today's state (post-0004): the substrate exists on top of the v1 SaaS template scaffold. Events append (`packages/events/`), MCP advertises (Elysia plugin in `apps/api/server/app.ts:/mcp`), conversation parses and plans (`packages/conversation/`), metering meters (over events; integrates with `apps/api/server/billing.ts` Polar webhook), telemetry posts (`packages/telemetry/`). The runtime layer is `packages/runtime/` (iii.dev wrapper, replaces the prior Inngest in `packages/workflows/`). Chat and timeline are routes in `apps/web/` (`apps/web/src/routes/{chat,timeline,healthz}.tsx|.ts`), not separate SolidStart apps. New tables live in `packages/db/schema/` per the existing db CLAUDE.md pattern. But every read still hits live state or live queries; every cross-instance composition (when it lands in Wave 4) would block on synchronous network calls; every async concern is implicit; every conversation surface waits for complete responses. v4 ships at this level. v5 adds the runtime layer in this initiative. (See 0004 §7.15 for the existing-scaffold reconciliation pattern; 0005 §6 below mirrors it.)
 
 The strategic premise: four decisions calcify the moment customers exist. If the event log is partitioned wrong under millions of rows, repartitioning under load is a months-long migration. If projections are read-on-demand and the admin renders against live queries, retrofitting incremental materialization means rewriting every projection. If cross-instance composition is synchronous, the network thesis depends on luck. If async work is scattered without explicit Functions, observability breaks, backpressure breaks, retries break. The runtime is the v5 commitment.
 
@@ -54,35 +54,55 @@ Why now: this initiative is the runtime equivalent of bun-replacing-npm or oxlin
 
 ## 3. Folder Structure
 
+Disposition: **EXTEND** = additive change to an existing 0004 package; **NEW** = wholly new package; **EDIT** = modify file in existing scaffold.
+
 ```
-santiago/
+gaia/
 ├── packages/
-│   ├── runtime/
-│   │   └── budgets/                  # NEW — per-Function latency, memory, concurrency budgets
+│   ├── runtime/                      # EXTEND (PR 1) — package created in 0004
+│   │   └── src/
+│   │       └── budgets/              # NEW subdir (PR 1) — per-Function latency, memory, concurrency budgets; budget violations emit timeline events
 │   │
-│   ├── events/
-│   │   ├── stream/                   # NEW — logical replication consumer infrastructure
-│   │   └── snapshot/                 # NEW — periodic snapshots for fast replay
+│   ├── events/                       # EXTEND (PRs 2-3) — package created in 0004
+│   │   └── src/
+│   │       ├── stream/               # NEW subdir (PR 2) — logical replication consumer (CREATE PUBLICATION events_pub already issued in 0004 PR 3)
+│   │       └── snapshot/             # NEW subdir (PR 3) — periodic snapshots for fast replay
 │   │
-│   ├── materialization/              # NEW — projection state maintenance
-│   │   ├── workers/                  # iii Functions consuming event stream
-│   │   ├── handlers/                 # event-to-state mutation handlers (per-projection bind from Wave 1+)
-│   │   └── invalidation/             # cache invalidation on schema changes
+│   ├── materialization/              # NEW package (PRs 4-5)
+│   │   └── src/
+│   │       ├── workers/              # iii Functions consuming event stream (defined via packages/runtime/define-function.ts from 0004)
+│   │       ├── handlers/             # event-to-state mutation handler contract (per-projection bind from Wave 1+, 0006)
+│   │       └── invalidation/         # cache invalidation on schema changes
 │   │
-│   ├── replicas/                     # NEW — local materialized replicas of remote state
-│   │   ├── subscription/             # subscribing to remote event streams
-│   │   ├── reconciliation/           # detecting and applying remote drift
-│   │   └── invalidation/             # local invalidation on remote change
+│   ├── replicas/                     # NEW package (PRs 6-7) — local materialized replicas of remote state
+│   │   └── src/
+│   │       ├── subscription/         # subscribing to remote event streams
+│   │       ├── reconciliation/       # detecting and applying remote drift
+│   │       └── invalidation/         # local invalidation on remote change
 │   │
-│   ├── mcp/
-│   │   └── push/                     # NEW — push notifications on registry change
+│   ├── mcp/                          # EXTEND (PR 8) — package created in 0004
+│   │   └── push/                     # NEW subdir (PR 8) — push notifications on registry change; subscribers notified on change without polling. The 0004 polling baseline (`mcp/registry/poll.ts`) becomes a fallback path.
 │   │
-│   └── conversation/
-│       └── stream/                   # NEW — end-to-end streaming spine
+│   ├── conversation/                 # EXTEND (PR 9) — package created in 0004 (parser/planner/confirmation already shipped)
+│   │   └── stream/                   # NEW subdir (PR 9) — end-to-end streaming spine; parser/planner/confirmation refactor to consume the stream; consumes packages/adapters/llm AsyncIterable<LLMChunk> from 0004 PR 6
+│   │
+│   └── db/                           # EDIT (PRs 3, 4, 11) — extend existing packages/db/schema/ with new entities (per 0004 §7.15 R-3, all new tables live here)
+│       └── schema/
+│           ├── event-snapshots.ts    # NEW (PR 3) — snapshot rows: tenant_id, last_seq, snapshot_at, snapshot jsonb
+│           ├── materialization-state.ts # NEW (PR 4) — worker bookmark: worker_id, tenant_id, last_seq, lag_seconds, last_run_at
+│           ├── replica-bookmarks.ts  # NEW (PR 6) — replica subscription state: replica_id, remote_url, last_seq, last_reconciled_at
+│           └── budget-violations.ts  # NEW (PR 1) — function_name, budget_kind (p50|p99|memory|concurrency), observed, threshold, occurred_at
+│
+├── apps/
+│   ├── web/                          # EDIT (PRs 9, 10, 11) — existing SolidStart app
+│   │   └── src/routes/
+│   │       ├── chat.tsx              # EDIT (PR 9) — chat route shipped in 0004 PR 10; this initiative swaps the parser/planner/confirmation invocation path to consume the streaming spine
+│   │       └── timeline.tsx          # EDIT (PR 11) — timeline route shipped in 0004 PR 11; this initiative adds budget-violation events to the rendered feed
+│   └── api/                          # EDIT (PR 8) — Elysia server; the MCP plugin (mounted at /mcp in 0004 PR 5) gains a /mcp/subscribe push endpoint
 │
 └── .gaia/
     └── reference/
-        └── architecture/
+        └── architecture/             # EXTEND (PR 12) — directory created in 0004 PR 12
             └── runtime-thesis.md     # NEW — formalizes the four runtime commitments
 ```
 
@@ -138,9 +158,9 @@ santiago/
 | 6   | `packages/replicas/subscription/` — remote event stream subscription | subscription protocol against shared registry                                    | pending |
 | 7   | `packages/replicas/reconciliation/` + `invalidation/`                | drift detection, correction, local invalidation                                  | pending |
 | 8   | `packages/mcp/push/` — push notifications on registry change         | push protocol, subscriber model, change detection                                | pending |
-| 9   | `packages/conversation/stream/` — end-to-end streaming spine         | streaming primitives, parser/planner/confirmation refactor                       | pending |
-| 10  | No-op projection smoke test                                          | minimal projection proves emit → replication → worker → read table end-to-end    | pending |
-| 11  | `apps/timeline/` budget-violation surface                            | timeline events for budget violations, founder-readable copy                     | pending |
+| 9   | `packages/conversation/stream/` — end-to-end streaming spine         | streaming primitives consuming `packages/adapters/llm` `AsyncIterable<LLMChunk>` (from 0004 PR 6); parser/planner/confirmation refactor; `apps/web/src/routes/chat.tsx` swaps in the streaming path | pending |
+| 10  | No-op projection smoke test                                          | minimal projection proves emit → replication → worker → read table end-to-end; lives at `packages/materialization/src/workers/__smoke__/noop-projection.ts` + a row in `packages/db/schema/` for the smoke read table | pending |
+| 11  | Budget-violation surface in `apps/web/src/routes/timeline.tsx`       | timeline events for budget violations, founder-readable copy. Edit existing route shipped in 0004 PR 11; new `error-event.tsx`-style component for budget-class events | pending |
 | 12  | `.gaia/reference/architecture/runtime-thesis.md`                     | canonical four-commitment thesis, linked from CLAUDE.md and root resolver        | pending |
 | 13  | End-of-wave runtime audit                                            | grep + `validate-artifacts.ts` audit; 0 violations across the four runtime moves | pending |
 
@@ -156,22 +176,22 @@ Per-PR concrete acceptance criteria added by /autoplan 2026-04-29 (HOLD SCOPE �
 
 | Path                                                                                                 | What                                                                                                                                                                           | Why                                                                                                                                         |
 | ---------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------- |
-| `packages/runtime/budgets/package.json`                                                              | Workspace package manifest. Depends on `@gaia/events`, `@gaia/workflows` (Inngest), `typebox`.                                                                                 | Establishes the package boundary so other packages import via `@gaia/runtime/budgets`.                                                      |
+| `packages/runtime/budgets/package.json`                                                              | Workspace package manifest. Depends on `@gaia/events`, `@gaia/runtime` (iii.dev wrapper from 0004), `typebox`.                                                                  | Establishes the package boundary so other packages import via `@gaia/runtime/budgets`.                                                      |
 | `packages/runtime/budgets/CLAUDE.md`                                                                 | Folder-scoped principles: budgets are a thin adapter over the substrate, not a runtime engine; rate-limit emission is mandatory; violation events are exempt from enforcement. | Hexagonal discipline: future contributors must not turn this into a custom runtime.                                                         |
 | `packages/runtime/budgets/types.ts`                                                                  | TypeScript types: `Budget`, `BudgetSpec` (`{ p50?, p99?, maxMemory?, maxConcurrency?, maxTokens? }`), `ViolationEvent`, `BudgetCtx`.                                           | Single shape consumed by every `defineBudget` call across packages.                                                                         |
 | `packages/runtime/budgets/schema.ts`                                                                 | TypeBox schema for `BudgetSpec` (validates declarative budget specs at load time).                                                                                             | Catches misconfigured budgets at boot, not at runtime. Same pattern as the rest of the codebase.                                            |
 | `packages/runtime/budgets/define.ts`                                                                 | `defineBudget(name, spec)` factory. Returns a `Budget` value used by `wrapFunction`.                                                                                           | Single entry point for declaring a budget against a Function.                                                                               |
-| `packages/runtime/budgets/wrap.ts`                                                                   | `wrapFunction(inngestFn, budget)` adapter. Translates `BudgetSpec` → Inngest options (`concurrency`, `throttle`, `rateLimit`) and installs runtime measurement hooks.          | The **only** place the substrate-specific translation lives. If 0004 swaps to iii.dev, this file is the entire migration.                   |
+| `packages/runtime/budgets/wrap.ts`                                                                   | `wrapFunction(iiiFn, budget)` adapter. Translates `BudgetSpec` → iii.dev options (`concurrency`, `throttle`, `rateLimit`) and installs runtime measurement hooks.              | The **only** place the iii.dev-specific translation lives. Single file to touch if iii.dev's option surface changes.                        |
 | `packages/runtime/budgets/violation.ts`                                                              | Violation detection + event emission with rate limit (one per `(function_id, violation_type)` per 60s; counter on suppressed event).                                           | Without rate limit, a Function violating its budget at 1000 rps would write 1000 events/sec into the timeline (DoS on the timeline writer). |
 | `packages/runtime/budgets/rate-limit.ts`                                                             | In-memory token bucket per `(function_id, violation_type)` with 60s window. Pure function, no IO.                                                                              | Idempotent + testable in isolation; shared by all violation paths.                                                                          |
-| `packages/runtime/budgets/inngest-adapter.ts`                                                        | Concrete Inngest adapter. Maps `BudgetSpec.p99` → measurement, `maxConcurrency` → `concurrency`, etc.                                                                          | Encapsulates Inngest specifics; substrate swap = rewrite this one file.                                                                     |
+| `packages/runtime/budgets/iii-adapter.ts`                                                            | Concrete iii.dev adapter. Maps `BudgetSpec.p99` → measurement, `maxConcurrency` → `concurrency`, etc.                                                                          | Encapsulates iii.dev option specifics; isolated from the rest of the budget package.                                                        |
 | `packages/runtime/budgets/define.test.ts`, `wrap.test.ts`, `violation.test.ts`, `rate-limit.test.ts` | Co-located unit tests; property test for rate-limit idempotency.                                                                                                               | Coverage for the public surface and the rate-limit invariant.                                                                               |
 | `packages/runtime/budgets/README.md`                                                                 | Usage example: `wrapFunction(myFn, defineBudget('my-fn', { p99: 200, maxConcurrency: 10 }))`.                                                                                  | One-screen DX so Wave 1+ projection authors don't need to grep the package.                                                                 |
 
 **Acceptance criteria:**
 
 - Budget primitive ships in PR 1; budget VALUES (actual p50/p99/memory/concurrency numbers) ship after PR 10 from observed baselines. PR 1 acceptance: schema + violation event emission + rate-limited emit (one event per `(function_id, violation_type)` per 60s; counter on suppressed event surfaces aggregate). The violation event itself is exempt from budget enforcement.
-- Wraps the substrate's primitives (Inngest's `concurrency`/`throttle`/`rateLimit` today; iii.dev's equivalent if/when migrated). `packages/runtime/budgets/` is a thin adapter, ~50–150 lines + tests, not a runtime engine.
+- Wraps iii.dev's `concurrency`/`throttle`/`rateLimit` primitives. `packages/runtime/budgets/` is a thin adapter, ~50–150 lines + tests, not a runtime engine.
 
 ### PR 2 — `packages/events/stream/`
 
@@ -191,7 +211,7 @@ Per-PR concrete acceptance criteria added by /autoplan 2026-04-29 (HOLD SCOPE �
 | `packages/events/stream/role.ts`                                              | Connection factory using `REPLICATION_URL` (the `gaia_replicator` role); refuses to use `DATABASE_URL` (the app role).                                                                    | Role separation enforced at the connection factory, not by hope.                                                            |
 | `packages/events/stream/harden-check.ts`                                      | Startup assertion: query `pg_settings` for `max_replication_slots >= N` and `wal_level = 'logical'`. Throw if violated.                                                                   | Fails fast at boot rather than failing weird at runtime.                                                                    |
 | `packages/events/stream/wal-monitor.ts`                                       | Periodic check of `pg_replication_slots.confirmed_flush_lsn` lag; emits `materialization.lag` budget violation if lag > threshold; kills consumer + drops slot if WAL retention breached. | Fail loud, not fail-quiet-fill-disk. The single most important operational guard.                                           |
-| `packages/events/stream/slot-gc.ts`                                           | Scheduled Inngest Function: drops slots inactive >24h with no consumer heartbeat (heartbeat written to `events.consumer_heartbeats` by the consumer).                                     | Catches orphaned slots from crashed deploys / dropped containers.                                                           |
+| `packages/events/stream/slot-gc.ts`                                           | Scheduled iii.dev Function: drops slots inactive >24h with no consumer heartbeat (heartbeat written to `events.consumer_heartbeats` by the consumer).                                     | Catches orphaned slots from crashed deploys / dropped containers.                                                           |
 | `packages/events/stream/migrations/0001_publication.sql`                      | `CREATE PUBLICATION gaia_events FOR TABLE events;` + `events.consumer_heartbeats` + `events.dead_letter` tables.                                                                          | Publication must exist before any slot can attach. Heartbeats power slot-gc.                                                |
 | `packages/events/stream/migrations/0002_replication_role.sql`                 | `CREATE ROLE gaia_replicator WITH REPLICATION LOGIN PASSWORD ...; GRANT SELECT ON events TO gaia_replicator;`. Documented Neon provisioning step.                                         | Privilege separation: only the consumer can read WAL; the app role cannot.                                                  |
 | `packages/events/stream/{consumer,slot,ack,backpressure,wal-monitor}.test.ts` | Unit + integration. Integration uses ephemeral Neon branch with publication + slot in setup; teardown drops slot deterministically.                                                       | Replication is hard to test; an ephemeral Neon branch per PR is the only honest path.                                       |
@@ -222,7 +242,7 @@ Per-PR concrete acceptance criteria added by /autoplan 2026-04-29 (HOLD SCOPE �
 | `packages/events/snapshot/key.ts`                                                                      | Key derivation + parsing. Validates LSN format, tenant_id format.                                                                                          | Centralized key format = no string concat scattered across files.                       |
 | `packages/events/snapshot/store.ts`                                                                    | `read(key)`, `write(key, blob)`, `list(tenant, projection)`, `delete(key)` — backed by `@gaia/adapters/storage`.                                           | The storage interface; swap S3 for any blob store by changing the adapter.              |
 | `packages/events/snapshot/policy.ts`                                                                   | "Should we snapshot now?" — `shouldSnapshot(events_since_last, ms_since_last, policy)`. Pure function.                                                     | Trigger logic decoupled from execution; testable without IO.                            |
-| `packages/events/snapshot/take.ts`                                                                     | Inngest Function that produces a snapshot: reads read-table state at LSN, writes blob to store.                                                            | The actual snapshot work; runs against the worker's read table at a consistent LSN.     |
+| `packages/events/snapshot/take.ts`                                                                     | iii.dev Function that produces a snapshot: reads read-table state at LSN, writes blob to store.                                                            | The actual snapshot work; runs against the worker's read table at a consistent LSN.     |
 | `packages/events/snapshot/replay.ts`                                                                   | Cold-start helper: load latest snapshot for `(tenant, projection)`, return `(state, lsn)` so worker knows where to start consuming WAL.                    | The other half of the snapshot story — a snapshot is useless without a replay path.     |
 | `packages/events/snapshot/preflight.ts`                                                                | `assertSnapshotCovers(snapshot.lsn, slot.restart_lsn)` — refuses to start a worker if `snapshot.lsn < restart_lsn`. Emits `snapshot.gap` event on failure. | Catches the irrecoverable case (WAL pruned past snapshot) at boot, not after data loss. |
 | `packages/events/snapshot/gc.ts`                                                                       | Scheduled Function: keep last 3 per `(tenant, projection)`; delete older.                                                                                  | Without GC, snapshots accumulate forever.                                               |
@@ -286,7 +306,7 @@ Per-PR concrete acceptance criteria added by /autoplan 2026-04-29 (HOLD SCOPE �
 | `packages/materialization/invalidation/migrations/0001_pointers.sql`                       | `CREATE TABLE projection_pointers (projection text PRIMARY KEY, current text NOT NULL, updated_at timestamptz DEFAULT now());`.                                                                                         | The pointer table itself.                                                                             |
 | `packages/materialization/handlers/{define,idempotency,error,version,lint-purity}.test.ts` | Unit + property test for idempotency (run handler N times → same state).                                                                                                                                                | Mutation testing verifies the watermark check actually short-circuits double-applies.                 |
 | `packages/materialization/invalidation/{pointer,index}.test.ts`                            | Unit + integration on a Neon branch (atomic flip under concurrent reads).                                                                                                                                               | Pointer flip is a race condition surface; needs a real DB to test.                                    |
-| `scripts/validate-artifacts.ts` (extended)                                                 | Adds rules: every read-table migration must include `last_event_id_applied`; every file under `handlers/` must pass `lint-purity.ts`.                                                                                   | Constitutional rules go in `validate-artifacts.ts`, not in folder READMEs.                            |
+| `.gaia/rules/checks/validate-artifacts.ts` (extended)                                                 | Adds rules: every read-table migration must include `last_event_id_applied`; every file under `handlers/` must pass `lint-purity.ts`.                                                                                   | Constitutional rules go in `validate-artifacts.ts`, not in folder READMEs.                            |
 
 **Acceptance criteria:**
 
@@ -473,21 +493,21 @@ Per-PR concrete acceptance criteria added by /autoplan 2026-04-29 (HOLD SCOPE �
 
 ### PR 12 — `.gaia/reference/architecture/runtime-thesis.md`
 
-**Goal:** canonical reference document formalizing the four runtime commitments. Authored via `/d-reference` (5-part shape).
+**Goal:** canonical reference document formalizing the four runtime commitments. Authored via `/h-reference` (5-part shape).
 
 **Files:**
 
 | Path                                                    | What                                                                                                                                                                                                                                                      | Why                                                                          |
 | ------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------- |
-| `.gaia/reference/architecture/runtime-thesis.md`        | The reference doc itself. 5-part shape per d-reference: principles → mechanisms → enforcement → exceptions → migration. Names the four commitments: every read fast, every async explicit, every cross-instance replicated, every conversation streaming. | Future contributors and audits read this to understand what 0005 commits to. |
+| `.gaia/reference/architecture/runtime-thesis.md`        | The reference doc itself. 5-part shape per h-reference: principles → mechanisms → enforcement → exceptions → migration. Names the four commitments: every read fast, every async explicit, every cross-instance replicated, every conversation streaming. | Future contributors and audits read this to understand what 0005 commits to. |
 | `.gaia/CLAUDE.md` (updated)                             | Adds `runtime-thesis.md` to the routing table under "Architecture refs".                                                                                                                                                                                  | Discovery path so the agent finds it during code edits.                      |
 | `CLAUDE.md` (root, updated)                             | Adds runtime-thesis row to the docs resolver table.                                                                                                                                                                                                       | Top-level resolver — agent consults this first on any runtime question.      |
 | `.gaia/rules.ts` (extended)                             | Adds rule entries enforced via `validate-artifacts.ts` (referenced by PR 13): `RUNTIME_NO_SYNC_CROSS_INSTANCE`, `RUNTIME_BUDGETED_FUNCTIONS_ONLY`, `RUNTIME_NO_LIVE_EVENT_TABLE_READ`, `RUNTIME_STREAMING_ONLY`.                                          | Rules enforce the thesis in CI; the doc explains the why.                    |
-| `scripts/check-reference-shape.ts` (extended if needed) | Verifies runtime-thesis.md follows the 5-part shape. Already run in CI on every PR touching `.gaia/reference/`.                                                                                                                                           | Reference docs must follow the shape; existing script enforces it.           |
+| `.gaia/rules/checks/check-reference-shape.ts` (extended if needed) | Verifies runtime-thesis.md follows the 5-part shape. Already run in CI on every PR touching `.gaia/reference/`.                                                                                                                                           | Reference docs must follow the shape; existing script enforces it.           |
 
 **Acceptance criteria:**
 
-- Document follows 5-part shape per `.claude/skills/d-reference/reference.md`.
+- Document follows 5-part shape per `.claude/skills/h-reference/reference.md`.
 - Routing tables in `CLAUDE.md` (root) and `.gaia/CLAUDE.md` updated.
 - Rule entries in `.gaia/rules.ts` map to PR 13 audit checks.
 
@@ -501,7 +521,7 @@ Per-PR concrete acceptance criteria added by /autoplan 2026-04-29 (HOLD SCOPE �
 | ----------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------ | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | `scripts/audit-runtime-discipline.ts`                 | Reads rule definitions from `.gaia/rules.ts` (the four `RUNTIME_*` rules from PR 12) and runs each against the codebase. Outputs a structured report.        | Single entry point; reproducible; output is data, not a console log.                                                                                                    |
 | `scripts/audit-checks/no-sync-cross-instance.ts`      | Greps for `fetch(...)` patterns calling `*.gaia.network` or `*.gaia.app` URLs outside `packages/replicas/`. Allowlist file documents intentional exceptions. | Synchronous cross-instance calls are the calcification PR 6/7 prevents.                                                                                                 |
-| `scripts/audit-checks/budgeted-functions.ts`          | Parses TS AST; finds `inngest.createFunction(...)` calls; flags any without a `wrapFunction(..., budget)` wrapper.                                           | Unbudgeted Functions break the observability + backpressure thesis.                                                                                                     |
+| `scripts/audit-checks/budgeted-functions.ts`          | Parses TS AST; finds `defineFunction(...)` calls (the iii.dev wrapper from `@gaia/runtime`); flags any without a `wrapFunction(..., budget)` wrapper.            | Unbudgeted Functions break the observability + backpressure thesis.                                                                                                     |
 | `scripts/audit-checks/no-live-event-table-read.ts`    | Greps for `from events` SQL outside `packages/events/`, `packages/materialization/`.                                                                         | Live event-table reads bypass the materialized projection layer; calcifies the admin to slow queries.                                                                   |
 | `scripts/audit-checks/streaming-only-conversation.ts` | Greps for `messages.create` outside an allowlist of legacy/test paths.                                                                                       | Non-streaming conversation surfaces violate the streaming spine commitment.                                                                                             |
 | `scripts/audit-checks/smoke-still-passes.ts`          | Re-runs PR 10 smoke tests against the integration branch; fails the audit if regressed.                                                                      | Audit isn't just static; it confirms the runtime still works.                                                                                                           |
@@ -529,11 +549,38 @@ Per-PR concrete acceptance criteria added by /autoplan 2026-04-29 (HOLD SCOPE �
 | F-7 | Replica reconciliation runs at six-hour default cadence, tunable per-replica. Drift correction logs before applying.                                                                                             | Founder 2026-04-29 (v5 vision §runtime-thesis)    |
 | F-8 | A no-op projection smoke test is mandatory PR 10 — proves the materialization pipeline end-to-end before Wave 1 lands real projections.                                                                          | Founder 2026-04-29                                |
 
+## 7. Existing-scaffold reconciliation (added 2026-04-29)
+
+Mirrors 0004 §7.15. Names the points where 0005 intersects the existing scaffold + 0004 substrate, so w-code's PR-by-PR plan does not have to rediscover them.
+
+| #   | Decision                                                                                                                          | PR(s)         |
+| --- | --------------------------------------------------------------------------------------------------------------------------------- | ------------- |
+| R-1 | All new tables go to `packages/db/schema/<entity>.ts` per 0004 §7.15 R-3. Migrations in `packages/db/migrations/`. No per-package `drizzle/` directories. | 1, 3, 4, 6 |
+| R-2 | `packages/runtime/`, `packages/events/`, `packages/mcp/`, `packages/conversation/` are EXTENDED (new subdirs added), not created. They were created in 0004 PRs 2, 3, 5, 7 respectively. | 1, 2, 3, 8, 9 |
+| R-3 | The Postgres `CREATE PUBLICATION events_pub` was already issued in 0004 PR 3. PR 2 here adds the **consumer** code, not the publication. Verify `wal_level=logical` was applied. | 2 |
+| R-4 | `packages/conversation/stream/` (PR 9) consumes the `AsyncIterable<LLMChunk>` contract from `packages/adapters/llm/` (0004 PR 6). The non-streaming `complete()` wrapper from 0004 stays for callers that don't yet stream — do NOT remove it in this initiative. | 9 |
+| R-5 | "Apps/timeline budget-violation surface" (PR 11) is an EDIT to `apps/web/src/routes/timeline.tsx` (0004 PR 11), not a new app. Same for the chat refresh in PR 9 — `apps/web/src/routes/chat.tsx` is edited, not created. | 9, 11 |
+| R-6 | Healthz endpoint at `apps/web/src/routes/healthz.ts` (from 0004 PR 11) extends in this initiative to also probe materialization worker liveness + replica reconciliation. One healthz, not two. | 11 |
+| R-7 | MCP plugin in `apps/api/server/app.ts` (0004 PR 5) gains a `/mcp/subscribe` push endpoint in PR 8. The polling path (`packages/mcp/registry/poll.ts` from 0004) stays as a fallback for clients that haven't migrated to push. | 8 |
+| R-8 | `validate-artifacts.ts` extension: PR 1 adds a rule that every `defineFunction` call has a `budget` field set; PR 13 verifies. The existing rule modules from 0004 PR 4 are extended, not duplicated. | 1, 13 |
+| R-9 | The no-op projection smoke test (PR 10) lives at `packages/materialization/src/workers/__smoke__/noop-projection.ts` plus a smoke read table in `packages/db/schema/_smoke.ts`. Smoke artifacts are clearly marked so 0006's first real projection can sit alongside them without confusion. | 10 |
+| R-10 | Inngest is already removed (0004 PR 2). Do NOT reference `packages/workflows/` or `inngest` in any 0005 code or doc. The substrate is iii.dev; AD-1 below supersedes the earlier autoplan hedge. | All |
+
+**Existing-files-touched trace:**
+
+- `packages/runtime/src/define-function.ts` — PR 1 adds `budget?: Budget` field to the wrapper signature
+- `packages/db/schema/index.ts` — PRs 1, 3, 4, 6 add re-exports for the new entity files
+- `apps/web/src/routes/chat.tsx` — PR 9 swaps in streaming-path imports
+- `apps/web/src/routes/timeline.tsx` — PR 11 adds budget-violation rendering
+- `apps/web/src/routes/healthz.ts` — PR 11 adds materialization + replica probes
+- `apps/api/server/app.ts` — PR 8 mounts `/mcp/subscribe` route inside the existing mcpPlugin chain
+- `.gaia/rules/checks/validate-artifacts.ts` — PR 1 adds budget-required rule; PR 13 invokes the full sweep
+
 <!-- AUTOPLAN DECISION LOG (added 2026-04-29) -->
 
 | ID    | Decision                                                                                                                                                                                                                           | Classification | Principle                     | Source                               |
 | ----- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | -------------- | ----------------------------- | ------------------------------------ |
-| AD-1  | "iii Function" maps 1:1 to Inngest function in this initiative (today's substrate). Wrapper insulates 0005 from substrate swap if 0004 ever migrates to iii.dev.                                                                   | Mechanical     | P5 explicit-over-clever       | autoplan eng #1, ceo #5              |
+| AD-1  | "iii Function" maps to iii.dev. Founder committed (2026-04-29) — 0004 PR 2 retires `packages/workflows/` and removes the `inngest` dep. The earlier autoplan hedge ("maps 1:1 to Inngest, wrapper insulates if 0004 swaps") is superseded. | Mechanical     | P5 explicit-over-clever       | Founder 2026-04-29 (overrides autoplan eng #1, ceo #5) |
 | AD-2  | Slot lifecycle (naming, idempotent create, GC, retention bound) added to PR 2.                                                                                                                                                     | Mechanical     | P1 completeness               | autoplan eng #2                      |
 | AD-3  | Tenant filtering enforced at handler layer with `validate-artifacts.ts` rule (single consumer per slot, not per-tenant slots — Neon `max_replication_slots` cap).                                                                  | Mechanical     | P1 completeness, P3 pragmatic | autoplan eng #3                      |
 | AD-4  | PR 9 streaming spine declares hard precondition on 0004 PR 7 (streaming-aware `packages/adapters/llm/`). Today's `packages/adapters/ai.ts` is non-streaming and blocks PR 9.                                                       | Mechanical     | P1 completeness               | autoplan eng #4, ceo #11             |

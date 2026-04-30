@@ -49,38 +49,48 @@ The category-defining version: when the founder asks "how does support routing w
 | Search adapter                   | `packages/adapters/search/` — Postgres FTS wrapper, used by BM25 layer                                     | External search engines (defer)                           |
 | Inline admin help                | Contextual help in admin pages pulls from the contract surface                                             | —                                                         |
 | Decision authoring               | Dialog-driven decision capture, indexed into contracts                                                     | Decision review workflows (manual v1.0)                   |
-| `d-contracts` skill              | Validates contract surface consistency, surfaces drift                                                     | —                                                         |
+| `a-contracts` skill              | Validates contract surface consistency, surfaces drift                                                     | —                                                         |
 
 ## 3. Folder Structure
 
+Disposition: **EXTEND** = additive change to existing module; **NEW** = wholly new; **EDIT** = modify existing scaffold file.
+
 ```
-santiago/
+gaia/
 ├── apps/
-│   └── docs/                         # NEW — docs site, executable examples, triple-rendered
+│   ├── docs/                         # NEW separate SolidStart app — public docs surface; SEO/perf requirements justify separate deploy (mirrors the apps/marketing pattern from 0008 §7 R-2)
+│   ├── web/                          # EDIT (PR 8) — inline contextual help component pulls from packages/contracts; lands in apps/web/src/components/help/ for use across admin/billing/labor routes
+│   └── api/                          # EDIT (PR 4) — apps/api hosts the contract-query route + the local materialized-index refresh endpoints; reuses Better Auth bearer + applySecurityHeaders
 │
 ├── packages/
-│   ├── contracts/                    # NEW — typed view over local schema + network discovery
-│   │   ├── query/                    # hybrid retrieval (BM25 + embeddings + cache)
-│   │   ├── network/                  # cross-instance discovery via local materialized index
-│   │   │   └── (depends on packages/replicas/ from 0005)
-│   │   └── embeddings/               # semantic vectors for similarity search
+│   ├── contracts/                    # NEW package — typed view over local schema + network discovery
+│   │   └── src/
+│   │       ├── query/                # hybrid retrieval (BM25 + embeddings + cache)
+│   │       ├── network/              # cross-instance discovery via local materialized index (depends on packages/replicas/ from 0005)
+│   │       └── embeddings/           # semantic vectors for similarity search
 │   │
-│   ├── projections/
-│   │   ├── docs/                     # NEW — contracts → docs pages + MCP discovery + pricing
-│   │   │   └── materialize.ts
-│   │   └── changelog/                # NEW — PR diff + contract delta → changelog (triple-rendered)
-│   │       └── materialize.ts
+│   ├── projections/                  # EXTEND (created in 0006)
+│   │   └── src/
+│   │       ├── docs/                 # NEW subdir — contracts → docs pages + MCP discovery + pricing; materialize.ts implements 0005 PR 5 contract
+│   │       └── changelog/            # NEW subdir — PR diff + contract delta → changelog (triple-rendered); materialize.ts
 │   │
-│   └── adapters/
-│       └── search/                   # NEW — Postgres FTS wrapper (used by BM25 layer)
+│   ├── adapters/                     # EDIT existing flat-file package — add ONE new file (single capability) OR a subdir if internal modules justify
+│   │   └── search.ts                 # NEW file — Postgres FTS wrapper, used by BM25 layer. Per packages/adapters/CLAUDE.md ("ONE file per capability"), search is one capability and lands as one .ts file. If internal modules grow large enough to justify, refactor to a subdir in a follow-up PR; default is the flat file.
+│   │
+│   └── db/                           # EDIT — extend packages/db/schema/ per 0004 §7.15 R-3
+│       └── schema/
+│           ├── embeddings.ts         # NEW — pgvector column on contract entities; embedding storage
+│           ├── contracts-cache.ts    # NEW — schema-hash-keyed cache rows
+│           ├── network-index.ts      # NEW — local materialized index of shared registry slice
+│           └── docs-projection.ts    # NEW — read state for the docs projection (PR 5)
 │
-├── content/
-│   ├── docs/                         # NEW — hand-authored docs supplements (overrides)
-│   ├── changelog/                    # NEW — projected changelog entries
-│   └── decisions-public/             # NEW — public decision records, indexed by contracts
+├── content/                          # NEW top-level content tree (markdown + frontmatter under git, sibling to 0008's content/)
+│   ├── docs/                         # hand-authored docs supplements (overrides)
+│   ├── changelog/                    # projected changelog entries
+│   └── decisions-public/             # public decision records, indexed by contracts
 │
 └── .claude/skills/
-    └── d-contracts/                  # NEW — validates contract consistency, surfaces drift
+    └── a-contracts/                  # NEW — validates contract consistency, surfaces drift
 ```
 
 ## 4. Implementation
@@ -97,7 +107,7 @@ santiago/
 8. Inline contextual help in admin — pulls from the contract surface; appears alongside fields, list views, etc.
 9. Decision authoring dialog — `packages/conversation/stream/` operates a flow that captures decisions, formats them, indexes them into the contract layer.
 10. `content/{docs,changelog,decisions-public}/` — hand-authored content surfaces.
-11. `.claude/skills/d-contracts/` — validates contract surface consistency, surfaces drift.
+11. `.claude/skills/a-contracts/` — validates contract surface consistency, surfaces drift.
 12. End-of-wave audit: contract query p99 first-token <200ms; 0 synchronous shared-registry calls in user-facing paths.
 
 **Risks**:
@@ -129,7 +139,7 @@ santiago/
 | 8   | Inline contextual help in admin                          | help components pull from contract surface                  | pending |
 | 9   | Decision authoring dialog                                | conversation flow, indexing into contracts                  | pending |
 | 10  | `content/{docs,changelog,decisions-public}/`             | hand-authored content surfaces                              | pending |
-| 11  | `.claude/skills/d-contracts/`                            | drift validation skill                                      | pending |
+| 11  | `.claude/skills/a-contracts/`                            | drift validation skill                                      | pending |
 | 12  | Wave 2 audit                                             | p99 first-token <200ms + 0 sync shared-registry calls       | pending |
 
 ## 6. Decision Audit Trail
@@ -142,3 +152,26 @@ santiago/
 | F-4 | Refresh cadence: push when subscribed; hourly default for casual discovery. Tunable per-subscription.                    | Founder 2026-04-29 (v5 vision §Wave 2) |
 | F-5 | Decisions are authored via dialog, indexed into contracts. Lightweight default; opt-in heavyweight.                      | Founder 2026-04-29 (v5 vision §Wave 2) |
 | F-6 | Inline contextual help in admin pulls from the contract surface — single source for help text.                           | Founder 2026-04-29 (v5 vision §Wave 2) |
+
+## 7. Existing-scaffold reconciliation (added 2026-04-29)
+
+| #   | Decision                                                                                                                                                       | PR(s)        |
+| --- | -------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------ |
+| R-1 | `apps/docs/` is a separate SolidStart app (NOT a route in apps/web). Justification mirrors `apps/marketing/` from 0008 §7 R-2: SEO/perf characteristics differ from the operating apps/web surface. | 7 |
+| R-2 | `packages/adapters/search.ts` is a SINGLE FILE in the existing flat-file adapters package — per `packages/adapters/CLAUDE.md` "ONE file per capability." If internal modules grow, refactor to a subdir later. The original §3 directory `packages/adapters/search/` is replaced by the file. | 1 |
+| R-3 | New tables (`embeddings`, `contracts-cache`, `network-index`, `docs-projection`) go to `packages/db/schema/` per 0004 §7.15 R-3. PR 3 adds the pgvector extension via a hand-edited migration in `packages/db/migrations/`; that's the only out-of-band SQL move. | 3, 4, 5 |
+| R-4 | `packages/projections/{docs,changelog}/` are SUBDIRS of the existing `packages/projections/` (created in 0006). Each materialize.ts implements the 0005 PR 5 handler contract. | 5, 6 |
+| R-5 | `packages/contracts/network/` (PR 4) consumes `packages/replicas/subscription/` from 0005 PR 6. Push refresh wires through `packages/mcp/push/` (0005 PR 8). | 4 |
+| R-6 | Inline contextual help (PR 8) is a component in `apps/web/src/components/help/`, consumed by routes in admin/billing/labor — not a separate help app. | 8 |
+| R-7 | Decision authoring dialog (PR 9) consumes `packages/conversation/stream/` from 0005 PR 9. | 9 |
+| R-8 | iii Functions (each materialize.ts becomes one) MUST declare `budget` per 0005 R-8 (validate-artifacts.ts). | 5, 6 |
+| R-9 | The contract-query route in `apps/api/server/app.ts` (PR 4) is mounted alongside the existing routes (auth, billing, mcp); no separate Elysia app. | 4 |
+
+**Existing-files-touched trace:**
+
+- `apps/api/server/app.ts` — PR 4 (mount contract-query route + network refresh endpoints)
+- `packages/adapters/CLAUDE.md` — PR 1 (Files table gains `search.ts` row)
+- `packages/db/schema/index.ts` — PRs 2, 3, 4, 5 (re-export new entities)
+- `packages/db/migrations/000N_pgvector.sql` — PR 3 (CREATE EXTENSION vector; hand-edited)
+- `apps/web/src/components/help/` — PR 8 (NEW components consuming `packages/contracts/query/`)
+- `.gaia/rules/checks/validate-artifacts.ts` — PR 12 audit invokes the no-sync-shared-registry-call rule

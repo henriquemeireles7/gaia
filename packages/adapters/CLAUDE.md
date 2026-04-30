@@ -45,21 +45,13 @@ export async function doThing(input: string): Promise<Result> {
 <!-- AUTO-GENERATED BELOW — do not edit manually -->
 
 ## Files
+| File | Exports |
+|------|---------|
+| ai.ts | ai, complete |
+| analytics.ts | track, identify, shutdown |
+| email.ts | email, sendEmail |
+| errors.ts | ProviderError |
+| payments.ts | polar, verifyWebhook |
+| storage.ts | upload, download, getSignedUrl, remove |
 
-| File              | Exports                                                                                                                                       |
-| ----------------- | --------------------------------------------------------------------------------------------------------------------------------------------- |
-| ai.ts             | ai, complete                                                                                                                                  |
-| analytics.ts      | track, identify, shutdown                                                                                                                     |
-| email.ts          | email, sendEmail                                                                                                                              |
-| error-tracking.ts | captureException, captureMessage, flush                                                                                                       |
-| errors.ts         | ProviderError                                                                                                                                 |
-| markdown.ts       | BlogPostFrontmatter, parseFrontmatter, renderMarkdown, calculateReadTime, ContentHeading, ParsedContentItem, listContentFiles, getContentFile |
-| payments.ts       | payments, plans, intervalFromPriceId                                                                                                          |
-| storage.ts        | upload, download, getSignedUrl, remove                                                                                                        |
-
-## Internal Dependencies
-
-- platform/env
-- providers/errors
-
-<!-- Generated: 2026-04-19T04:04:55.799Z -->
+<!-- Generated: 2026-04-30T04:36:18.615Z -->

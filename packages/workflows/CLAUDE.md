@@ -36,3 +36,13 @@ export const sendWelcome = inngest.createFunction(
 ```sh
 bunx tsc --noEmit
 ```
+
+---
+<!-- AUTO-GENERATED BELOW — do not edit manually -->
+
+## Files
+| File | Exports |
+|------|---------|
+| index.ts | inngest, GaiaInngest, sendWelcome, functions |
+
+<!-- Generated: 2026-04-30T04:36:18.616Z -->
