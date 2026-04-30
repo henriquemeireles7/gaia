@@ -21,8 +21,8 @@
     "check:types": "bunx tsc --noEmit",
     "check:test": "bun test --pass-with-no-tests",
     "check:dead": "bunx knip --reporter compact",
-    "check:scripts": "bun scripts/check-skills.ts && bun scripts/validate-artifacts.ts && bun scripts/check-tests-exist.ts && bun scripts/check-tokens-sync.ts && bun scripts/check-observability-init.ts && bun scripts/check-marketing-vocab.ts && bun scripts/check-integration-treaty.ts && bun scripts/check-cli-stdout.ts && bun scripts/check-reference-shape.ts && bun scripts/check-reference-voice.ts && bun scripts/check-reference-rule-mapping.ts && bun scripts/check-reference-staleness.ts && bun scripts/check-hook-determinism.ts && bun scripts/check-migrations.ts && bun scripts/check-typebox-derivation.ts && bun scripts/check-activation-defined-once.ts && bun scripts/check-email-on-signup.ts && bun scripts/check-funnel-events.ts && bun scripts/check-engagement-state.ts && bun scripts/check-usage-tiers.ts && bun scripts/check-dunning.ts && bun scripts/check-readme.ts && bun scripts/check-state-json-no-secrets.ts && bun scripts/check-env-example-parity.ts",
-    "rules:coverage": "bun scripts/rules-coverage.ts",
+    "check:scripts": "bun .gaia/rules/checks/check-rules-shards.ts && bun .gaia/rules/checks/check-skills.ts && bun .gaia/rules/checks/check-skill-triggers.ts && bun .gaia/rules/checks/validate-artifacts.ts && bun .gaia/rules/checks/check-tests-exist.ts && bun .gaia/rules/checks/check-tokens-sync.ts && bun .gaia/rules/checks/check-observability-init.ts && bun .gaia/rules/checks/check-marketing-vocab.ts && bun .gaia/rules/checks/check-integration-treaty.ts && bun .gaia/rules/checks/check-cli-stdout.ts && bun .gaia/rules/checks/check-reference-shape.ts && bun .gaia/rules/checks/check-reference-voice.ts && bun .gaia/rules/checks/check-reference-rule-mapping.ts && bun .gaia/rules/checks/check-reference-staleness.ts && bun .gaia/rules/checks/check-hook-determinism.ts && bun .gaia/rules/checks/check-migrations.ts && bun .gaia/rules/checks/check-typebox-derivation.ts && bun scripts/check-readme.ts && bun scripts/check-state-json-no-secrets.ts && bun scripts/check-env-example-parity.ts",
+    "rules:coverage": "bun .gaia/rules/checks/rules-coverage.ts",
     "tokens:generate": "bun scripts/generate-tokens-css.ts",
     "harden": "bun packages/security/harden-check.ts",
     "test": "bun test",
@@ -56,23 +56,28 @@
     "@solidjs/router": "^0.15.0",
     "@solidjs/start": "^1.1.0",
     "better-auth": "^1.2.0",
-    "drizzle-orm": "^0.38.0",
+    "drizzle-orm": "^0.45.2",
     "elysia": "^1.1.27",
-    "inngest": "^3.27.0",
+    "iii-sdk": "^0.11.3",
     "postgres": "^3.4.0",
     "posthog-node": "^4.4.0",
     "resend": "^4.1.0",
     "solid-js": "^1.9.0",
-    "vinxi": "^0.5.0"
+    "vinxi": "^0.5.11"
   },
   "devDependencies": {
     "@ast-grep/cli": "^0.42.1",
     "@types/bun": "latest",
-    "drizzle-kit": "^0.30.0",
+    "drizzle-kit": "^0.31.10",
     "knip": "^5.40.0",
     "oxfmt": "^0.47.0",
     "oxlint": "^1.62.0",
     "typescript": "^5.7.0"
+  },
+  "overrides": {
+    "esbuild": "^0.25.0",
+    "fast-xml-parser": "^5.7.0",
+    "h3": "^1.15.9"
   },
   "trustedDependencies": [
     "@ast-grep/cli"

@@ -22,7 +22,7 @@ Cross-cutting principles that apply to every package. Per-package conventions li
 | `errors/`    | AppError + typed error codes                                           |
 | `security/`  | Runtime security primitives (route wrappers, audit log, harden checks) |
 | `ui/`        | Design system: tokens, components, styles                              |
-| `workflows/` | Inngest job definitions                                                |
+| `workflows/` | iii function + trigger registry (vendored worker)                      |
 
 ## Verify
 

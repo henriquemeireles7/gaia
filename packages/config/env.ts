@@ -50,9 +50,13 @@ export const EnvSchema = Type.Object({
   AXIOM_ORG_ID: Type.Optional(Type.String({ minLength: 1 })),
   OTEL_EXPORTER_OTLP_ENDPOINT: Type.Optional(Type.String({ minLength: 1 })),
 
-  // ─── Optional: Workflows (Inngest) ────────────────────────────
-  INNGEST_EVENT_KEY: Type.Optional(Type.String({ minLength: 1 })),
-  INNGEST_SIGNING_KEY: Type.Optional(Type.String({ minLength: 1 })),
+  // ─── Optional: Workflows (iii — iii.dev) ──────────────────────
+  // Engine WebSocket URL. When unset, the worker registers but cannot
+  // reach an engine — fine for unit tests; production must point at a
+  // running iii engine.
+  III_URL: Type.String({ minLength: 1, default: 'ws://localhost:49134' }),
+  // Worker name reported to the engine. Defaults to `gaia-api-worker`.
+  III_WORKER_NAME: Type.String({ minLength: 1, default: 'gaia-api-worker' }),
 })
 
 export type Env = Static<typeof EnvSchema>

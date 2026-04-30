@@ -1,0 +1,23 @@
+# infra/iii/railway.toml — Railway service config for the iii engine.
+#
+# Set the service's `Config Path` to this file in the Railway dashboard
+# (Service → Settings → Config-as-Code). Build context is the repo root
+# so the Dockerfile can resolve `iii-config.yaml` at the project root.
+# See infra/iii/README.md for the full dashboard setup.
+
+[build]
+builder = "DOCKERFILE"
+dockerfilePath = "infra/iii/Dockerfile"
+
+[deploy]
+# iii's engine has no built-in /health HTTP path — the engine exposes
+# functions, not routes, and "/health" maps to `engine::health::check`
+# which has no HTTP trigger by default. Railway falls back to TCP
+# probes when `healthcheckPath` is unset, which is what we want: the
+# probe just confirms the engine is listening on its primary port.
+healthcheckTimeout = 300
+restartPolicyType = "ON_FAILURE"
+restartPolicyMaxRetries = 5
+# Single replica — multi-replica clustering requires the Redis adapter
+# (per iii deployment docs). Stay vertical until that's wired in.
+numReplicas = 1

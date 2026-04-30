@@ -15,5 +15,25 @@ services:
       timeout: 5s
       retries: 5
 
+  iii:
+    build:
+      context: .
+      dockerfile: infra/iii/Dockerfile
+    ports:
+      - '3111:3111' # HTTP API (no /health by default; iii exposes functions, not routes)
+      - '3112:3112' # Streams API
+      - '49134:49134' # Worker WebSocket — III_URL points here
+      - '9464:9464' # Prometheus /metrics
+    environment:
+      III_ENV: development
+    volumes:
+      - iii-data:/data
+    restart: unless-stopped
+    # No healthcheck: iii uses a distroless image (no shell, no wget),
+    # so `CMD-SHELL` probes can't run inside the container. Compose
+    # falls back to "is the process alive" — which for iii means the
+    # entrypoint hasn't exited. Good enough for local dev.
+
 volumes:
   pgdata:
+  iii-data:

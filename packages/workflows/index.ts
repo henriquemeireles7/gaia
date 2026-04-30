@@ -1,42 +1,50 @@
-// packages/workflows/index.ts — Inngest client + functions registry
+// packages/workflows/index.ts — iii worker + function registry.
 //
 // Vision §Architecture-10: workflow orchestration is a platform primitive.
-// Functions are defined here (or per-feature) and registered via the
-// `functions` array, which apps/api/server/app.ts mounts at /inngest.
+// The iii engine (Rust binary, ws://localhost:49134 by default) handles
+// durability, retry, and routing; this file registers the worker plus
+// every function and trigger Gaia owns.
+//
+// Self-hosted iii has no Elysia-side serve handler — the engine routes
+// invocations over WebSocket. apps/api/server/app.ts only needs to
+// import this module so registration runs at boot.
 
 import { sendEmail } from '@gaia/adapters/email'
-import { Inngest } from 'inngest'
+import { env } from '@gaia/config'
+import { Logger, registerWorker } from 'iii-sdk'
 
-export const inngest = new Inngest({
-  id: 'gaia',
-  name: 'gaia',
+export const iii = registerWorker(env.III_URL, {
+  workerName: env.III_WORKER_NAME,
 })
 
-export type GaiaInngest = typeof inngest
+export const logger = new Logger()
+
+// ── Functions ───────────────────────────────────────────────────
+
+type SendWelcomePayload = { email: string; idempotencyKey?: string }
+type SendWelcomeResult = { sent: string } | { skipped: string }
 
 /**
- * Welcome-email workflow. Triggered when a user signs up. Demonstrates
- * the platform primitive: durable, retryable, idempotent step.run.
+ * Welcome-email workflow. Triggered when a user signs up. Idempotent:
+ * the caller passes a stable `idempotencyKey` so retries are safe.
  */
-export const sendWelcome = inngest.createFunction(
-  { id: 'send-welcome' },
-  { event: 'user/created' },
-  async ({ event, step }) => {
-    const email = (event.data as { email?: string }).email
-    if (!email) return { skipped: 'no-email' }
-    await step.run('send', () =>
-      sendEmail(email, {
-        subject: 'Welcome to Gaia',
-        html: `<p>Welcome aboard. You're ready to ship.</p>`,
-        text: `Welcome aboard. You're ready to ship.`,
-      }),
-    )
-    return { sent: email }
+export const sendWelcomeRef = iii.registerFunction(
+  'email::send-welcome',
+  async (payload: SendWelcomePayload): Promise<SendWelcomeResult> => {
+    if (!payload?.email) return { skipped: 'no-email' }
+    await sendEmail(payload.email, {
+      subject: 'Welcome to Gaia',
+      html: `<p>Welcome aboard. You're ready to ship.</p>`,
+      text: `Welcome aboard. You're ready to ship.`,
+    })
+    return { sent: payload.email }
   },
+  { description: 'Send the post-signup welcome email.' },
 )
 
 /**
- * The list of all functions to register at boot. Add new functions
- * here as they're authored.
+ * The list of registered function refs. Mirrors the legacy `functions`
+ * export so callers that imported it from inngest days keep compiling
+ * during the migration.
  */
-export const functions = [sendWelcome]
+export const functions = [sendWelcomeRef]

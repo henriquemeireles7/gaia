@@ -1,0 +1,3 @@
+# Keep the build context tiny. Only iii-config.yaml is copied in.
+*
+!iii-config.yaml

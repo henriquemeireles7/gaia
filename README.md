@@ -47,7 +47,7 @@ Prereqs: macOS or Linux, Bun ≥1.2, git, optional [`gh`](https://cli.github.com
 | Auth            | [Better Auth](https://www.better-auth.com)                                                |
 | Payments        | [Polar](https://polar.sh) (merchant-of-record)                                            |
 | Email           | [Resend](https://resend.com)                                                              |
-| Background jobs | [Inngest](https://www.inngest.com)                                                        |
+| Background jobs | [iii](https://iii.dev)                                                                    |
 | Analytics       | [PostHog](https://posthog.com)                                                            |
 | Errors          | [Sentry](https://sentry.io)                                                               |
 | Logs / traces   | [Axiom](https://axiom.co) + [OpenTelemetry](https://opentelemetry.io)                     |
@@ -87,13 +87,15 @@ No. Gaia is opinionated: Bun + Elysia + SolidStart only. The architecture assume
 ```
 .
 ├── CLAUDE.md         # Root resolver — skills routing, docs routing, four engineering disciplines
-├── .gaia/            # Methodology — vision.md, initiatives/, protocols/, rules.ts
-├── .claude/          # Claude Code home — settings.json, hooks/, skills/ (d-* + gstack/)
+├── .gaia/            # Methodology — vision.md, initiatives/, protocols/, rules/
+├── .claude/          # Claude Code home — settings.json, hooks/, skills/ (h-* / w-* / a-* + gstack/)
 ├── apps/             # api/ (Elysia), web/ (SolidStart)
 ├── packages/         # core, config, errors, db, adapters, auth, ui, security, workflows
+├── cli/              # @gaia/cli — bun gaia <verb> (initiative 0002)
 ├── content/          # Human-authored markdown (blog, legal, emails)
 ├── tools/            # ast-grep config, custom rules
 ├── scripts/          # Cross-file checks (test ratio, manifest, coverage audit)
+├── docs/             # User-facing docs (getting-started, cli, architecture, launch, privacy)
 └── .github/          # CI workflows + issue/PR templates
 ```
 

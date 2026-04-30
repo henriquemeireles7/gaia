@@ -38,13 +38,14 @@ Everything else is hand-written. Update when the source-of-truth changes:
 <!-- AUTO-GENERATED BELOW — do not edit manually -->
 
 ## Files
-| File | Exports |
-|------|---------|
-| architecture.md | Architecture |
-| cli.md | CLI reference |
-| contributing.md | Contributing |
-| getting-started.md | Getting started |
-| launch.md | Launch checklist — v1.0 founder gate |
-| privacy.md | Privacy |
+
+| File               | Exports                              |
+| ------------------ | ------------------------------------ |
+| architecture.md    | Architecture                         |
+| cli.md             | CLI reference                        |
+| contributing.md    | Contributing                         |
+| getting-started.md | Getting started                      |
+| launch.md          | Launch checklist — v1.0 founder gate |
+| privacy.md         | Privacy                              |
 
 <!-- Generated: 2026-04-30T05:20:55.376Z -->

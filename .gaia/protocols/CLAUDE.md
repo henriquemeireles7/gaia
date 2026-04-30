@@ -19,10 +19,11 @@ Tool schemas (`tool-schemas/`) are deferred until conductor.build ships a runtim
 <!-- AUTO-GENERATED BELOW — do not edit manually -->
 
 ## Files
-| File | Exports |
-|------|---------|
-| cli.ts | VERBS, Verb, ExitCode, ExitCodeValue, EVENT_NAMES, EventName, EventBaseSchema, EventBase, StateSchemaV1, StateV1, TELEMETRY_ALLOWLIST, TelemetryFieldName, STANDARD_FLAGS |
-| delegation.md | delegation.md |
-| permissions.md | permissions.md |
+
+| File           | Exports                                                                                                                                                                   |
+| -------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| cli.ts         | VERBS, Verb, ExitCode, ExitCodeValue, EVENT_NAMES, EventName, EventBaseSchema, EventBase, StateSchemaV1, StateV1, TELEMETRY_ALLOWLIST, TelemetryFieldName, STANDARD_FLAGS |
+| delegation.md  | delegation.md                                                                                                                                                             |
+| permissions.md | permissions.md                                                                                                                                                            |
 
 <!-- Generated: 2026-04-30T05:20:55.375Z -->

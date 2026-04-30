@@ -1,6 +1,6 @@
 # Context
 
-> Snapshot. Auto-refreshed by `d-roadmap` (Phase 2+).
+> Snapshot. Manually refreshed alongside initiative updates (post-0001 — `d-roadmap` was deleted; initiatives carry the breakdown directly).
 
 ## Northstar
 
