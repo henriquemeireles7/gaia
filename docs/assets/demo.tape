@@ -21,20 +21,30 @@ Set TypingSpeed 40ms
 Set PlaybackSpeed 1.0
 
 Hide
-Type "cd /tmp && rm -rf weekend-saas"
+Type "cd /tmp && [ -d weekend-saas ] && (cd weekend-saas && rm -rf .) || true"
 Enter
 Show
 
 Sleep 500ms
 Type "bun create gaia-app@latest weekend-saas"
 Enter
-Sleep 4s
+Sleep 5s
 
 Type "cd weekend-saas"
 Enter
 Sleep 500ms
 
-Type "bun gaia verify-keys --dry-run --quiet"
+# Show the user the mock app boots immediately — no vendor signup required.
+Type "bun dev &"
+Enter
+Sleep 3s
+
+Type "open http://localhost:3000"
+Enter
+Sleep 4s
+
+# Show the path to going live.
+Type "bun gaia live --dry-run --quiet"
 Enter
 Sleep 3s
 

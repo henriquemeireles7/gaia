@@ -2,6 +2,7 @@ import AnthropicSDK from '@anthropic-ai/sdk'
 import { SpanStatusCode, trace } from '@opentelemetry/api'
 import { env } from '@gaia/config'
 import { assertAiBudget, recordAiUsage } from '@gaia/security/ai-budget'
+import { completeMock } from './mocks/ai'
 
 export const ai = new AnthropicSDK({ apiKey: env.ANTHROPIC_API_KEY })
 
@@ -46,6 +47,10 @@ export async function complete(
   const maxTokens = options?.maxTokens ?? 300
   const timeoutMs = options?.timeoutMs ?? DEFAULT_TIMEOUT_MS
   const userId = options?.userId
+
+  // Mock mode short-circuits BEFORE budget enforcement and OTel spans —
+  // both are vendor concerns that don't apply when nothing is being spent.
+  if (env.VENDOR_MODE === 'mock') return completeMock(prompt, options)
 
   if (userId) await assertAiBudget(userId)
 

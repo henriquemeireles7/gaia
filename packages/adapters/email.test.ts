@@ -1,4 +1,10 @@
-import { afterEach, describe, expect, it, mock, spyOn } from 'bun:test'
+import { afterEach, beforeAll, describe, expect, it, mock, spyOn } from 'bun:test'
+import { env } from '@gaia/config'
+
+// Force live mode — these tests assert the real-Resend SDK call shape.
+beforeAll(() => {
+  ;(env as { VENDOR_MODE: string }).VENDOR_MODE = 'live'
+})
 
 // Mock the Resend SDK before importing the module under test
 const mockSend = mock(() => Promise.resolve({ data: { id: 'email_123' }, error: null }))

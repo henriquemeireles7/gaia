@@ -1,4 +1,13 @@
-import { afterEach, describe, expect, it, mock } from 'bun:test'
+import { afterEach, beforeAll, describe, expect, it, mock } from 'bun:test'
+import { env } from '@gaia/config'
+
+// Force live mode in this file — tests assert real-Anthropic call shape.
+// env is shared across the test process, so once mutated here it stays
+// 'live' for the rest of THIS file's tests. Mock-mode behavior is tested
+// in mocks/ai.test.ts.
+beforeAll(() => {
+  ;(env as { VENDOR_MODE: string }).VENDOR_MODE = 'live'
+})
 
 // Mock the Anthropic SDK before importing the module under test
 const mockCreate = mock(() =>

@@ -13,6 +13,15 @@ export const EnvSchema = Type.Object({
     [Type.Literal('development'), Type.Literal('test'), Type.Literal('production')],
     { default: 'development' },
   ),
+  // VENDOR_MODE — 'mock' (default) runs every external dependency as
+  // an in-process fake so the app boots without any vendor signup:
+  //   - DB:       PGLite (Postgres-in-WASM, file-backed at .gaia/pglite-data)
+  //   - Polar:    in-memory mock client; webhook verification accepts anything
+  //   - Resend:   appends sent mail to .gaia/sent-emails.jsonl
+  //   - Anthropic: returns rotating placeholder strings
+  // 'live' wires the real SDKs; the env vars below must be real keys.
+  // Flip via `bun gaia live` (interactive) or set VENDOR_MODE=live in .env.local.
+  VENDOR_MODE: Type.Union([Type.Literal('mock'), Type.Literal('live')], { default: 'mock' }),
   DATABASE_URL: Type.String({ minLength: 1 }),
   PORT: Type.Integer({ minimum: 1, maximum: 65535, default: 3000 }),
   BETTER_AUTH_SECRET: Type.String({ minLength: 32 }),
