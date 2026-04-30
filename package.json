@@ -1,9 +1,10 @@
 {
   "name": "gaia",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "workspaces": [
     "apps/*",
-    "packages/*"
+    "packages/*",
+    "cli"
   ],
   "type": "module",
   "main": "apps/api/server/app.ts",
@@ -20,7 +21,7 @@
     "check:types": "bunx tsc --noEmit",
     "check:test": "bun test --pass-with-no-tests",
     "check:dead": "bunx knip --reporter compact",
-    "check:scripts": "bun scripts/check-skills.ts && bun scripts/validate-artifacts.ts && bun scripts/check-tests-exist.ts && bun scripts/check-tokens-sync.ts && bun scripts/check-observability-init.ts && bun scripts/check-marketing-vocab.ts && bun scripts/check-integration-treaty.ts && bun scripts/check-cli-stdout.ts && bun scripts/check-reference-shape.ts && bun scripts/check-reference-voice.ts && bun scripts/check-reference-rule-mapping.ts && bun scripts/check-reference-staleness.ts && bun scripts/check-hook-determinism.ts && bun scripts/check-migrations.ts && bun scripts/check-typebox-derivation.ts && bun scripts/check-activation-defined-once.ts && bun scripts/check-email-on-signup.ts && bun scripts/check-funnel-events.ts && bun scripts/check-engagement-state.ts && bun scripts/check-usage-tiers.ts && bun scripts/check-dunning.ts",
+    "check:scripts": "bun scripts/check-skills.ts && bun scripts/validate-artifacts.ts && bun scripts/check-tests-exist.ts && bun scripts/check-tokens-sync.ts && bun scripts/check-observability-init.ts && bun scripts/check-marketing-vocab.ts && bun scripts/check-integration-treaty.ts && bun scripts/check-cli-stdout.ts && bun scripts/check-reference-shape.ts && bun scripts/check-reference-voice.ts && bun scripts/check-reference-rule-mapping.ts && bun scripts/check-reference-staleness.ts && bun scripts/check-hook-determinism.ts && bun scripts/check-migrations.ts && bun scripts/check-typebox-derivation.ts && bun scripts/check-activation-defined-once.ts && bun scripts/check-email-on-signup.ts && bun scripts/check-funnel-events.ts && bun scripts/check-engagement-state.ts && bun scripts/check-usage-tiers.ts && bun scripts/check-dunning.ts && bun scripts/check-readme.ts && bun scripts/check-state-json-no-secrets.ts && bun scripts/check-env-example-parity.ts",
     "rules:coverage": "bun scripts/rules-coverage.ts",
     "tokens:generate": "bun scripts/generate-tokens-css.ts",
     "harden": "bun packages/security/harden-check.ts",

@@ -39,3 +39,18 @@ bun run check
 ## Audits
 
 Run the standalone security audit: `/d-security`. The audit walks this package + every route mounted via the wrappers, flagging coverage gaps.
+
+---
+
+<!-- AUTO-GENERATED BELOW — do not edit manually -->
+
+## Files
+| File | Exports |
+|------|---------|
+| audit-log.ts | AuditEntry, auditLog |
+| harden-check.ts | — |
+| protected-route.ts | userRoutes, protectedRoute |
+| public-route.ts | healthRoutes, publicRoute |
+| security-headers.ts | applySecurityHeaders |
+
+<!-- Generated: 2026-04-30T05:20:55.374Z -->

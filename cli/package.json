@@ -1,0 +1,47 @@
+{
+  "name": "@gaia/cli",
+  "version": "0.2.0",
+  "description": "Gaia CLI — clone, install, deploy. Live URL in <30 minutes.",
+  "keywords": [
+    "agent-native",
+    "claude-code",
+    "cli",
+    "gaia",
+    "saas",
+    "scaffolder",
+    "template"
+  ],
+  "homepage": "https://github.com/henriquemeireles7/gaia",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/henriquemeireles7/gaia.git",
+    "directory": "cli"
+  },
+  "bin": {
+    "create-gaia": "./src/create.ts",
+    "gaia": "./src/cli.ts"
+  },
+  "files": [
+    "src",
+    "README.md"
+  ],
+  "type": "module",
+  "exports": {
+    ".": "./src/cli.ts",
+    "./create": "./src/create.ts",
+    "./preflight": "./src/preflight.ts"
+  },
+  "publishConfig": {
+    "access": "public"
+  },
+  "scripts": {
+    "test": "bun test"
+  },
+  "dependencies": {
+    "@sinclair/typebox": "^0.32.0"
+  },
+  "engines": {
+    "bun": ">=1.2.0"
+  }
+}

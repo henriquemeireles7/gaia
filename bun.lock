@@ -55,6 +55,14 @@
       "name": "@gaia/web",
       "version": "0.0.0",
     },
+    "cli": {
+      "name": "@gaia/cli",
+      "version": "0.0.0",
+      "bin": {
+        "gaia": "./src/cli.ts",
+        "create-gaia": "./src/create.ts",
+      },
+    },
     "packages/adapters": {
       "name": "@gaia/adapters",
       "version": "0.0.0",
@@ -337,6 +345,8 @@
     "@gaia/api-server": ["@gaia/api-server@workspace:apps/api"],
 
     "@gaia/auth": ["@gaia/auth@workspace:packages/auth"],
+
+    "@gaia/cli": ["@gaia/cli@workspace:cli"],
 
     "@gaia/config": ["@gaia/config@workspace:packages/config"],
 
