@@ -46,7 +46,7 @@ Wave 5 closes the v5 architecture: the founder operates a self-sustaining, netwo
 | `packages/subscribers/escalations/`    | Convention for human-handoff emission                                                                                               | Escalation routing rules engine (manual v1.0)   |
 | Adapters                               | `packages/adapters/analytics/` (PostHog), `packages/adapters/logging/`, `packages/adapters/tracing/`                                | Custom analytics destinations (defer)           |
 | `content/playbooks/`                   | `sales/`, `support/`, `growth/`, `product/` — versioned, per-tenant overridable; successful playbooks contribute back via telemetry | —                                               |
-| `d-autonomous` skill                   | Authors subscribers conversationally; sub-skills for lifecycle-triggers, content-freshness, deps-update, perf-audit, security-audit | —                                               |
+| `w-autonomous` skill                   | Authors subscribers conversationally; sub-skills for lifecycle-triggers, content-freshness, deps-update, perf-audit, security-audit | —                                               |
 
 ## 3. Folder Structure
 
@@ -85,7 +85,7 @@ gaia/
 ├── apps/web                          # EDIT (PR 4) — escalation surface in apps/web/src/routes/timeline.tsx (existing route from 0004 PR 11) gains a "Pending escalations" panel. No separate app.
 │
 └── .claude/skills/
-    └── d-autonomous/                 # NEW — authors subscribers conversationally
+    └── w-autonomous/                 # NEW — authors subscribers conversationally
         ├── lifecycle-triggers/
         ├── content-freshness/
         ├── deps-update/
@@ -103,7 +103,7 @@ gaia/
 4. `packages/subscribers/escalations/` — convention for emitting human-handoff signals. Timeline surfaces these.
 5. `packages/adapters/{analytics,logging,tracing}/` — external signal sources beyond iii.dev's observability.
 6. `content/playbooks/{sales,support,growth,product}/` — versioned action sequences, per-tenant overridable. Successful playbooks contribute back via telemetry (0004) for the network registry.
-7. `.claude/skills/d-autonomous/` — authors subscribers conversationally. Sub-skills:
+7. `.claude/skills/w-autonomous/` — authors subscribers conversationally. Sub-skills:
    - `lifecycle-triggers/` — common patterns (welcome series, anniversary, renewal)
    - `content-freshness/` — content decay detection and recomposition
    - `deps-update/` — dependency hygiene as autonomous operation
@@ -117,7 +117,7 @@ gaia/
 2. **Playbook contribution back to telemetry leaks tenant-specific data.** Mitigation: contribution pipeline strips tenant context; only invocation patterns + outcomes shared, never inputs/outputs.
 3. **Subscriber storm from cascading domain events.** Mitigation: budgets on each subscriber; circuit breaker if Function exceeds budget; timeline event surfaces the storm and the breaker trip.
 4. **Escalation conventions diverge across founders' codebases.** Mitigation: convention is a typed event (`escalation.requested`) with required metadata; the convention is enforced via `validate-artifacts.ts`.
-5. **Founder describes a complex outcome ("every Tuesday cross-reference these three sources and trigger this") and the conversational authoring fails.** Mitigation: `d-autonomous` decomposes complex outcomes into multiple subscribers; the chat shows the decomposition before creation; founder approves.
+5. **Founder describes a complex outcome ("every Tuesday cross-reference these three sources and trigger this") and the conversational authoring fails.** Mitigation: `w-autonomous` decomposes complex outcomes into multiple subscribers; the chat shows the decomposition before creation; founder approves.
 
 **Out of scope**:
 
@@ -125,7 +125,7 @@ gaia/
 - Multi-source aggregation in cross-instance subscribers (v1.1).
 - Escalation routing rules engine (manual routing v1.0).
 - Custom analytics destinations beyond PostHog (defer to demand).
-- Founder-authored sub-skills under `d-autonomous/` (v1.0 ships the five core sub-skills; founders extend later).
+- Founder-authored sub-skills under `w-autonomous/` (v1.0 ships the five core sub-skills; founders extend later).
 
 ## 5. PR Breakdown
 
@@ -137,12 +137,12 @@ gaia/
 | 4   | `packages/subscribers/escalations/`                 | typed `escalation.requested` event, timeline surface                                             | pending |
 | 5   | `packages/adapters/{analytics,logging,tracing}/`    | PostHog wrapper, logging adapter, tracing adapter                                                | pending |
 | 6   | `content/playbooks/{sales,support,growth,product}/` | versioned action sequences with per-tenant override                                              | pending |
-| 7   | `.claude/skills/d-autonomous/` shell                | top-level conversational subscriber authoring skill                                              | pending |
-| 8   | `d-autonomous/lifecycle-triggers/`                  | welcome/anniversary/renewal patterns                                                             | pending |
-| 9   | `d-autonomous/content-freshness/`                   | content decay detection                                                                          | pending |
-| 10  | `d-autonomous/deps-update/`                         | dependency hygiene as autonomous operation                                                       | pending |
-| 11  | `d-autonomous/perf-audit/`                          | perf-regression subscriber on budget violations                                                  | pending |
-| 12  | `d-autonomous/security-audit/`                      | security-event subscribers                                                                       | pending |
+| 7   | `.claude/skills/w-autonomous/` shell                | top-level conversational subscriber authoring skill                                              | pending |
+| 8   | `w-autonomous/lifecycle-triggers/`                  | welcome/anniversary/renewal patterns                                                             | pending |
+| 9   | `w-autonomous/content-freshness/`                   | content decay detection                                                                          | pending |
+| 10  | `w-autonomous/deps-update/`                         | dependency hygiene as autonomous operation                                                       | pending |
+| 11  | `w-autonomous/perf-audit/`                          | perf-regression subscriber on budget violations                                                  | pending |
+| 12  | `w-autonomous/security-audit/`                      | security-event subscribers                                                                       | pending |
 | 13  | Playbook contribution pipeline                      | telemetry-back contribution stripping tenant context                                             | pending |
 | 14  | Wave 5 audit (full v5 architecture proven)          | subscriber creation <60s + 0 sync polls + 100% conversational + all 4 calcification moves intact | pending |
 
@@ -172,7 +172,7 @@ gaia/
 | R-7 | Subscribers are iii Functions per F-3; MUST declare `budget` per the 0005 R-8 / validate-artifacts.ts rule. The validate-artifacts extension is already in place from 0005 — no new rule here. | 1, 2, 3 |
 | R-8 | Playbook contribution pipeline (PR 13) reuses the existing `packages/telemetry/contribute/` (0004 PR 9) backpressured iii Function. The contribution payload schema gains a `playbook` event family; that family lands in the existing `packages/telemetry/contribute/schema.ts` snapshot test (0004 PR 9). | 13 |
 | R-9 | `content/playbooks/` is a SUBDIR of the top-level `content/` tree (created in 0007 PR 10 with docs/changelog/decisions-public, extended in 0008 PR 11 with social/newsletters/magnets). | 6 |
-| R-10 | The five sub-skills under `d-autonomous/` (`lifecycle-triggers/`, `content-freshness/`, `deps-update/`, `perf-audit/`, `security-audit/`) follow the per-skill SKILL.md + reference.md pattern from `d-converse/` (0004 PR 13) and existing skills under `.claude/skills/`. | 8-12 |
+| R-10 | The five sub-skills under `w-autonomous/` (`lifecycle-triggers/`, `content-freshness/`, `deps-update/`, `perf-audit/`, `security-audit/`) follow the per-skill SKILL.md + reference.md pattern from `w-converse/` (0004 PR 13) and existing skills under `.claude/skills/`. | 8-12 |
 
 **Existing-files-touched trace:**
 
@@ -182,4 +182,4 @@ gaia/
 - `apps/api/server/app.ts` — PRs 1-4 (mount subscriber routes + escalation receiver inside existing Elysia plugin chain)
 - `apps/web/src/routes/timeline.tsx` — PR 4 (add Pending escalations panel)
 - `packages/telemetry/contribute/schema.ts` — PR 13 (extend payload schema; snapshot test must update)
-- `scripts/validate-artifacts.ts` — PR 14 audit invokes the full sweep including the `escalation.requested` typed-event rule
+- `.gaia/rules/checks/validate-artifacts.ts` — PR 14 audit invokes the full sweep including the `escalation.requested` typed-event rule

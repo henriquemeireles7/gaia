@@ -23,7 +23,7 @@ Principles live in two surfaces:
 | Question                      | Where it lives                                                                  |
 | ----------------------------- | ------------------------------------------------------------------------------- |
 | What is Gaia? Who is it for?  | `.gaia/vision.md`                                                               |
-| How do I write code?          | `.claude/skills/d-code/reference.md` (code + testing + errors merged)           |
+| How do I write code?          | `.claude/skills/w-code/reference.md` (code + testing + errors merged)           |
 | Backend conventions           | `apps/api/CLAUDE.md`                                                            |
 | Frontend conventions          | `apps/web/CLAUDE.md`                                                            |
 | Database / migrations         | `packages/db/CLAUDE.md`                                                         |
@@ -31,21 +31,19 @@ Principles live in two surfaces:
 | Auth boundaries               | `packages/auth/CLAUDE.md`                                                       |
 | Runtime security primitives   | `packages/security/CLAUDE.md`                                                   |
 | Vendor adapters               | `packages/adapters/CLAUDE.md`                                                   |
-| Security audit                | `.claude/skills/d-security/reference.md` (audit) — invoke `/d-security`         |
-| Logs / metrics / traces audit | `.claude/skills/d-observability/reference.md` — invoke `/d-observability`       |
-| AI / Anthropic SDK audit      | `.claude/skills/d-ai/reference.md` — invoke `/d-ai`                             |
-| UX patterns audit             | `.claude/skills/d-ux/reference.md` — invoke `/d-ux`                             |
-| DX audit                      | `.claude/skills/d-dx/reference.md` — invoke `/d-dx`                             |
-| Agent experience audit        | `.claude/skills/d-ax/reference.md` — invoke `/d-ax`                             |
-| Brand voice                   | `.claude/skills/d-content/reference.md`                                         |
-| Deployment                    | `.claude/skills/d-deploy/reference.md`                                          |
-| Infra config (Kamal/Railway)  | `.claude/skills/d-infra/reference.md`                                           |
-| The constitutional loop       | `.claude/skills/d-rules/reference.md` (methodology + harness + workflow merged) |
-| Writing SKILL.md files        | `.claude/skills/d-skill/reference.md`                                           |
-| Writing reference files       | `.claude/skills/d-reference/reference.md`                                       |
-| Onboarding / activation       | `.gaia/reference/product/onboarding.md`                                         |
-| Retention / dunning           | `.gaia/reference/product/retention.md`                                          |
-| Currently being worked on     | `.gaia/initiatives/CLAUDE.md` (5-row index of 0001–0005)                        |
+| Security audit                | `.claude/skills/a-security/reference.md` (audit) — invoke `/a-security`         |
+| Logs / metrics / traces audit | `.claude/skills/a-observability/reference.md` — invoke `/a-observability`       |
+| AI / Anthropic SDK audit      | `.claude/skills/a-ai/reference.md` — invoke `/a-ai`                             |
+| UX patterns audit             | `.claude/skills/a-ux/reference.md` — invoke `/a-ux`                             |
+| DX audit                      | `.claude/skills/a-dx/reference.md` — invoke `/a-dx`                             |
+| Agent experience audit        | `.claude/skills/a-ax/reference.md` — invoke `/a-ax`                             |
+| Brand voice                   | `.claude/skills/w-write/reference.md`                                           |
+| Deployment                    | `.claude/skills/w-deploy/reference.md`                                          |
+| Infra config (Kamal/Railway)  | `.claude/skills/w-infra/reference.md`                                           |
+| The constitutional loop       | `.claude/skills/h-rules/reference.md` (methodology + harness + workflow merged) |
+| Writing SKILL.md files        | `.claude/skills/h-skill/reference.md`                                           |
+| Writing reference files       | `.claude/skills/h-reference/reference.md`                                       |
+| Currently being worked on     | `.gaia/initiatives/CLAUDE.md` (11-row index of 0001–0011)                       |
 | Latest data snapshot          | `.gaia/initiatives/context.md`                                                  |
 | What's allowed/blocked        | `.gaia/protocols/permissions.md`                                                |
 
@@ -55,30 +53,30 @@ When the user's request matches one of these, invoke the skill BEFORE any other 
 
 ### Workflow loop (Gaia)
 
-| Trigger                                 | Skill          |
-| --------------------------------------- | -------------- |
-| Start an initiative, brainstorm a bet   | `d-initiative` |
-| Implement a project (TDD)               | `d-code`       |
-| Write blog/handbook/social/clip content | `d-content`    |
-| Pre-commit principles review            | `d-review`     |
-| Deep audit, scoring, trend tracking     | `d-health`     |
-| Deploy after gstack /ship               | `d-deploy`     |
-| Deploy failed → recover                 | `d-fail`       |
-| Author / rewrite a SKILL.md             | `d-skill`      |
-| Author / rewrite a reference            | `d-reference`  |
-| Emit rules.ts entries from a reference  | `d-rules`      |
+| Trigger                                     | Skill          |
+| ------------------------------------------- | -------------- |
+| Start an initiative, brainstorm a bet       | `w-initiative` |
+| Implement a project (TDD)                   | `w-code`       |
+| Write blog/handbook/social/clip content     | `w-write`      |
+| Pre-commit principles review                | `w-review`     |
+| Deep audit, scoring, trend tracking         | `a-health`     |
+| Deploy after gstack /ship                   | `w-deploy`     |
+| Deploy failed / runtime crash / bug → debug | `w-debug`      |
+| Author / rewrite a SKILL.md                 | `h-skill`      |
+| Author / rewrite a reference                | `h-reference`  |
+| Emit rules.ts entries from a reference      | `h-rules`      |
 
 ### Audit skills (invoked explicitly)
 
 | Trigger                          | Skill             |
 | -------------------------------- | ----------------- |
-| Security audit                   | `d-security`      |
-| AI feature audit (Anthropic SDK) | `d-ai`            |
-| Agent experience audit           | `d-ax`            |
-| User experience audit            | `d-ux`            |
-| Observability audit              | `d-observability` |
-| DX audit                         | `d-dx`            |
-| Infra config                     | `d-infra`         |
+| Security audit                   | `a-security`      |
+| AI feature audit (Anthropic SDK) | `a-ai`            |
+| Agent experience audit           | `a-ax`            |
+| User experience audit            | `a-ux`            |
+| Observability audit              | `a-observability` |
+| DX audit                         | `a-dx`            |
+| Infra config                     | `w-infra`         |
 
 ### Foundation (gstack, vendored under `.claude/skills/gstack/`)
 

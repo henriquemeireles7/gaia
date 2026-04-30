@@ -1,7 +1,9 @@
 import { afterEach, describe, expect, it, mock, spyOn } from 'bun:test'
 
 // Mock the Resend SDK before importing the module under test
-const mockSend = mock(() => Promise.resolve({ data: { id: 'email_123' }, error: null }))
+const mockSend = mock(() =>
+  Promise.resolve({ data: { id: 'email_123' }, error: null, headers: null }),
+)
 
 mock.module('resend', () => ({
   Resend: class MockResend {

@@ -1,6 +1,6 @@
 # security/
 
-Runtime security primitives. Audit-the-world is a different surface — that lives in the `d-security` skill at `.claude/skills/d-security/`.
+Runtime security primitives. Audit-the-world is a different surface — that lives in the `a-security` skill at `.claude/skills/a-security/`.
 
 ## What's here
 
@@ -38,4 +38,18 @@ bun run check
 
 ## Audits
 
-Run the standalone security audit: `/d-security`. The audit walks this package + every route mounted via the wrappers, flagging coverage gaps.
+Run the standalone security audit: `/a-security`. The audit walks this package + every route mounted via the wrappers, flagging coverage gaps.
+
+---
+<!-- AUTO-GENERATED BELOW — do not edit manually -->
+
+## Files
+| File | Exports |
+|------|---------|
+| audit-log.ts | AuditEntry, auditLog |
+| harden-check.ts | — |
+| protected-route.ts | userRoutes, protectedRoute |
+| public-route.ts | healthRoutes, publicRoute |
+| security-headers.ts | applySecurityHeaders |
+
+<!-- Generated: 2026-04-30T04:36:18.616Z -->

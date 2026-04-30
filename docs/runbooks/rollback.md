@@ -47,7 +47,7 @@ fly deploy --image registry.fly.io/<app>@sha256:<digest>
 ## After rollback
 
 1. Open an incident issue with the digest you rolled back from + to.
-2. Run `/d-fail` to diagnose, fix, and ship the forward fix.
+2. Run `/w-debug` to diagnose, fix, and ship the forward fix.
 3. Update this runbook if the rollback path itself failed.
 
 ## Pre-flight (do this once per service)

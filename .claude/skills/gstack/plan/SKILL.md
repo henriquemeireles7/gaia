@@ -19,7 +19,7 @@ Designs an implementation plan before code is written. Outputs a step-by-step pl
 
 ## Pipeline
 
-`d-roadmap → plan → d-tdd → d-review → /ship`
+`w-initiative → plan → w-code → w-review → /ship`
 
 ## Verify
 

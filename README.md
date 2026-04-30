@@ -72,8 +72,7 @@ Open http://localhost:3000.
 │                          ui/, security/, workflows/  *(arriving in Phase 3)*
 ├── content/             # Human-authored, git-tracked (blog, legal, emails)
 ├── tools/               # GritQL rules, custom scripts  *(arriving in Phase 6)*
-├── .github/             # CI workflows
-└── decisions/           # Legacy reference notes (health, maturity, deploy)
+└── .github/             # CI workflows
 ```
 
 The visible split: **everything Gaia-methodology lives under `.gaia/`. `.claude/` holds only what Claude Code natively reads.** Root contains only `CLAUDE.md` and the actual project.

@@ -49,7 +49,7 @@ The category-defining version: when the founder asks "how does support routing w
 | Search adapter                   | `packages/adapters/search/` — Postgres FTS wrapper, used by BM25 layer                                     | External search engines (defer)                           |
 | Inline admin help                | Contextual help in admin pages pulls from the contract surface                                             | —                                                         |
 | Decision authoring               | Dialog-driven decision capture, indexed into contracts                                                     | Decision review workflows (manual v1.0)                   |
-| `d-contracts` skill              | Validates contract surface consistency, surfaces drift                                                     | —                                                         |
+| `a-contracts` skill              | Validates contract surface consistency, surfaces drift                                                     | —                                                         |
 
 ## 3. Folder Structure
 
@@ -90,7 +90,7 @@ gaia/
 │   └── decisions-public/             # public decision records, indexed by contracts
 │
 └── .claude/skills/
-    └── d-contracts/                  # NEW — validates contract consistency, surfaces drift
+    └── a-contracts/                  # NEW — validates contract consistency, surfaces drift
 ```
 
 ## 4. Implementation
@@ -107,7 +107,7 @@ gaia/
 8. Inline contextual help in admin — pulls from the contract surface; appears alongside fields, list views, etc.
 9. Decision authoring dialog — `packages/conversation/stream/` operates a flow that captures decisions, formats them, indexes them into the contract layer.
 10. `content/{docs,changelog,decisions-public}/` — hand-authored content surfaces.
-11. `.claude/skills/d-contracts/` — validates contract surface consistency, surfaces drift.
+11. `.claude/skills/a-contracts/` — validates contract surface consistency, surfaces drift.
 12. End-of-wave audit: contract query p99 first-token <200ms; 0 synchronous shared-registry calls in user-facing paths.
 
 **Risks**:
@@ -139,7 +139,7 @@ gaia/
 | 8   | Inline contextual help in admin                          | help components pull from contract surface                  | pending |
 | 9   | Decision authoring dialog                                | conversation flow, indexing into contracts                  | pending |
 | 10  | `content/{docs,changelog,decisions-public}/`             | hand-authored content surfaces                              | pending |
-| 11  | `.claude/skills/d-contracts/`                            | drift validation skill                                      | pending |
+| 11  | `.claude/skills/a-contracts/`                            | drift validation skill                                      | pending |
 | 12  | Wave 2 audit                                             | p99 first-token <200ms + 0 sync shared-registry calls       | pending |
 
 ## 6. Decision Audit Trail
@@ -174,4 +174,4 @@ gaia/
 - `packages/db/schema/index.ts` — PRs 2, 3, 4, 5 (re-export new entities)
 - `packages/db/migrations/000N_pgvector.sql` — PR 3 (CREATE EXTENSION vector; hand-edited)
 - `apps/web/src/components/help/` — PR 8 (NEW components consuming `packages/contracts/query/`)
-- `scripts/validate-artifacts.ts` — PR 12 audit invokes the no-sync-shared-registry-call rule
+- `.gaia/rules/checks/validate-artifacts.ts` — PR 12 audit invokes the no-sync-shared-registry-call rule

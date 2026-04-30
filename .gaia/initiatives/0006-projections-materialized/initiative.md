@@ -161,4 +161,4 @@ The minimal addition reflects how much Wave 0 already shipped. The MCP server wi
 - `apps/api/server/app.ts` — PRs 2, 3, 4, 5 mount projection-backed routes
 - `packages/mcp/registry/src/registry.ts` — PRs 2, 3, 4, 5 (registry entries)
 - `packages/db/schema/index.ts` — PRs 6, 7 add re-exports
-- `scripts/validate-artifacts.ts` — PR 9 audit invokes the triple-rendering rule (every projection declares all three outputs)
+- `.gaia/rules/checks/validate-artifacts.ts` — PR 9 audit invokes the triple-rendering rule (every projection declares all three outputs)

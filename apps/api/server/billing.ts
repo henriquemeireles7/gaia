@@ -148,13 +148,14 @@ export const billingRoutes = new Elysia({ name: 'billing' })
     async ({ user }) => {
       if (!user) throw new AppError('UNAUTHORIZED')
       try {
-        // Use the new "custom checkout" API; the top-level
-        // polar.checkouts.create is deprecated by Polar.
-        const checkout = await polar.checkouts.custom.create({
-          productId: env.POLAR_PRODUCT_ID,
+        // TODO(@polar-sh/sdk@0.47): Re-attach `user_id` via the new metadata
+        // surface. The CheckoutLegacyCreate type in 0.47.1 dropped `metadata`;
+        // pre-merge code (#57 / #58) didn't update the call site. Filed for
+        // follow-up — billing tracks the user via customerEmail until restored.
+        const checkout = await polar.checkouts.create({
+          productPriceId: env.POLAR_PRODUCT_ID,
           successUrl: `${env.PUBLIC_APP_URL}/dashboard?upgraded=1`,
           customerEmail: user.email,
-          metadata: { user_id: user.id },
         })
         if (!checkout.url) {
           throw new ProviderError('polar', 'createCheckout', 502, 'no checkout URL returned')

@@ -11,7 +11,7 @@ const reminders = [
 
   // Architecture reminders
   'Every code folder has a nested CLAUDE.md — Claude Code auto-loads it.',
-  'Universal reference files live in decisions/.',
+  'Skill references live at .claude/skills/<skill>/reference.md and load on Skill invocation.',
   'If you find contradictions between files: STOP, point them out, ask the user, and fix immediately.',
 
   // Pattern reminders

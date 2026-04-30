@@ -16,6 +16,7 @@ The 0004–0010 block implements Vision v5 — six waves, with Wave 0 split into
 | 0008 | `0008-distribution-composer/`    | 3    | Composer + marketing, channels (newsletter/social/broadcast) as backpressured iii Functions, syndication.  | not-started  |
 | 0009 | `0009-capabilities-runtime/`     | 4    | Capability primitives + bundles + sandbox + labor app + `gaia-cloud/` separate repo + revenue-share.       | not-started  |
 | 0010 | `0010-subscribers-autonomous/`   | 5    | Time/domain/cross-instance subscribers as iii Functions, escalations, playbooks; `d-autonomous` skill.     | not-started  |
+| 0011 | `0011-skills-committee/`         | —    | Committee-of-Garry skills review: 10 common constraints + h/w/a category prefixes + 2 scope changes.       | draft        |
 
 Archive: `_archive/` preserves prior initiative documents as research input.
 
@@ -23,10 +24,21 @@ Archive: `_archive/` preserves prior initiative documents as research input.
 
 - Folder name: `NNNN-<slug>` (4-digit zero-padded; lexicographic order = execution order).
 - One file per initiative: `initiative.md`. Sections: research → strategy → implementation → PR breakdown → audit trail.
-- `d-initiative` writes new initiative.md files. `d-code` reads the PR breakdown and codes PR by PR.
-- gstack `/autoplan` reviews the file end-to-end after `d-initiative` finishes; appends to the audit trail.
+- `w-initiative` writes new initiative.md files. `w-code` reads the PR breakdown and codes PR by PR.
+- gstack `/autoplan` reviews the file end-to-end after `w-initiative` finishes; appends to the audit trail.
 
 ## Critical rules
 
-- NEVER edit an initiative.md from a hook. Initiatives are explicit human + d-initiative decisions.
+- NEVER edit an initiative.md from a hook. Initiatives are explicit human + w-initiative decisions.
 - Append-only audit trail: every change traces to a decision (founder, autoplan voice, or AD-N mechanical).
+
+---
+
+<!-- AUTO-GENERATED BELOW — do not edit manually -->
+
+## Files
+| File | Exports |
+|------|---------|
+| context.md | Context |
+
+<!-- Generated: 2026-04-30T04:36:18.609Z -->

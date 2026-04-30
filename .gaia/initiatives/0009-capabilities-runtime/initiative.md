@@ -51,7 +51,7 @@ Cross-instance composition is what makes Gaia a network rather than a template. 
 | Metrics projection                   | `packages/projections/metrics/` + materialize.ts; MRR, churn, LTV (triple-rendered)                                                                    | Cohort analysis beyond MRR/churn/LTV       |
 | Adapters                             | `packages/adapters/payments/` (Polar, Stripe/Lemon swap path), `packages/adapters/email/` (Resend transactional)                                       | —                                          |
 | `apps/labor/`                        | Real-time labor app — presence, queue, escalations, live cost per employee from windowed metering Function                                             | —                                          |
-| `d-capability` skill                 | Provisions capability bundles, hires/fires conversationally                                                                                            | —                                          |
+| `w-capability` skill                 | Provisions capability bundles, hires/fires conversationally                                                                                            | —                                          |
 | `gaia-cloud/`                        | NEW separate repo — control-api, dashboard, billing aggregation, orchestrator, eject tooling, tenancy, provisioning, routing, migration, revenue-share | —                                          |
 
 ## 3. Folder Structure
@@ -103,7 +103,7 @@ gaia/
 │   └── labor/                        # NOT created — labor is a route in apps/web per §7 R-2 below; "apps/labor/" listed in §2 cap-table is the conceptual surface, the actual deploy is the apps/web route
 │
 └── .claude/skills/
-    └── d-capability/                 # NEW — provisions capability bundles, hires/fires conversationally
+    └── w-capability/                 # NEW — provisions capability bundles, hires/fires conversationally
 ```
 
 ### Separate repo (`gaia-cloud/`) — managed platform
@@ -151,7 +151,7 @@ PR 13 ships `gaia-cloud/` skeleton (apps + empty packages); PR 14 fills in the 5
 9. `packages/projections/metrics/` + materialize.ts — fifth projection family. MRR/churn/LTV materialized from the event stream.
 10. `packages/capabilities/composition/` — depends on `packages/replicas/` (0005). Cross-instance bundles maintain local replicas of remote behavior surfaces. Most invocations resolve locally; cross-instance writes are explicit, async, visible.
 11. `apps/labor/` — real-time labor app. Live cost per employee from windowed metering Function. Filtered timeline + presence feed + economic data.
-12. `.claude/skills/d-capability/` — conversational hiring/firing skill.
+12. `.claude/skills/w-capability/` — conversational hiring/firing skill.
 13. `gaia-cloud/` (separate repo) — control-api, dashboard, billing aggregation, orchestrator, eject. `revenue-share/` distributes cross-instance bundle revenue at platform level.
 14. End-of-wave audit: cross-instance invocation p99 <100ms steady state; 0 sandbox bypasses; 100% labor metering off windowed Function.
 
@@ -187,7 +187,7 @@ PR 13 ships `gaia-cloud/` skeleton (apps + empty packages); PR 14 fills in the 5
 | 9   | `packages/projections/metrics/` + materialize.ts                              | MRR/churn/LTV projection                                                       | pending |
 | 10  | `packages/capabilities/composition/` (cross-instance via replicas)            | local replica of remote behavior, drift detection, async cross-instance writes | pending |
 | 11  | `apps/labor/` — real-time labor app                                           | presence, queue, escalations, live cost per employee                           | pending |
-| 12  | `.claude/skills/d-capability/`                                                | conversational hire/fire skill                                                 | pending |
+| 12  | `.claude/skills/w-capability/`                                                | conversational hire/fire skill                                                 | pending |
 | 13  | `gaia-cloud/` skeleton (separate repo)                                        | control-api, dashboard, billing-agg, orchestrator, eject                       | pending |
 | 14  | `gaia-cloud/packages/{tenancy,provisioning,routing,migration,revenue-share}/` | platform packages                                                              | pending |
 | 15  | Wave 4 audit                                                                  | cross-instance p99 <100ms + 0 sandbox bypasses + windowed-Function metering    | pending |
@@ -236,4 +236,4 @@ Mirrors 0004 §7.15. Names the existing-repo collisions corrected in §3.
 - `apps/web/src/routes/labor.tsx` — PR 11 (NEW route)
 - `apps/web/src/lib/api.ts` — PRs 7, 11 (extend Eden Treaty client)
 - `packages/db/schema/index.ts` — PRs 1, 5, 8, 10, 11 (re-export new entities)
-- `scripts/validate-artifacts.ts` — PR 4 (extend with sandbox-required rule for capabilities); PR 15 (audit invokes the full sweep)
+- `.gaia/rules/checks/validate-artifacts.ts` — PR 4 (extend with sandbox-required rule for capabilities); PR 15 (audit invokes the full sweep)

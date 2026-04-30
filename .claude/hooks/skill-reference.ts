@@ -1,7 +1,7 @@
 // .claude/hooks/skill-reference.ts — auto-load <skill>/reference.md on Skill invocation
 //
 // Fires on PreToolUse for Skill. Looks up the invoked skill, finds its
-// sibling reference.md (1:1 invariant per .claude/skills/d-rules/reference.md),
+// sibling reference.md (1:1 invariant per .claude/skills/h-rules/reference.md),
 // and emits an advisory telling the agent to Read it before executing the
 // skill's phases.
 //

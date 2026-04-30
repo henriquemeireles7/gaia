@@ -47,7 +47,7 @@ The category-defining version: publishing is conversation, posting is async by d
 | Mechanics                       | `packages/mechanics/{referral,capture,gating}/` — audience graph operations                                                           | Multi-stage funnels (defer)                      |
 | Content projection              | `packages/projections/content/` + materialize.ts — drafts channel content from feature shipments                                      | —                                                |
 | Adapters                        | `packages/adapters/social/` (X, LinkedIn, Bluesky, Threads), `packages/adapters/broadcast/` (Resend Audiences, Mailchimp, ConvertKit) | TikTok, YouTube (defer)                          |
-| `d-distribute` skill            | Composer flow, scheduling, tracking, syndication orchestration                                                                        | —                                                |
+| `w-distribute` skill            | Composer flow, scheduling, tracking, syndication orchestration                                                                        | —                                                |
 
 **Carried forward from v4 vision (no prior implementation)**: the mechanics package shape — referral, capture, gating as audience-graph operations — is the v4 design. No v4 code existed; implementation lands here in 0008 as a NEW package. Channels never import vendor SDKs directly — adapters mediate every external call (consistent with the existing `packages/adapters/CLAUDE.md` rule).
 
@@ -96,7 +96,7 @@ gaia/
 │   └── magnets/                      # lead magnet content
 │
 └── .claude/skills/
-    └── d-distribute/                 # NEW — composer flow, scheduling, tracking, syndication
+    └── w-distribute/                 # NEW — composer flow, scheduling, tracking, syndication
 ```
 
 **App-routing extensions** (added per the 0004 §7.15 reconciliation pattern):
@@ -120,7 +120,7 @@ gaia/
 8. `apps/composer/` — specialized lens on `packages/conversation/stream/`. Streaming progress visible as posts go out.
 9. `apps/marketing/` — triple-rendered marketing site. Renders against materialized projections.
 10. `content/{social,newsletters,magnets}/` — content surfaces.
-11. `.claude/skills/d-distribute/` — composer orchestration skill.
+11. `.claude/skills/w-distribute/` — composer orchestration skill.
 12. End-of-wave audit: p99 publish-request latency <500ms; 0 synchronous cross-instance polls; <1% vendor rate-limit violations under load.
 
 **Risks**:
@@ -154,7 +154,7 @@ gaia/
 | 9   | `apps/composer/` — specialized lens on chat                    | composer UI, scheduling controls, status panel                    | pending |
 | 10  | `apps/marketing/` — triple-rendered                            | marketing site, MCP descriptors, pricing                          | pending |
 | 11  | `content/{social,newsletters,magnets}/`                        | content surfaces                                                  | pending |
-| 12  | `.claude/skills/d-distribute/`                                 | composer skill                                                    | pending |
+| 12  | `.claude/skills/w-distribute/`                                 | composer skill                                                    | pending |
 | 13  | Wave 3 audit                                                   | publish p99 + 0 sync polls + <1% rate-limit violations under load | pending |
 
 ## 6. Decision Audit Trail
@@ -194,4 +194,4 @@ Mirrors 0004 §7.15. Names the points where 0008 intersects the existing scaffol
 - `packages/adapters/CLAUDE.md` — PRs 1, 2 (update Files table with new subdirs)
 - `apps/web/src/routes/composer.tsx` — PR 9 (new route)
 - `apps/web/src/lib/api.ts` — PR 9 (extend Eden Treaty client with composer endpoints)
-- `scripts/validate-artifacts.ts` — PR 13 (audit invokes the budget-required rule from 0005 against all channel Functions)
+- `.gaia/rules/checks/validate-artifacts.ts` — PR 13 (audit invokes the budget-required rule from 0005 against all channel Functions)

@@ -198,7 +198,7 @@ gaia/  (working copy: san-diego)
 │           └── {CLAUDE.md, six-primitives.md, four-surfaces.md, hexagonal.md}
 │
 └── .claude/skills/
-    └── d-converse/                   # NEW (PR 13) — harness skill for conversation flow
+    └── w-converse/                   # NEW (PR 13) — harness skill for conversation flow
         └── {SKILL.md, reference.md}
 ```
 
@@ -210,7 +210,7 @@ gaia/  (working copy: san-diego)
 1. **PR 1 — Lock the stack.** Bun, Elysia, SolidStart, Eden Treaty, TypeBox, Drizzle, Neon (logical replication ON), Better Auth, Polar, Resend, Railway are already pinned in root `package.json`; PR 1 adds **iii.dev** (currently absent) and reaffirms remaining pins. Add `IIIDEV_*` env vars to `packages/config/env.ts`.
 2. **PR 2 — `packages/runtime/` + retire `packages/workflows/`.** iii.dev wrapper (`defineFunction`, AsyncLocalStorage `Ctx`, circuit breaker, DLQ). Migrate the existing `sendWelcome` Inngest function as the proof of swap. Delete `packages/workflows/`; remove `inngest` dependency from root `package.json`; rewire `apps/api/server/app.ts` (drop `/api/inngest` route, register iii.dev workers).
 3. **PR 3 — `packages/events/` + events table.** Add `packages/db/schema/events.ts` (append-only, partitioned by `tenant_id` + weekly), generate migration with `events_writer` role + BEFORE-UPDATE/DELETE trigger + `wal_level=logical` + `CREATE PUBLICATION events_pub`. Package owns emit helpers (`emit.ts`, `EmitContext`, optimistic concurrency on `aggregate_version`).
-4. **PR 4 — `packages/domain/` + `packages/tenancy/` + RLS + `validate-artifacts.ts` extension.** Split existing `packages/db/schema.ts` into per-entity files under `packages/db/schema/` (the layout `packages/db/CLAUDE.md` already prescribes). Add `tenant_members` table. Backfill `tenant_id` on existing application tables (`subscriptions`, `webhook_events`, `api_keys`); RLS policies on the same. Better Auth tables (`users`, `sessions`, `accounts`, `verifications`) on the permanent allowlist. Extend the existing `scripts/validate-artifacts.ts` with rule modules for hexagonal layering, `tenant_id` presence, append-only `events` writes, capability.invoked emit allowlist.
+4. **PR 4 — `packages/domain/` + `packages/tenancy/` + RLS + `validate-artifacts.ts` extension.** Split existing `packages/db/schema.ts` into per-entity files under `packages/db/schema/` (the layout `packages/db/CLAUDE.md` already prescribes). Add `tenant_members` table. Backfill `tenant_id` on existing application tables (`subscriptions`, `webhook_events`, `api_keys`); RLS policies on the same. Better Auth tables (`users`, `sessions`, `accounts`, `verifications`) on the permanent allowlist. Extend the existing `.gaia/rules/checks/validate-artifacts.ts` with rule modules for hexagonal layering, `tenant_id` presence, append-only `events` writes, capability.invoked emit allowlist.
 5. **PR 5 — `packages/mcp/{server,registry,discovery}/`.** MCP server is an Elysia plugin mounted at `/mcp` in `apps/api/server/app.ts`, alongside the existing `/auth/*`, `/webhooks/polar`, `/health/*` routes. Reuses Better Auth bearer + `applySecurityHeaders` + `protectedRoute` patterns.
 6. **PR 6 — `packages/adapters/llm/` (refactor of `packages/adapters/ai.ts`).** Streaming-aware `AsyncIterable<LLMChunk>` contract. Existing non-streaming `complete()` becomes a wrapper that exhausts the stream. Anthropic adapter reuses today's `ai.ts` logic; OpenAI adapter is genuinely new (only Anthropic SDK is in repo today). Update `packages/adapters/CLAUDE.md` exports table.
 7. **PR 7 — `packages/conversation/{parser,planner,confirmation}/`.** Streaming-shape, plumbed against non-streaming LLM responses for v0.1; streaming spine in 0005 swaps in. Consumes `packages/adapters/llm`.
@@ -219,7 +219,7 @@ gaia/  (working copy: san-diego)
 10. **PR 10 — Chat surface (routes in `apps/web`).** `apps/web/src/routes/chat.tsx` + `apps/web/src/components/chat/{chat.tsx,system-banner.tsx}`. **Not** a separate `apps/chat/` SolidStart instance.
 11. **PR 11 — Timeline surface (routes in `apps/web`) + healthz.** `apps/web/src/routes/timeline.tsx` + `apps/web/src/routes/healthz.ts` (combined DB + MCP + iii.dev probe; Railway healthcheck pins here). Errors render as `error.*` events in the feed; no Sentry beyond what's already wired.
 12. **PR 12 — `.gaia/reference/architecture/`.** Six primitives + four surfaces canonical reference.
-13. **PR 13 — `.claude/skills/d-converse/`.** Harness skill operating the conversation surface during development.
+13. **PR 13 — `.claude/skills/w-converse/`.** Harness skill operating the conversation surface during development.
 14. **PR 14 — `packages/create-gaia/` + Railway deploy.** Snapshot the repo at PR 13 merge as the template; CLI provisions Railway + validates Polar/Resend keys + telemetry opt-in default. Target: ≤90s `bun create gaia my-app` → deployed `/healthz` 200.
 15. **PRs 15a / 15b / 15 — Audit checkpoints.** Mid-wave (after PR 4 + PR 9) and end-of-wave invariant audits.
 
@@ -251,7 +251,7 @@ gaia/  (working copy: san-diego)
 | 1   | Lock the stack                                                              | `package.json`, `bun.lock`, `tsconfig.base.json`, `drizzle.config.ts`, Neon provisioning notes                    | pending |
 | 2   | `packages/runtime/` (iii.dev wrapper) + retire `packages/workflows/`        | `packages/runtime/src/{define-function,context,circuit-breaker,dlq,triggers/*,workers/*}.ts`, edit `apps/api/server/app.ts` (drop `/api/inngest`, register iii.dev), delete `packages/workflows/`, remove `inngest` from root deps | pending |
 | 3   | `packages/events/` — emit helpers + append-only schema in `packages/db/`    | `packages/events/src/{schema,emit}/`, `packages/db/schema/events.ts`, migration in `packages/db/migrations/` (partition + `events_writer` role + UPDATE/DELETE trigger + `CREATE PUBLICATION events_pub`) | pending |
-| 4   | `packages/domain/` + `packages/tenancy/` + RLS + `validate-artifacts.ts`    | `packages/{domain,tenancy}/`, split `packages/db/schema.ts` → `packages/db/schema/<entity>.ts`, add `tenant_members`, backfill `tenant_id` on `subscriptions`/`webhook_events`/`api_keys`, RLS policies, extend existing `scripts/validate-artifacts.ts` with hexagonal/tenant_id/append-only rule modules | pending |
+| 4   | `packages/domain/` + `packages/tenancy/` + RLS + `validate-artifacts.ts`    | `packages/{domain,tenancy}/`, split `packages/db/schema.ts` → `packages/db/schema/<entity>.ts`, add `tenant_members`, backfill `tenant_id` on `subscriptions`/`webhook_events`/`api_keys`, RLS policies, extend existing `.gaia/rules/checks/validate-artifacts.ts` with hexagonal/tenant_id/append-only rule modules | pending |
 | 5   | `packages/mcp/{server,registry,discovery}/`                                 | Elysia plugin mounted at `/mcp` in `apps/api/server/app.ts`, Better Auth bearer reused, per-tenant rate limit (uses `packages/metering/pricing/rates`), 5s poll w/ exp backoff | pending |
 | 6   | `packages/adapters/llm/` — refactor of `packages/adapters/ai.ts` to streaming | Delete `packages/adapters/ai.ts`; create `packages/adapters/llm/{types,stream,select,anthropic,openai}.ts` with `AsyncIterable<LLMChunk>` contract; `complete()` becomes wrapper-over-stream; add OpenAI dep | pending |
 | 7   | `packages/conversation/{parser,planner,confirmation}/`                      | streaming-aware shape, non-streaming v0.1 plumbing, 30s timeout + retry copy                                      | pending |
@@ -260,7 +260,7 @@ gaia/  (working copy: san-diego)
 | 10  | Chat surface — routes in `apps/web/`                                        | `apps/web/src/routes/chat.tsx` + `apps/web/src/components/chat/{chat.tsx,system-banner.tsx}` (NOT a separate SolidStart app per §7.15)                                                | pending |
 | 11  | Timeline surface — routes in `apps/web/` + combined `/healthz`              | `apps/web/src/routes/{timeline.tsx,healthz.ts}` + `apps/web/src/components/timeline/{feed.tsx,error-event.tsx}` (NOT a separate SolidStart app per §7.15)                              | pending |
 | 12  | `.gaia/reference/architecture/`                                             | six primitives + four surfaces canonical reference                                                                | pending |
-| 13  | `.claude/skills/d-converse/`                                                | harness skill for conversation flow                                                                               | pending |
+| 13  | `.claude/skills/w-converse/`                                                | harness skill for conversation flow                                                                               | pending |
 | 14  | `bun create gaia` onboarding script + Railway deploy                        | scaffolder + Railway provisioning + smoke test, name-conflict/offline/invalid-key handling, telemetry opt-in default | pending |
 | 15a | Mid-wave audit checkpoint (PR 4 merge)                                      | grep + `validate-artifacts.ts`: layering + tenancy + Better Auth allowlist                                        | pending |
 | 15b | Mid-wave audit checkpoint (PR 9 merge)                                      | grep + `validate-artifacts.ts`: emit allowlist + telemetry payload + capability.invoked source restriction        | pending |
@@ -372,7 +372,7 @@ packages/db/migrations/000N_logical_replication.sql    # ALTER SYSTEM SET wal_le
 
 ### PR 4 — packages/domain/ + packages/tenancy/ + RLS + validate-artifacts.ts extension
 
-**Why:** F-7 hexagonal lint + F-8 tenant_id rule. §7.3 commits RLS as primary tenancy mechanism (founder F-9). This PR is also the spine of the audit toolchain — `scripts/validate-artifacts.ts` already exists today (initiative-frontmatter only); PR 4 generalizes it with rule modules and PRs 3, 5, 8 extend it. **Per §7.15 PR 4 also splits the existing monolithic `packages/db/schema.ts` into per-entity files**, which `packages/db/CLAUDE.md` already prescribes — and backfills `tenant_id` on existing application tables.
+**Why:** F-7 hexagonal lint + F-8 tenant_id rule. §7.3 commits RLS as primary tenancy mechanism (founder F-9). This PR is also the spine of the audit toolchain — `.gaia/rules/checks/validate-artifacts.ts` already exists today (initiative-frontmatter only); PR 4 generalizes it with rule modules and PRs 3, 5, 8 extend it. **Per §7.15 PR 4 also splits the existing monolithic `packages/db/schema.ts` into per-entity files**, which `packages/db/CLAUDE.md` already prescribes — and backfills `tenant_id` on existing application tables.
 
 ```
 packages/domain/
@@ -425,7 +425,7 @@ scripts/
     ├── postgres-introspect.ts     # Read pg_catalog for table list + columns
     └── ts-import-graph.ts         # AST-walk imports across packages
 
-# bun run check pipeline already invokes scripts/validate-artifacts.ts — no change to package.json scripts
+# bun run check pipeline already invokes .gaia/rules/checks/validate-artifacts.ts — no change to package.json scripts
 ```
 
 ### PR 5 — packages/mcp/{server,registry,discovery}/
@@ -629,12 +629,12 @@ apps/web/src/routes/healthz.test.ts # 200 only when all three healthy; 503 other
 
 (Runtime thesis ships at `.gaia/reference/architecture/runtime-thesis.md` in 0005.)
 
-### PR 13 — .claude/skills/d-converse/
+### PR 13 — .claude/skills/w-converse/
 
 **Why:** F-2 — harness skill operating the conversation surface during dev. Mirrors the d-* skill pattern from `.gaia/CLAUDE.md`.
 
 ```
-.claude/skills/d-converse/
+.claude/skills/w-converse/
 ├── SKILL.md                       # Frontmatter (name, description, triggers); phases (read → plan → execute → confirm)
 └── reference.md                   # Conversation flow principles; how to invoke parser/planner/confirmation; progressive confirmation rules
 ```
@@ -954,9 +954,9 @@ The original initiative §1 described the repo as a "methodology-and-harness ske
 | R-7 | **Polar webhook reuses existing infrastructure.** `apps/api/server/app.ts:/webhooks/polar` already calls `verifyWebhook` (signature) and the `webhook_events` table provides idempotency. PR 8 does NOT add a new webhook route, signature handler, or dedup table — it adds `processPolarEvent` projection logic in `packages/metering/invoice/polar/processor.ts` and rewires `apps/api/server/billing.ts:processPolarEvent` to delegate. The "polar_webhook_dedup" table from the original §5b is **dropped from scope**. | PR 8          | Low — fewer moving parts                                          |
 | R-8 | **`tenant_id` retrofit on existing tables.** `subscriptions`, `webhook_events`, `api_keys` ship today without `tenant_id`. PR 4 adds the column with `DEFAULT 'default'` for existing rows + RLS policies. Better Auth tables (`users`, `sessions`, `accounts`, `verifications`) go on the permanent `validate-artifacts.ts` allowlist. | PR 4          | Medium — single migration window with RLS policy review           |
 | R-9 | **`packages/create-gaia/template/` is a snapshot of the repo at PR 13 merge**, not a hand-written template. Generated by a snapshot script run as part of PR 14. Whatever ships at PR 13 is what `bun create gaia` produces. | PR 14         | Low — eliminates template-drift risk                              |
-| R-10 | **`scripts/validate-artifacts.ts` is extended, not replaced.** It exists today (initiative-frontmatter checks only). PR 4 adds rule modules under `scripts/lib/{layer-table.ts,postgres-introspect.ts,ts-import-graph.ts}`; PRs 3, 5, 8 each contribute a rule. The single-script entrypoint stays, so `bun run check`'s long script list does not grow. | PR 4 (+3,5,8) | Low                                                               |
+| R-10 | **`.gaia/rules/checks/validate-artifacts.ts` is extended, not replaced.** It exists today (initiative-frontmatter checks only). PR 4 adds rule modules under `.gaia/rules/checks/lib/{layer-table.ts,postgres-introspect.ts,ts-import-graph.ts}`; PRs 3, 5, 8 each contribute a rule. The single-script entrypoint stays, so `bun run check`'s long script list does not grow. | PR 4 (+3,5,8) | Low                                                               |
 
-**Existing-files-touched trace** (grep aid for d-code):
+**Existing-files-touched trace** (grep aid for w-code):
 
 - `apps/api/server/app.ts` — PR 2 (drop `/api/inngest`), PR 5 (mount mcpPlugin), PR 8 (already calls `processPolarEvent`; no edit unless billing.ts moves)
 - `apps/api/server/billing.ts` — PR 8 (delegate `processPolarEvent` to metering/invoice/polar; emit `capability.invoked` on billing actions)
@@ -966,7 +966,7 @@ The original initiative §1 described the repo as a "methodology-and-harness ske
 - `packages/workflows/` — PR 2 (delete entire directory)
 - `apps/web/src/lib/api.ts` — PR 10 (extend Eden Treaty client with conversation routes)
 - `package.json` (root) — PR 1 (pin iii.dev), PR 2 (remove inngest, remove @gaia/workflows), PR 6 (add openai)
-- `scripts/validate-artifacts.ts` — PR 4 (extend with rule modules)
+- `.gaia/rules/checks/validate-artifacts.ts` — PR 4 (extend with rule modules)
 - `.github/workflows/ci.yml` — PR 1 (no change in shape; just confirms iii.dev install path), PR 14 (add Railway smoke), PR 15a/b (gates)
 
 **Out-of-scope despite existing-scaffold proximity:**
