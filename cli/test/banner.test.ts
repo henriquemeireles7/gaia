@@ -12,7 +12,7 @@ import { renderBanner } from '../src/ui/banner.ts'
 const FIXED_TIME = new Date('2026-04-29T12:00:00.000Z')
 
 describe('renderBanner', () => {
-  it('contains the project slug, cli version, and clock-started prose', () => {
+  it('contains the project slug, cli version, and timestamp', () => {
     const text = renderBanner({
       projectSlug: 'weekend-saas',
       cliVersion: '1.0.0',
@@ -21,8 +21,24 @@ describe('renderBanner', () => {
     expect(text).toContain('GAIA')
     expect(text).toContain('weekend-saas')
     expect(text).toContain('1.0.0')
-    expect(text).toContain('30-min clock started')
     expect(text).toContain('2026-04-29T12:00:00.000Z')
+  })
+
+  it('lists the stack composition lines so users know what they got', () => {
+    const text = renderBanner({
+      projectSlug: 'weekend-saas',
+      cliVersion: '1.0.0',
+      startedAt: FIXED_TIME,
+    })
+    // One concrete line per piece of the stack — these are the value the
+    // user just received, surfaced before any narration starts.
+    expect(text).toContain('apps/api')
+    expect(text).toContain('apps/web')
+    expect(text).toContain('packages/db')
+    expect(text).toContain('packages/auth')
+    expect(text).toContain('packages/security')
+    expect(text).toContain('infra/')
+    expect(text).toContain('.claude + .gaia')
   })
 
   it('renders synchronously in <100ms (TTHW-1 floor: <1000ms with comfortable margin)', () => {

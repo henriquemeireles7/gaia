@@ -103,8 +103,13 @@ export async function setup(input: SetupInput): Promise<SetupResult> {
   }
 
   process.stderr.write(
-    `\n${colorize('green', '▶')} ${colorize('bold', 'Gaia setup')} — paste each key inline.\n` +
-      `   Type ${colorize('dim', 'skip')} to defer a provider, ${colorize('dim', 'open')} to launch the browser.\n\n`,
+    `\n${colorize('green', '▶')} ${colorize('bold', 'Gaia setup')} — connect 4 vendor accounts to make your app real\n\n` +
+      `   ${colorize('bold', 'Polar    ')} ${colorize('dim', 'merchant-of-record payments  (free tier)')}\n` +
+      `   ${colorize('bold', 'Resend   ')} ${colorize('dim', 'transactional email          (3000 emails/month free)')}\n` +
+      `   ${colorize('bold', 'Neon     ')} ${colorize('dim', 'serverless Postgres          (free tier)')}\n` +
+      `   ${colorize('bold', 'Railway  ')} ${colorize('dim', 'deploy host                  ($5 trial credit)')}\n\n` +
+      `   For each: paste the API token when prompted. Commands: ${colorize('dim', "'skip'")} (defer) | ${colorize('dim', "'open'")} (launch signup page).\n` +
+      `   Docs: ${colorize('dim', 'https://github.com/henriquemeireles7/gaia/blob/master/docs/getting-started.md')}\n\n`,
   )
 
   const env = loadEnvFile(envPath)

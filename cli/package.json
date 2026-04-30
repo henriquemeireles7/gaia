@@ -1,6 +1,6 @@
 {
   "name": "create-gaia-app",
-  "version": "0.2.0",
+  "version": "0.2.1",
   "description": "Gaia template scaffolder + CLI — clone, install, deploy. Live URL in <30 minutes.",
   "keywords": [
     "agent-native",

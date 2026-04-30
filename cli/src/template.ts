@@ -14,48 +14,67 @@
 // cli/src/create.ts.
 
 import { spawn } from 'node:child_process'
-import { existsSync, mkdirSync, readdirSync } from 'node:fs'
+import { existsSync, mkdirSync, mkdtempSync, rmSync } from 'node:fs'
 import { copyFile, mkdir, readdir } from 'node:fs/promises'
-import { dirname, join, relative, resolve } from 'node:path'
+import { tmpdir } from 'node:os'
+import { dirname, join, relative } from 'node:path'
 import { fileURLToPath } from 'node:url'
 
 const GIT_CLONE_TIMEOUT_MS = 60_000
 
 const UPSTREAM = 'https://github.com/henriquemeireles7/gaia.git'
 
-/** Files / folders excluded when copying the in-source template. */
+/**
+ * Files / folders excluded when laying down the template. Three categories:
+ *
+ * 1. Generated / runtime — node_modules, dist, .git, etc. Standard.
+ * 2. Per-machine state — .env*, .gaia/state.json, .claude/projects. Would
+ *    leak the developer's own secrets into the new project.
+ * 3. Template tooling — cli/, docs/, CHANGELOG.md, conductor.json. These
+ *    exist in the Gaia repo because that's where create-gaia-app is
+ *    developed; they are NOT part of what a user gets when scaffolding.
+ *
+ * Categories (3) is the easy-to-miss one. New maintainers adding a tooling
+ * file to the repo root MUST add it here too — every entry below is "yes
+ * this is in our repo, no it should not be in user projects."
+ */
 const EXCLUDE_PATHS = new Set([
+  // (1) Generated / runtime
   '.git',
   'node_modules',
   'dist',
   '.vinxi',
   '.output',
   '.context',
-  // Initiative + autoplan transcripts shouldn't ship to consumer apps.
-  '.gaia/initiatives',
-  '.gaia/memory',
-  // Per-machine artifacts that may contain user-specific data.
-  '.gaia/state.json',
-  '.gaia/last-verify.json',
-  '.gaia/last-deploy-failure.log',
-  '.gaia/last-smoke.json',
-  // Test fixtures + per-machine state.
-  'cli/test',
-  // Conductor + Claude per-machine working state.
-  '.claude/projects',
-  // SECRET LEAKAGE PREVENTION (S-1): if the developer is running from inside a
-  // populated Gaia checkout, never copy their .env files into the new project.
+
+  // (2) Per-machine state
   '.env',
   '.env.local',
   '.env.development.local',
   '.env.production.local',
   '.env.test.local',
+  '.gaia/state.json',
+  '.gaia/last-verify.json',
+  '.gaia/last-deploy-failure.log',
+  '.gaia/last-smoke.json',
+  '.gaia/initiatives',
+  '.gaia/memory',
+  '.claude/projects',
+
+  // (3) Template tooling — repo-only, not for user projects
+  'cli', // create-gaia-app source — lives in this monorepo, ships to npm separately
+  'docs', // template's documentation site, not the user's
+  'CHANGELOG.md', // template's release log
+  'conductor.json', // local Conductor app workspace metadata
+  '.gstack', // /cso security reports + gstack analytics
+  '.gaia/audits', // template's own audit history
+  'scripts/e2e-fresh-clone.ts', // tests the scaffolder; not for users
 ])
 
 // Glob-based exclusions catch anything matching node_modules/.git/dist/.vinxi/
-// .output/.context AT ANY DEPTH, plus any .env.* file regardless of suffix.
+// .output/.context/.gstack AT ANY DEPTH, plus any .env.* file regardless of suffix.
 const EXCLUDE_GLOB =
-  /(^|\/)(node_modules|\.git|dist|\.vinxi|\.output|\.context)(\/|$)|(^|\/)\.env(\.|$)/
+  /(^|\/)(node_modules|\.git|dist|\.vinxi|\.output|\.context|\.gstack)(\/|$)|(^|\/)\.env(\.|$)/
 
 export type TemplateMode = 'in-source' | 'git-clone' | 'unavailable'
 
@@ -150,38 +169,33 @@ export async function layDownTemplate(input: TemplateInput): Promise<TemplateRes
     return { mode: 'in-source', filesCopied }
   }
 
-  // Published mode — try `git clone --depth 1`. Fails gracefully if the repo
-  // is not yet public or git is not installed. Async with a 60s timeout
-  // (RT-14) — the previous execFileSync could hang the event loop indefinitely.
+  // Published mode — `git clone --depth 1` into a temp dir, then copyTree
+  // into the target so EXCLUDE_PATHS is applied identically to in-source mode.
+  // Cloning directly into target would skip exclusions entirely, leaking cli/,
+  // docs/, CHANGELOG.md, conductor.json into every scaffolded project (the
+  // bug we hit in v0.2.0 — see initiative 0002 retrospective).
   if (input.skipGitClone) {
     return { mode: 'git-clone', filesCopied: 0 }
   }
+  const tempBase = mkdtempSync(join(tmpdir(), 'gaia-clone-'))
+  const tempClone = join(tempBase, 'gaia')
   try {
-    await runGitClone(UPSTREAM, resolve(input.targetDir))
-    // Count files that landed (best-effort — walk top level).
-    let count = 0
-    if (existsSync(input.targetDir)) {
-      const walkCount = (dir: string): number => {
-        let local = 0
-        for (const entry of readdirSync(dir, { withFileTypes: true })) {
-          if (EXCLUDE_PATHS.has(entry.name)) continue
-          if (entry.isDirectory()) {
-            local += walkCount(join(dir, entry.name))
-          } else if (entry.isFile()) {
-            local++
-          }
-        }
-        return local
-      }
-      count = walkCount(input.targetDir)
+    await runGitClone(UPSTREAM, tempClone)
+    if (!existsSync(input.targetDir)) {
+      mkdirSync(input.targetDir, { recursive: true })
     }
-    return { mode: 'git-clone', filesCopied: count }
+    const filesCopied = await copyTree(tempClone, input.targetDir, tempClone)
+    return { mode: 'git-clone', filesCopied }
   } catch (err) {
     return {
       mode: 'unavailable',
       filesCopied: 0,
       warning: `Could not lay down a working template (in-source detection failed AND git clone of ${UPSTREAM} failed: ${(err as Error).message.slice(0, 200)}). Only the scaffolder overlays will be written. Manually clone the upstream repo and copy the overlays in.`,
     }
+  } finally {
+    // Always clean up the temp clone — succeeds whether the clone+copy worked
+    // or failed.
+    rmSync(tempBase, { recursive: true, force: true })
   }
 }
 

@@ -15,7 +15,8 @@ The Rails of TypeScript, redesigned for a world where agents write most of the c
 ```bash
 bun create gaia-app@latest myapp
 cd myapp
-bun gaia setup            # paste your 4 API keys (or `--ci` to skip prompts)
+bun gaia setup            # walks you through Polar / Resend / Neon / Railway signup
+                          # see docs/getting-started.md (or `--ci` to skip prompts)
 bun gaia deploy && bun gaia smoke
 ```
 

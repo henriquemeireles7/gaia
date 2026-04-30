@@ -125,6 +125,9 @@ dist/
 .gaia/state.json.tmp.*
 .gaia/last-*
 
+# Local-only security reports (e.g. /cso output) — never commit.
+.gstack/
+
 # OS / editor
 .DS_Store
 .vscode/*
@@ -172,6 +175,37 @@ function buildInitialState(input: ScaffolderInput): Record<string, unknown> {
 }
 
 /**
+ * Customize the template's package.json for the user's project: rename to
+ * the project slug, reset version to 0.1.0 (it's a brand-new app, not the
+ * template's version), and keep `private: true` so the user doesn't
+ * accidentally publish their app to npm.
+ *
+ * No-op if package.json is missing (template laid down in stub/unavailable
+ * mode) or unparseable. The template repo's package.json shape is the
+ * source of truth for everything else (deps, scripts, workspaces).
+ */
+export function customizePackageJson(targetDir: string, projectSlug: string): boolean {
+  const pkgPath = join(targetDir, 'package.json')
+  let raw: string
+  try {
+    raw = readFileSync(pkgPath, 'utf-8')
+  } catch {
+    return false // template didn't include package.json (e.g. stub mode) — nothing to customize
+  }
+  let pkg: Record<string, unknown>
+  try {
+    pkg = JSON.parse(raw) as Record<string, unknown>
+  } catch {
+    return false // malformed — leave as-is so the user can debug
+  }
+  pkg.name = projectSlug
+  pkg.version = '0.1.0'
+  // Pretty-print preserving 2-space indent + trailing newline (npm convention).
+  writeFileSync(pkgPath, `${JSON.stringify(pkg, null, 2)}\n`)
+  return true
+}
+
+/**
  * Apply the scaffolder overlays — runs AFTER the template tree has been laid
  * down by `layDownTemplate()`. The .gitignore-first invariant (AD-AP-17) holds
  * because the overlays write `.gitignore` (or its merge) before any other
@@ -211,9 +245,9 @@ export function scaffold(input: ScaffolderInput): ScaffolderResult {
   }
   files.push({ path: '.gaia/state.json', order: 3 })
 
-  // Hand-off copy (Lee Robinson + Theo Browne feedback): drop the "set me up"
-  // jargon. Two clear paths — interactive (humans) vs agent (Claude).
-  const nextStep = `cd ${projectSlug}\n  bun gaia setup            # paste your 4 API keys\n  bun gaia deploy && bun gaia smoke   # ship it`
+  // Hand-off copy: explain WHAT each verb does, not how to type it. The
+  // setup verb itself prints the provider list + docs URL on first run.
+  const nextStep = `cd ${projectSlug}\n  bun gaia setup            # connects Polar, Resend, Neon, Railway\n  bun gaia deploy && bun gaia smoke   # ships to Railway + verifies live URL`
 
   return { files, nextStep }
 }
@@ -291,6 +325,13 @@ async function main(): Promise<number> {
       process.stderr.write(`  ! ${tpl.warning}\n`)
     } else {
       process.stderr.write(`  ✓ template tree (${tpl.mode}, ${tpl.filesCopied} files)\n`)
+    }
+    // Rename the template's package.json to the user's project slug + reset
+    // version. Done before bun install so node_modules carries the right name.
+    if (customizePackageJson(targetDir, args.projectSlug)) {
+      process.stderr.write(
+        `  ✓ package.json customized (name=${args.projectSlug}, version=0.1.0)\n`,
+      )
     }
   } else {
     process.stderr.write('  ✓ template tree (skipped in --dry-run)\n')
