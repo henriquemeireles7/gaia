@@ -17,7 +17,7 @@ import { spawn } from 'node:child_process'
 import { existsSync, mkdirSync, mkdtempSync, rmSync } from 'node:fs'
 import { copyFile, mkdir, readdir } from 'node:fs/promises'
 import { tmpdir } from 'node:os'
-import { dirname, join, relative } from 'node:path'
+import { dirname, join, relative, resolve } from 'node:path'
 import { fileURLToPath } from 'node:url'
 
 const GIT_CLONE_TIMEOUT_MS = 60_000
@@ -164,6 +164,21 @@ export async function layDownTemplate(input: TemplateInput): Promise<TemplateRes
   const inSourceRoot = input.sourceRoot ?? detectInSourceRoot(scriptPath)
 
   if (inSourceRoot) {
+    // Guard: targetDir must NOT be inside the source root, otherwise copyTree
+    // walks into the target it just created → infinite recursion → ENAMETOOLONG.
+    // End users running `bun create gaia-app@latest myapp` from /tmp don't hit
+    // this (in-source detection fails outside any Gaia checkout, falls through
+    // to git-clone). The trap is dev/CI scenarios where someone runs the
+    // scaffolder from inside this very repo.
+    const targetAbs = resolve(input.targetDir)
+    const sourceAbs = resolve(inSourceRoot)
+    if (targetAbs === sourceAbs || targetAbs.startsWith(`${sourceAbs}/`)) {
+      return {
+        mode: 'unavailable',
+        filesCopied: 0,
+        warning: `targetDir (${input.targetDir}) is inside the Gaia source repo (${inSourceRoot}). In-source scaffolding requires a target OUTSIDE the source tree — run from /tmp or another parent directory. (This guard prevents the copyTree infinite-recursion bug from v0.3.0.)`,
+      }
+    }
     if (!existsSync(input.targetDir)) {
       mkdirSync(input.targetDir, { recursive: true })
     }
