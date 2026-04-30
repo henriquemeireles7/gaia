@@ -1,6 +1,7 @@
 import AnthropicSDK from '@anthropic-ai/sdk'
 import { SpanStatusCode, trace } from '@opentelemetry/api'
 import { env } from '@gaia/config'
+import { assertAiBudget, recordAiUsage } from '@gaia/security/ai-budget'
 
 export const ai = new AnthropicSDK({ apiKey: env.ANTHROPIC_API_KEY })
 
@@ -25,18 +26,28 @@ function estimateCost(
 }
 
 /**
- * Generic AI completion with timeout, OpenTelemetry spans, and cost
- * tracking. Every call emits a span with the tags required by
- * observability/ai-trace-tags: model, tokens, latency, cost,
- * tool_use_count, error_class.
+ * Generic AI completion with timeout, OpenTelemetry spans, cost tracking,
+ * and per-user daily budget enforcement. Every call emits a span with
+ * the tags required by observability/ai-trace-tags: model, tokens,
+ * latency, cost, tool_use_count, error_class.
+ *
+ * Pass `userId` to attribute the call against a user budget. Calls
+ * without `userId` are treated as system-internal and skip the budget
+ * check — feature code wiring AI to end users MUST pass it.
+ *
+ * Throws AppError('RATE_LIMITED') when the user has exhausted today's
+ * cap (see packages/security/ai-budget.ts).
  */
 export async function complete(
   prompt: string,
-  options?: { model?: string; maxTokens?: number; timeoutMs?: number },
+  options?: { model?: string; maxTokens?: number; timeoutMs?: number; userId?: string },
 ): Promise<string> {
   const model = options?.model ?? 'claude-haiku-4-5-20251001'
   const maxTokens = options?.maxTokens ?? 300
   const timeoutMs = options?.timeoutMs ?? DEFAULT_TIMEOUT_MS
+  const userId = options?.userId
+
+  if (userId) await assertAiBudget(userId)
 
   const span = tracer.startSpan('ai.complete', { attributes: { model } })
   const start = Date.now()
@@ -58,13 +69,16 @@ export async function complete(
     const outputTokens = usage.output_tokens ?? 0
     const cacheTokens = (usage as { cache_read_input_tokens?: number }).cache_read_input_tokens ?? 0
     const tool_use_count = response.content.filter((b) => b.type === 'tool_use').length
+    const costUsd = estimateCost(model, inputTokens, outputTokens, cacheTokens)
 
     span.setAttribute('tokens.in', inputTokens)
     span.setAttribute('tokens.out', outputTokens)
     span.setAttribute('tokens.cache', cacheTokens)
     span.setAttribute('latency_ms', Date.now() - start)
-    span.setAttribute('cost_usd', estimateCost(model, inputTokens, outputTokens, cacheTokens))
+    span.setAttribute('cost_usd', costUsd)
     span.setAttribute('tool_use_count', tool_use_count)
+
+    if (userId) await recordAiUsage(userId, inputTokens, outputTokens, costUsd)
 
     return response.content[0]?.type === 'text' ? response.content[0].text.trim() : ''
   } catch (err) {

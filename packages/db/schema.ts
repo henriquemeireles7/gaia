@@ -1,4 +1,16 @@
-import { boolean, index, pgTable, text, timestamp, uniqueIndex, uuid } from 'drizzle-orm/pg-core'
+import {
+  boolean,
+  date,
+  doublePrecision,
+  index,
+  integer,
+  pgTable,
+  primaryKey,
+  text,
+  timestamp,
+  uniqueIndex,
+  uuid,
+} from 'drizzle-orm/pg-core'
 
 // ============================================================
 // Auth tables (required by Better Auth)
@@ -120,8 +132,53 @@ export const apiKeys = pgTable(
 )
 
 // ============================================================
+// Rate limits (Postgres-backed, fixed-window counter)
+// ============================================================
+// Atomic increment via INSERT ... ON CONFLICT (key, window_start) DO UPDATE.
+// Bucketed by `windowStart` so each window is a separate row — old buckets
+// are garbage-collected by a periodic DELETE WHERE window_start < cutoff.
+// Swap to Redis/Dragonfly when single-DB throughput becomes a bottleneck;
+// the rate-limits.ts adapter is the only call site.
+export const rateLimits = pgTable(
+  'rate_limits',
+  {
+    key: text('key').notNull(),
+    windowStart: timestamp('window_start', { withTimezone: true }).notNull(),
+    count: integer('count').notNull().default(0),
+  },
+  (table) => [
+    primaryKey({ columns: [table.key, table.windowStart] }),
+    index('rate_limits_window_start_idx').on(table.windowStart),
+  ],
+)
+
+// ============================================================
+// AI usage (per-user daily aggregate for budget enforcement)
+// ============================================================
+// One row per (userId, day-UTC). Updated atomically on every complete()
+// call via ON CONFLICT DO UPDATE. Tier-keyed budgets live in env vars
+// (AI_DAILY_BUDGET_FREE_USD / _PRO_USD); checked against costUsd before
+// each call in packages/security/ai-budget.ts.
+export const aiUsage = pgTable(
+  'ai_usage',
+  {
+    userId: uuid('user_id')
+      .notNull()
+      .references(() => users.id, { onDelete: 'cascade' }),
+    day: date('day').notNull(),
+    tokensIn: integer('tokens_in').notNull().default(0),
+    tokensOut: integer('tokens_out').notNull().default(0),
+    costUsd: doublePrecision('cost_usd').notNull().default(0),
+    callCount: integer('call_count').notNull().default(0),
+  },
+  (table) => [primaryKey({ columns: [table.userId, table.day] })],
+)
+
+// ============================================================
 // Type helpers
 // ============================================================
 export type User = typeof users.$inferSelect
 export type Subscription = typeof subscriptions.$inferSelect
 export type ApiKey = typeof apiKeys.$inferSelect
+export type RateLimit = typeof rateLimits.$inferSelect
+export type AiUsage = typeof aiUsage.$inferSelect
