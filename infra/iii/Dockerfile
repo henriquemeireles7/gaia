@@ -7,7 +7,8 @@
 # Source repo: https://github.com/iii-hq/iii
 # Image:       https://hub.docker.com/r/iiidev/iii
 
-ARG III_VERSION=latest
+# Pinned to digest for supply-chain integrity. Renovate keeps this current.
+ARG III_VERSION=latest@sha256:4e8d34f382e03501dc8376dd751b98b65eab122e4ea185a7a4d6f6619fa5c674
 FROM iiidev/iii:${III_VERSION}
 
 # Override the upstream development default. Gaia treats the engine as

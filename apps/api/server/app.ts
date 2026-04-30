@@ -11,6 +11,7 @@ import { env } from '@gaia/config'
 import { getLogger } from '@gaia/core/logger'
 import { initObservability } from '@gaia/core/observability'
 import { AppError } from '@gaia/errors'
+import { checkRateLimit, clientIp, limits } from '@gaia/security/rate-limits'
 import { applySecurityHeaders } from '@gaia/security/security-headers'
 // Importing @gaia/workflows runs the worker registration (registerWorker +
 // iii.registerFunction calls) at module load. Self-hosted iii routes
@@ -18,6 +19,7 @@ import { applySecurityHeaders } from '@gaia/security/security-headers'
 // `functions` is the registered function-ref list; logged at boot below
 // so the import isn't unassigned.
 import { functions as workflowFunctions } from '@gaia/workflows'
+import { cors } from '@elysiajs/cors'
 import { Elysia, t } from 'elysia'
 import { billingRoutes, processPolarEvent } from './billing'
 
@@ -26,6 +28,18 @@ const log = getLogger()
 log.info('workflows.registered', { count: workflowFunctions.length })
 
 export const app = new Elysia()
+  // CORS allowlist — explicit origin only. Webhooks bypass via separate
+  // handler that runs server-to-server with signature verification, so
+  // the browser-origin check here doesn't affect Polar deliveries.
+  .use(
+    cors({
+      origin: [env.PUBLIC_APP_URL],
+      credentials: true,
+      methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE'],
+      allowedHeaders: ['Content-Type', 'Authorization'],
+      maxAge: 600,
+    }),
+  )
   .onError(({ code, error, set }) => {
     if (error instanceof AppError) {
       set.status = error.status
@@ -72,7 +86,14 @@ export const app = new Elysia()
   })
 
   // ── Auth (better-auth) ────────────────────────────────────────
-  .all('/auth/*', ({ request }) => auth.handler(request))
+  // IP-based throttle defends login/signup/password-reset against brute
+  // force + credential stuffing. Better-Auth handles per-user details
+  // (account lockout, breached-password checks) downstream.
+  .all('/auth/*', async ({ request }) => {
+    const ip = clientIp(request.headers)
+    await checkRateLimit(`auth:${ip}`, limits.authFlow.requests, limits.authFlow.windowSec)
+    return auth.handler(request)
+  })
 
   // ── Authenticated session probe ───────────────────────────────
   // For full feature routes use protectedRoute from @gaia/security/protected-route

@@ -8,6 +8,8 @@
     "./protected-route": "./protected-route.ts",
     "./public-route": "./public-route.ts",
     "./security-headers": "./security-headers.ts",
-    "./audit-log": "./audit-log.ts"
+    "./audit-log": "./audit-log.ts",
+    "./rate-limits": "./rate-limits.ts",
+    "./ai-budget": "./ai-budget.ts"
   }
 }

@@ -582,3 +582,18 @@ Adding a new capability: create `packages/adapters/<capability>.ts`, register in
 - Observability: `packages/core/CLAUDE.md` (spans, dual-write to PostHog)
 - Workflows / retry: `packages/workflows/CLAUDE.md`
 - AI audit: `.claude/skills/a-ai/reference.md`
+
+---
+<!-- AUTO-GENERATED BELOW — do not edit manually -->
+
+## Files
+| File | Exports |
+|------|---------|
+| ai.ts | ai, complete |
+| analytics.ts | track, identify, shutdown |
+| email.ts | email, sendEmail |
+| errors.ts | ProviderError |
+| payments.ts | polar, verifyWebhook |
+| storage.ts | upload, download, getSignedUrl, remove |
+
+<!-- Generated: 2026-04-30T11:12:48.508Z -->

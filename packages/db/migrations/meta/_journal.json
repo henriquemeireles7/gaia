@@ -8,6 +8,13 @@
       "when": 1777350196106,
       "tag": "0000_complete_stingray",
       "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "7",
+      "when": 1777546184444,
+      "tag": "0001_square_meteorite",
+      "breakpoints": true
     }
   ]
 }

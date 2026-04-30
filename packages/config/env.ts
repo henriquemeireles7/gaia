@@ -28,6 +28,11 @@ export const EnvSchema = Type.Object({
 
   // ─── AI: Anthropic ─────────────────────────────────────────────
   ANTHROPIC_API_KEY: Type.String({ pattern: '^sk-ant-' }),
+  // Per-user daily AI cost budget (USD). Free-tier defaults to $0.50;
+  // pro-tier defaults to $5.00. Tune per business model. Admin role
+  // bypasses budget. See packages/security/ai-budget.ts.
+  AI_DAILY_BUDGET_FREE_USD: Type.Number({ minimum: 0, default: 0.5 }),
+  AI_DAILY_BUDGET_PRO_USD: Type.Number({ minimum: 0, default: 5 }),
 
   // ─── Optional: Analytics ───────────────────────────────────────
   POSTHOG_API_KEY: Type.Optional(Type.String({ minLength: 1 })),
