@@ -568,8 +568,8 @@ Log redaction lives in `packages/core/redact.ts` (see `packages/core/CLAUDE.md` 
 **Anti-pattern:**
 
 ```ts
-// ❌ Hardcoded
-const POLAR_KEY = 'polar_secret_abc123'
+// ❌ Hardcoded — example placeholder, NOT a real key
+const POLAR_KEY = '<paste-your-secret-here>'
 
 // ❌ Client-side
 export const polarKey = import.meta.env.VITE_POLAR_SECRET // ships to browser
