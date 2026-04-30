@@ -44,12 +44,14 @@ function showStreak(user) {
 
 ```ts
 // ✅ Tie to a real routine — Monday weekly digest
-inngest.createFunction({ id: 'weekly-digest', cron: 'TZ=user 0 9 * * MON' }, async ({ user }) => {
+const ref = iii.registerFunction('retention::weekly-digest', async ({ payload }) => {
+  const { user } = payload as { user: { email: string; name: string } }
   await sendEmail(user.email, {
     subject: `${user.name}, your week ahead`,
     html: WEEKLY_DIGEST(user),
   })
 })
+iii.registerTrigger({ type: 'cron', function_id: ref.id, config: { expression: '0 9 * * MON' } })
 // digest delivers something the user would have searched for anyway
 ```
 
@@ -94,7 +96,7 @@ Users are either `active` (used in last 7 days), `dormant` (8–30 days), or `ch
 **Rules / Guidelines / Boundaries:**
 
 - Materialize user state in DB: `users.engagement_state` (active / dormant / churned)
-- Recompute nightly via Inngest scheduled function reading last-action timestamp
+- Recompute nightly via an iii cron-triggered function reading last-action timestamp
 - Re-engagement campaigns gated on state: dormant gets "we miss you," churned gets "what would bring you back"
 - Never email churned users more than once per quarter without explicit re-opt-in
 

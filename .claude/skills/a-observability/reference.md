@@ -306,15 +306,15 @@ The boundaries are where latency hides and errors happen. Every cross-boundary c
 
 **Boundaries that must be spanned:**
 
-| Boundary       | Span name                         | Key attributes                                                       |
-| -------------- | --------------------------------- | -------------------------------------------------------------------- |
-| HTTP route     | `{METHOD} {route}`                | `http.method`, `http.status_code`, `http.route`                      |
-| DB query       | `db.{operation} {table}`          | `db.system`, `db.statement`, `db.rows_affected`                      |
-| Adapter call   | `adapter.{service}.{operation}`   | `adapter.name`, `adapter.timeout_ms`                                 |
-| LLM call       | `llm.{provider}.{model}`          | `llm.model`, `llm.tokens.input`, `llm.tokens.output`, `llm.cost_usd` |
-| Queue job      | `inngest.{function_id}.{step_id}` | `inngest.event`, `inngest.attempt`                                   |
-| Outbound HTTP  | `http.client {host}`              | `http.url`, `http.status_code`, `http.response_size`                 |
-| Cache hit/miss | `cache.{operation}`               | `cache.hit`, `cache.key_pattern`                                     |
+| Boundary       | Span name                       | Key attributes                                                       |
+| -------------- | ------------------------------- | -------------------------------------------------------------------- |
+| HTTP route     | `{METHOD} {route}`              | `http.method`, `http.status_code`, `http.route`                      |
+| DB query       | `db.{operation} {table}`        | `db.system`, `db.statement`, `db.rows_affected`                      |
+| Adapter call   | `adapter.{service}.{operation}` | `adapter.name`, `adapter.timeout_ms`                                 |
+| LLM call       | `llm.{provider}.{model}`        | `llm.model`, `llm.tokens.input`, `llm.tokens.output`, `llm.cost_usd` |
+| Queue job      | `iii.{function_id}`             | `iii.queue`, `iii.attempt`                                           |
+| Outbound HTTP  | `http.client {host}`            | `http.url`, `http.status_code`, `http.response_size`                 |
+| Cache hit/miss | `cache.{operation}`             | `cache.hit`, `cache.key_pattern`                                     |
 
 **Pattern (Drizzle wrapper with spans):**
 
@@ -748,7 +748,7 @@ Event naming convention: `<domain>.<action>[.<outcome>]`:
 - `billing.webhook.received`
 - `billing.webhook.processed`
 - `llm.call.completed`
-- `inngest.step.retried`
+- `iii.step.retried`
 
 **Anti-pattern:**
 

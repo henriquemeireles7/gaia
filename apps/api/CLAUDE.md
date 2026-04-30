@@ -8,7 +8,7 @@
 
 ## What this file is
 
-The stack-specific patterns for backend code in Gaia. These patterns implement the 10 coding principles from `code.md` in the context of Elysia + Eden Treaty + TypeBox + Bun + Better Auth + Drizzle + Inngest.
+The stack-specific patterns for backend code in Gaia. These patterns implement the 10 coding principles from `code.md` in the context of Elysia + Eden Treaty + TypeBox + Bun + Better Auth + Drizzle + iii.
 
 Read `code.md` first. This file is the concrete _how_; `code.md` is the _why_.
 

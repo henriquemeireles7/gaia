@@ -112,7 +112,7 @@ Locked decisions as of v6. Each choice traces back to one or more of the 15 prin
 - **Crypto primitives:** Web Crypto API (native to Bun)
 - **Payments:** Polar (merchant-of-record, solo-friendly)
 - **Email (transactional):** Resend
-- **Background jobs / workflows:** Inngest
+- **Background jobs / workflows:** iii (iii.dev)
 - **Rate limiting:** @upstash/ratelimit + Dragonfly
 - **Email format / disposable check:** zod.email() + disposable-email-domains
 
@@ -233,7 +233,7 @@ Test: "If this data vanished, what would it take to recreate?" determines the st
 
 **Workflow integration**
 
-10. **Workflow orchestration is a platform primitive.** Multi-step workflows use Inngest, not per-feature orchestration code.
+10. **Workflow orchestration is a platform primitive.** Multi-step workflows use iii (Function + Trigger primitives, queue-level retry), not per-feature orchestration code.
 
 11. **Content is code when humans edit it.** Markdown files live in `content/` and git-track like source. When apps generate data, it goes to Postgres.
 
@@ -577,7 +577,7 @@ The template ships with the following working out of the box:
 - **Trigger-eval infrastructure** — needed for v2 self-evolving; specified separately
 - **Admin panel** (documented pattern, not generated)
 - **Multi-tenancy** (single-tenant first; multi-tenant in v2 if demanded)
-- **Queue-heavy workload templates** beyond Inngest hello-world
+- **Queue-heavy workload templates** beyond iii hello-world
 - **Payment models** beyond subscription + one-time
 - **i18n scaffolding** (single locale in v1)
 - **Third-party memory service integration** (future research: Mem0, Letta, etc.)

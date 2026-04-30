@@ -163,7 +163,7 @@ DATABASE_URL: ${{ secrets.NEON_BRANCH_URL_PR_${{ github.event.number }} }}
 
 `GET /health` is liveness (process is alive, ~1ms, no deps). `GET /health/ready` is readiness (DB ping, Polar ping, ~50ms). The platform waits for readiness ≥3× before swapping traffic; rollback fires automatically on readiness fail >60s. A post-deploy synthetic test exercises one critical user path; if it fails, alert.
 
-**Enforcement:** Two routes in `apps/api/server/app.ts`. Railway uses readiness as the deploy gate. A separate Inngest function runs the smoke test post-deploy and writes to Axiom.
+**Enforcement:** Two routes in `apps/api/server/app.ts`. Railway uses readiness as the deploy gate. A separate iii cron-triggered function runs the smoke test post-deploy and writes to Axiom.
 
 **Anti-pattern:**
 
@@ -323,7 +323,7 @@ RESEND_API_KEY              # email
 ANTHROPIC_API_KEY           # AI
 ```
 
-Optional vars (Sentry, Axiom, OTel, OAuth, R2, PostHog, Inngest) degrade gracefully when unset.
+Optional vars (Sentry, Axiom, OTel, OAuth, R2, PostHog, iii) degrade gracefully when unset.
 
 ---
 

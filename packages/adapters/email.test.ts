@@ -39,7 +39,7 @@ describe('sendEmail', () => {
 
   it('returns the Resend response', async () => {
     const result = await sendEmail('user@example.com', validMsg)
-    expect(result).toEqual({ data: { id: 'email_123' }, error: null, headers: null })
+    expect(result).toEqual({ data: { id: 'email_123' }, error: null })
   })
 
   it('logs the email being sent', async () => {

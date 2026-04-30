@@ -1,6 +1,6 @@
 {
   "name": "gaia",
-  "version": "0.2.3",
+  "version": "0.1.0",
   "workspaces": [
     "apps/*",
     "packages/*"
@@ -20,7 +20,7 @@
     "check:types": "bunx tsc --noEmit",
     "check:test": "bun test --pass-with-no-tests",
     "check:dead": "bunx knip --reporter compact",
-    "check:scripts": "bun scripts/check-skills.ts && bun scripts/check-skill-triggers.ts && bun scripts/validate-artifacts.ts && bun scripts/check-tests-exist.ts && bun scripts/check-tokens-sync.ts && bun scripts/check-observability-init.ts && bun scripts/check-marketing-vocab.ts && bun scripts/check-integration-treaty.ts && bun scripts/check-cli-stdout.ts && bun scripts/check-reference-shape.ts && bun scripts/check-reference-voice.ts && bun scripts/check-reference-rule-mapping.ts && bun scripts/check-reference-staleness.ts && bun scripts/check-hook-determinism.ts && bun scripts/check-migrations.ts && bun scripts/check-typebox-derivation.ts && bun scripts/check-activation-defined-once.ts && bun scripts/check-email-on-signup.ts && bun scripts/check-funnel-events.ts && bun scripts/check-engagement-state.ts && bun scripts/check-usage-tiers.ts && bun scripts/check-dunning.ts",
+    "check:scripts": "bun scripts/check-skills.ts && bun scripts/validate-artifacts.ts && bun scripts/check-tests-exist.ts && bun scripts/check-tokens-sync.ts && bun scripts/check-observability-init.ts && bun scripts/check-marketing-vocab.ts && bun scripts/check-integration-treaty.ts && bun scripts/check-cli-stdout.ts && bun scripts/check-reference-shape.ts && bun scripts/check-reference-voice.ts && bun scripts/check-reference-rule-mapping.ts && bun scripts/check-reference-staleness.ts && bun scripts/check-hook-determinism.ts && bun scripts/check-migrations.ts && bun scripts/check-typebox-derivation.ts && bun scripts/check-activation-defined-once.ts && bun scripts/check-email-on-signup.ts && bun scripts/check-funnel-events.ts && bun scripts/check-engagement-state.ts && bun scripts/check-usage-tiers.ts && bun scripts/check-dunning.ts",
     "rules:coverage": "bun scripts/rules-coverage.ts",
     "tokens:generate": "bun scripts/generate-tokens-css.ts",
     "harden": "bun packages/security/harden-check.ts",
@@ -32,11 +32,11 @@
     "db:studio": "bunx drizzle-kit studio"
   },
   "dependencies": {
-    "@anthropic-ai/sdk": "^0.91.1",
-    "@aws-sdk/client-s3": "^3.1038.0",
-    "@aws-sdk/s3-request-presigner": "^3.1038.0",
-    "@axiomhq/js": "^1.6.0",
-    "@elysiajs/eden": "^1.4.9",
+    "@anthropic-ai/sdk": "^0.39.0",
+    "@aws-sdk/client-s3": "^3.700.0",
+    "@aws-sdk/s3-request-presigner": "^3.700.0",
+    "@axiomhq/js": "^1.3.0",
+    "@elysiajs/eden": "^1.1.3",
     "@gaia/adapters": "workspace:*",
     "@gaia/api-server": "workspace:*",
     "@gaia/auth": "workspace:*",
@@ -48,37 +48,30 @@
     "@gaia/ui": "workspace:*",
     "@gaia/web": "workspace:*",
     "@gaia/workflows": "workspace:*",
-    "@opentelemetry/api": "^1.9.1",
-    "@polar-sh/sdk": "^0.47.1",
-    "@sentry/node": "^10.50.0",
-    "@sinclair/typebox": "^0.34.49",
-    "@solidjs/router": "^0.16.1",
-    "@solidjs/start": "^1.3.2",
-    "better-auth": "^1.6.9",
-    "drizzle-orm": "^0.45.2",
-    "elysia": "^1.4.28",
-    "inngest": "^4.2.5",
-    "postgres": "^3.4.9",
-    "posthog-node": "^5.30.7",
-    "resend": "^6.12.2",
-    "solid-js": "^1.9.12",
-    "vinxi": "^0.5.11"
+    "@opentelemetry/api": "^1.9.0",
+    "@polar-sh/sdk": "^0.20.0",
+    "@sentry/node": "^9.0.0",
+    "@sinclair/typebox": "^0.34.0",
+    "@solidjs/router": "^0.15.0",
+    "@solidjs/start": "^1.1.0",
+    "better-auth": "^1.2.0",
+    "drizzle-orm": "^0.38.0",
+    "elysia": "^1.1.27",
+    "iii-sdk": "^0.11.3",
+    "postgres": "^3.4.0",
+    "posthog-node": "^4.4.0",
+    "resend": "^4.1.0",
+    "solid-js": "^1.9.0",
+    "vinxi": "^0.5.0"
   },
   "devDependencies": {
     "@ast-grep/cli": "^0.42.1",
     "@types/bun": "latest",
-    "drizzle-kit": "^0.31.10",
-    "knip": "^6.8.0",
+    "drizzle-kit": "^0.30.0",
+    "knip": "^5.40.0",
     "oxfmt": "^0.47.0",
     "oxlint": "^1.62.0",
-    "typescript": "^6.0.3"
-  },
-  "overrides": {
-    "esbuild": "^0.25.0",
-    "fast-xml-parser": "^5.7.0",
-    "h3": "^1.15.9",
-    "hono": "^4.12.14",
-    "uuid": "^14.0.0"
+    "typescript": "^5.7.0"
   },
   "trustedDependencies": [
     "@ast-grep/cli"

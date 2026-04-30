@@ -12,15 +12,18 @@ import { getLogger } from '@gaia/core/logger'
 import { initObservability } from '@gaia/core/observability'
 import { AppError } from '@gaia/errors'
 import { applySecurityHeaders } from '@gaia/security/security-headers'
-import { functions, inngest } from '@gaia/workflows'
+// Importing @gaia/workflows runs the worker registration (registerWorker +
+// iii.registerFunction calls) at module load. Self-hosted iii routes
+// invocations over WebSocket via the engine — no Elysia-side serve handler.
+// `functions` is the registered function-ref list; logged at boot below
+// so the import isn't unassigned.
+import { functions as workflowFunctions } from '@gaia/workflows'
 import { Elysia, t } from 'elysia'
-import { serve as inngestServe } from 'inngest/bun'
 import { billingRoutes, processPolarEvent } from './billing'
 
 initObservability(env)
 const log = getLogger()
-
-const inngestHandler = inngestServe({ client: inngest, functions })
+log.info('workflows.registered', { count: workflowFunctions.length })
 
 export const app = new Elysia()
   .onError(({ code, error, set }) => {
@@ -54,7 +57,7 @@ export const app = new Elysia()
   // Apply OWASP-baseline security headers to every response.
   // Feature routes use @gaia/security/protected-route which composes the
   // same headers + auth derive; this app-level hook covers the inline
-  // routes below (health, auth, webhook, inngest).
+  // routes below (health, auth, webhook).
   .onBeforeHandle(({ set }) => applySecurityHeaders(set))
 
   // ── Health ─────────────────────────────────────────────────────
@@ -70,9 +73,6 @@ export const app = new Elysia()
 
   // ── Auth (better-auth) ────────────────────────────────────────
   .all('/auth/*', ({ request }) => auth.handler(request))
-
-  // ── Inngest serve route ───────────────────────────────────────
-  .all('/api/inngest', ({ request }) => inngestHandler(request))
 
   // ── Authenticated session probe ───────────────────────────────
   // For full feature routes use protectedRoute from @gaia/security/protected-route

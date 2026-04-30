@@ -62,10 +62,9 @@ Only the product references stay here (they map to flows, not skills or folders)
 <!-- AUTO-GENERATED BELOW — do not edit manually -->
 
 ## Files
+| File | Exports |
+|------|---------|
+| rules.ts | SkillDomain, RuleTier, Mechanism, Rule, rules, RuleId, findRule, rulesForSkill, rulesByMechanism, blockedFor, enforcedSkills |
+| vision.md | Gaia |
 
-| File      | Exports                                                                                                                      |
-| --------- | ---------------------------------------------------------------------------------------------------------------------------- |
-| rules.ts  | SkillDomain, RuleTier, Mechanism, Rule, rules, RuleId, findRule, rulesForSkill, rulesByMechanism, blockedFor, enforcedSkills |
-| vision.md | Gaia                                                                                                                         |
-
-<!-- Generated: 2026-04-29T10:42:32.453Z -->
+<!-- Generated: 2026-04-30T04:29:01.873Z -->

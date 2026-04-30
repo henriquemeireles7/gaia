@@ -18,7 +18,7 @@ const ALLOWLIST = new Set([
   'packages/db/schema.ts', // pure schema; tested via migrations
   'packages/config/types.ts', // type-only
   'packages/auth/index.ts', // wrapper around better-auth; integration-tested in app.test.ts
-  'packages/workflows/index.ts', // Inngest wiring; integration-tested
+  'packages/workflows/index.ts', // iii worker wiring; integration-tested
   'packages/api/index.ts', // re-exports
   'packages/security/harden-check.ts', // self-tests via running on the repo
   'packages/security/security-headers.ts', // covered indirectly by app.test.ts boundary tests
