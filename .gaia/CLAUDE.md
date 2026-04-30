@@ -4,21 +4,18 @@ The Gaia methodology — the substrate that makes principles discoverable and en
 
 ## What's here
 
-| Path           | Purpose                                                                         |
-| -------------- | ------------------------------------------------------------------------------- |
-| `vision.md`    | The locked source of truth — Gaia v7.                                           |
-| `reference/`   | Preserved product references (`product/onboarding.md`, `product/retention.md`). |
-| `initiatives/` | Strategic bets, 4-digit folder ordering. Index in `initiatives/CLAUDE.md`.      |
-| `protocols/`   | Permissions, delegation rules.                                                  |
-| `rules.ts`     | Single policy source consumed by hooks, CI, scripts.                            |
-| `memory/`      | Working / episodic / personal surfaces (working + personal are gitignored).     |
+| Path           | Purpose                                                                              |
+| -------------- | ------------------------------------------------------------------------------------ |
+| `vision.md`    | The locked source of truth — Gaia v7.                                                |
+| `initiatives/` | Strategic bets, 4-digit folder ordering. Index in `initiatives/CLAUDE.md`.           |
+| `protocols/`   | Permissions, delegation rules.                                                       |
+| `rules/`       | Policy source: `index.ts` aggregator, `skills/`, `folders/`, `checks/`, `ast-grep/`. |
+| `memory/`      | Working / episodic / personal surfaces (working + personal are gitignored).          |
 
-The bulk of the constitution moved out of `.gaia/reference/` in Initiative 0001:
+The bulk of the constitution lives in two surfaces (Initiative 0001):
 
 - Authoring/audit principles → `.claude/skills/<skill>/reference.md`
 - Folder-scoped principles → fractal `CLAUDE.md` (e.g. `apps/api/CLAUDE.md`)
-
-Only the product references stay here (they map to flows, not skills or folders).
 
 ## Routing — what to read for which question
 
@@ -45,8 +42,6 @@ Only the product references stay here (they map to flows, not skills or folders)
 | Infra config (Kamal / Railway)    | `../.claude/skills/w-infra/reference.md`                                    |
 | Writing SKILL.md files            | `../.claude/skills/h-skill/reference.md`                                    |
 | Writing reference files           | `../.claude/skills/h-reference/reference.md`                                |
-| Onboarding / activation           | `reference/product/onboarding.md`                                           |
-| Retention / dunning               | `reference/product/retention.md`                                            |
 | What's currently being worked on? | `initiatives/CLAUDE.md`                                                     |
 | Latest data snapshot              | `initiatives/context.md`                                                    |
 | What's allowed/blocked?           | `protocols/permissions.md`                                                  |
@@ -68,4 +63,4 @@ Only the product references stay here (they map to flows, not skills or folders)
 | rules.ts  | SkillDomain, RuleTier, Mechanism, Rule, rules, RuleId, findRule, rulesForSkill, rulesByMechanism, blockedFor, enforcedSkills |
 | vision.md | Gaia                                                                                                                         |
 
-<!-- Generated: 2026-04-29T09:10:35.023Z -->
+<!-- Generated: 2026-04-29T10:42:32.453Z -->

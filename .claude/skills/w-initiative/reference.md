@@ -37,7 +37,7 @@ wave: 0a | 0b | 1 | 2 | 3 | 4 | 5 | off-wave
 ---
 ```
 
-`scripts/validate-artifacts.ts` enforces `parent`, `hypothesis`, `measurement` (existing). Extended fields (`falsifier`, `wave`, `measurement.query`, `measurement.window_opens_at`, `measurement.verdict`) are enforced by the same script after this initiative ships.
+`.gaia/rules/checks/validate-artifacts.ts` enforces `parent`, `hypothesis`, `measurement` (existing). Extended fields (`falsifier`, `wave`, `measurement.query`, `measurement.window_opens_at`, `measurement.verdict`) are enforced by the same script after this initiative ships.
 
 ---
 
@@ -54,7 +54,7 @@ Every initiative starts with a hypothesis-and-falsifier pair, captured before an
 - Falsifier must contain a numeric threshold and a window in days.
 - A hypothesis without a falsifier is reclassified as a User Challenge in §6 and the skill halts.
 
-**Enforcement:** rule `workflow/falsifier-required` (mechanism: pending — `scripts/validate-artifacts.ts` will check `falsifier:` field present and non-empty; ships in the next PR per the 14-day SLO).
+**Enforcement:** rule `workflow/falsifier-required` (mechanism: pending — `.gaia/rules/checks/validate-artifacts.ts` will check `falsifier:` field present and non-empty; ships in the next PR per the 14-day SLO).
 
 **Anti-pattern:**
 
@@ -84,7 +84,7 @@ Every initiative either pins to a wave (0a, 0b, 1, 2, 3, 4, 5 — the v5 vision 
 - Off-wave bets justify in §2 with at least one sentence ("standalone methodology bet", "user-blocking hardening", etc.).
 - Wave inversion (later wave shipping before earlier) requires §2 acknowledgment + AD-N row in §6.
 
-**Enforcement:** rule `workflow/wave-alignment` (mechanism: pending — `scripts/validate-artifacts.ts` will check `wave:` field present; off-wave bets surface a notice but don't fail).
+**Enforcement:** rule `workflow/wave-alignment` (mechanism: pending — `.gaia/rules/checks/validate-artifacts.ts` will check `wave:` field present; off-wave bets surface a notice but don't fail).
 
 **Anti-pattern:**
 
@@ -119,7 +119,7 @@ status: draft
 - Capped column has at least 3 entries; each names a specific scope someone might want.
 - "Future work" is not a cap; the cap names what's NOT happening in v1.0 specifically.
 
-**Enforcement:** rule `workflow/cap-table-required` (mechanism: pending — `scripts/validate-artifacts.ts` will check §2 contains a Cap table with ≥3 rows in the Capped column).
+**Enforcement:** rule `workflow/cap-table-required` (mechanism: pending — `.gaia/rules/checks/validate-artifacts.ts` will check §2 contains a Cap table with ≥3 rows in the Capped column).
 
 **Anti-pattern:**
 
@@ -160,7 +160,7 @@ Every hypothesis is a bet. Every bet has a kill condition. §2 declares an Aband
 - Each trigger references a specific frontmatter measurement state (verdict=invalidated, threshold breach, etc.).
 - Each next-step is named: "kill", "pivot to <named bet>", or "scope down to <named smaller bet>".
 
-**Enforcement:** rule `workflow/abandonment-ladder-required` (mechanism: pending — `scripts/validate-artifacts.ts` will check §2 contains an Abandonment ladder with ≥1 row).
+**Enforcement:** rule `workflow/abandonment-ladder-required` (mechanism: pending — `.gaia/rules/checks/validate-artifacts.ts` will check §2 contains an Abandonment ladder with ≥1 row).
 
 **Anti-pattern:**
 
@@ -202,7 +202,7 @@ If it doesn't work, we'll figure it out.
 - Every Phase 3 panel conclusion that mutated §2/§3 gets an AD-N row.
 - Every Phase 4 review lens conclusion that mutated §4/§5 gets an AD-N row.
 
-**Enforcement:** rule `workflow/decision-class-column` (mechanism: pending — `scripts/validate-artifacts.ts` will check §6 table has a `Class` column with values in {M, T, UC}).
+**Enforcement:** rule `workflow/decision-class-column` (mechanism: pending — `.gaia/rules/checks/validate-artifacts.ts` will check §6 table has a `Class` column with values in {M, T, UC}).
 
 **Anti-pattern:**
 
@@ -243,7 +243,7 @@ Phase 6 of `w-initiative` produces a concrete query (`measurement.query`), a bas
 - `measurement.window_opens_at` is `TBD` until last PR merges; `w-deploy` updates it on merge.
 - If query source doesn't exist, §4 Implementation lists "PR-1 adds emit site for <metric>".
 
-**Enforcement:** rule `workflow/measurement-wired` (mechanism: pending — `scripts/validate-artifacts.ts` will check `measurement.query` is non-empty and not `TBD` for any initiative with `status` ∈ {`approved`, `in-progress`, `shipped`}).
+**Enforcement:** rule `workflow/measurement-wired` (mechanism: pending — `.gaia/rules/checks/validate-artifacts.ts` will check `measurement.query` is non-empty and not `TBD` for any initiative with `status` ∈ {`approved`, `in-progress`, `shipped`}).
 
 **Anti-pattern:**
 
@@ -286,7 +286,7 @@ Phase 3 of `w-initiative` runs a 6-specialist adversarial panel across six dimen
 - Each dimension has 6 specialist comments + a synthesis Conclusion paragraph + an "Action taken" line.
 - Conclusions that mutated §2/§3 also get an AD-N row in §6 (per principle 5).
 
-**Enforcement:** rule `workflow/adversarial-review-recorded` (mechanism: pending — `scripts/validate-artifacts.ts` will check §1.5 exists and contains a `Panel:` heading with ≥6 specialist rows).
+**Enforcement:** rule `workflow/adversarial-review-recorded` (mechanism: pending — `.gaia/rules/checks/validate-artifacts.ts` will check §1.5 exists and contains a `Panel:` heading with ≥6 specialist rows).
 
 **Anti-pattern:**
 
@@ -338,7 +338,7 @@ Phase 0 of `w-initiative` loads a fixed set of files (vision.md, initiatives ind
 - Each entry is a path plus one-line summary of what was relevant.
 - Missing files (e.g., context.md absent) are noted with "(missing)" rather than silently omitted.
 
-**Enforcement:** rule `workflow/grounding-paths-echoed` (mechanism: pending — `scripts/validate-artifacts.ts` will check §1 contains a `Sources read` heading with ≥3 path entries).
+**Enforcement:** rule `workflow/grounding-paths-echoed` (mechanism: pending — `.gaia/rules/checks/validate-artifacts.ts` will check §1 contains a `Sources read` heading with ≥3 path entries).
 
 **Anti-pattern:**
 
@@ -421,7 +421,7 @@ All eight ship as `pending` in this PR (the existing `validate-artifacts.ts` enf
 - Reference shape: `.claude/skills/h-reference/reference.md` (5-part principle shape)
 - Initiatives index: `.gaia/initiatives/CLAUDE.md`
 - Vision: `.gaia/vision.md`
-- Validation script: `scripts/validate-artifacts.ts`
+- Validation script: `.gaia/rules/checks/validate-artifacts.ts`
 
 ---
 

@@ -43,8 +43,6 @@ Principles live in two surfaces:
 | The constitutional loop       | `.claude/skills/h-rules/reference.md` (methodology + harness + workflow merged) |
 | Writing SKILL.md files        | `.claude/skills/h-skill/reference.md`                                           |
 | Writing reference files       | `.claude/skills/h-reference/reference.md`                                       |
-| Onboarding / activation       | `.gaia/reference/product/onboarding.md`                                         |
-| Retention / dunning           | `.gaia/reference/product/retention.md`                                          |
 | Currently being worked on     | `.gaia/initiatives/CLAUDE.md` (11-row index of 0001–0011)                       |
 | Latest data snapshot          | `.gaia/initiatives/context.md`                                                  |
 | What's allowed/blocked        | `.gaia/protocols/permissions.md`                                                |
