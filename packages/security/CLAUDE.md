@@ -1052,17 +1052,19 @@ These are acknowledged in `docs/adr/0015-security-model.md`. Mitigations at the 
 - ADRs: `docs/adr/0015-security-model.md`, `docs/adr/0023-public-routes-justification.md`
 
 ---
+
 <!-- AUTO-GENERATED BELOW — do not edit manually -->
 
 ## Files
-| File | Exports |
-|------|---------|
-| ai-budget.ts | Tier, todayUtc, budgetFor, assertAiBudget, recordAiUsage |
-| audit-log.ts | AuditEntry, auditLog |
-| harden-check.ts | — |
-| protected-route.ts | userRoutes, protectedRoute |
-| public-route.ts | healthRoutes, publicRoute |
-| rate-limits.ts | bucketWindow, checkRateLimit, limits, clientIp |
-| security-headers.ts | applySecurityHeaders |
+
+| File                | Exports                                                  |
+| ------------------- | -------------------------------------------------------- |
+| ai-budget.ts        | Tier, todayUtc, budgetFor, assertAiBudget, recordAiUsage |
+| audit-log.ts        | AuditEntry, auditLog                                     |
+| harden-check.ts     | —                                                        |
+| protected-route.ts  | userRoutes, protectedRoute                               |
+| public-route.ts     | healthRoutes, publicRoute                                |
+| rate-limits.ts      | bucketWindow, checkRateLimit, limits, clientIp           |
+| security-headers.ts | applySecurityHeaders                                     |
 
 <!-- Generated: 2026-04-30T11:12:48.512Z -->

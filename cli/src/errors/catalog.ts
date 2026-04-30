@@ -274,7 +274,7 @@ export const CATALOG: ReadonlyArray<ErrorEntry> = [
   {
     code: 'E3098_DEPLOY_RUNNER_PENDING',
     cause:
-      'Railway runner is not wired in this build — the standalone-publishable @gaia/cli ships in a future PR.',
+      'Railway runner is not wired in this build — the standalone-publishable create-gaia ships in a future PR.',
     fix: 'Run `railway up` directly until the runner integration ships.',
     docsUrl: `${REPO}#what-if-the-deploy-breaks`,
     nextCommand: 'railway up',

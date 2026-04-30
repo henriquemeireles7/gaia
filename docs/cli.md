@@ -2,7 +2,7 @@
 
 # CLI reference
 
-> The Gaia CLI is published as `@gaia/cli` (with the `gaia` and `create-gaia` binaries) and is the front door of the template. Every verb shares the same standard flag set; live narration is on by default; stdout is reserved for events when `--json` is set.
+> The Gaia CLI is published on npm as `create-gaia` (with the `gaia` and `create-gaia` binaries) and is the front door of the template. Every verb shares the same standard flag set; live narration is on by default; stdout is reserved for events when `--json` is set.
 
 ## Standard flags (every verb supports)
 
