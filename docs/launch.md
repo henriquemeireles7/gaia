@@ -62,7 +62,7 @@ If all pass: continue to "Post-launch tasks" below.
 - [ ] **GitHub topics.** Set `gaia`, `saas-template`, `agent-native`, `claude-code`, `bun`, `typescript` via the repo settings page or `gh repo edit --add-topic`.
 - [ ] **Open Graph card.** Render the README's first viewport to `docs/assets/og.png` (1200×630). Confirm GitHub social-preview shows it.
 - [ ] **Tag v1.0.** `git tag v1.0.0 && git push --tags`. Update `package.json` to `1.0.0`.
-- [ ] **Promote unscoped npm name.** Publish `gaia@1.0.0` on npm pointing at the same code as `@gaia/cli@1.0.0`.
+- [ ] **npm publish at v1.0.** Bump `cli/package.json` to `1.0.0` and `cd cli && npm publish`. The `bun create gaia` invocation already resolves to `create-gaia` on npm — v1.0 is just the stability mark.
 - [ ] **Public-flip the repo.** From private to public. Confirm CI still works (the secret-scoped jobs may need adjustments).
 - [ ] **PostHog dashboard.** Bookmark a dashboard tracking `cli.first_run` distribution over the next 14 days. This is the post-launch signal that catches what the single-founder run misses.
 
