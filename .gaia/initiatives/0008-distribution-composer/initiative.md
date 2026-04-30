@@ -47,47 +47,64 @@ The category-defining version: publishing is conversation, posting is async by d
 | Mechanics                       | `packages/mechanics/{referral,capture,gating}/` — audience graph operations                                                           | Multi-stage funnels (defer)                      |
 | Content projection              | `packages/projections/content/` + materialize.ts — drafts channel content from feature shipments                                      | —                                                |
 | Adapters                        | `packages/adapters/social/` (X, LinkedIn, Bluesky, Threads), `packages/adapters/broadcast/` (Resend Audiences, Mailchimp, ConvertKit) | TikTok, YouTube (defer)                          |
-| `d-distribute` skill            | Composer flow, scheduling, tracking, syndication orchestration                                                                        | —                                                |
+| `w-distribute` skill            | Composer flow, scheduling, tracking, syndication orchestration                                                                        | —                                                |
 
-**Preserved**: mechanics package carries from v4 unchanged in shape. Channels never import vendor SDKs directly — adapters mediate every external call.
+**Carried forward from v4 vision (no prior implementation)**: the mechanics package shape — referral, capture, gating as audience-graph operations — is the v4 design. No v4 code existed; implementation lands here in 0008 as a NEW package. Channels never import vendor SDKs directly — adapters mediate every external call (consistent with the existing `packages/adapters/CLAUDE.md` rule).
 
 ## 3. Folder Structure
 
+Disposition: **EXTEND** = additive change to an existing 0004/0005/0006/0007 module; **NEW** = wholly new; **EDIT** = modify a file in the existing scaffold.
+
 ```
-santiago/
+gaia/
 ├── apps/
-│   ├── marketing/                    # NEW — marketing site, triple-rendered
-│   └── composer/                     # NEW — specialized lens on chat for content authoring
+│   ├── marketing/                    # NEW separate SolidStart app — marketing site, triple-rendered, optimized for SEO/perf separately from apps/web
+│   └── web/                          # EDIT (PR 9) — composer is a route in the existing SolidStart app, NOT a separate app/composer (consistent with 0004 §7.15 R-4: chat/timeline are routes in apps/web)
+│       └── src/routes/
+│           └── composer.tsx          # NEW (PR 9) — specialized lens on packages/conversation/stream/ from 0005
 │
 ├── packages/
-│   ├── channels/                     # NEW — outputs that subscribe to events
-│   │   ├── newsletter/               # iii Function for email broadcast with backpressure
+│   ├── channels/                     # NEW package — outputs that subscribe to events
+│   │   ├── newsletter/               # iii Function for email broadcast with backpressure (uses existing packages/adapters/email.ts as the underlying provider; new social/broadcast subdir adapters land below)
 │   │   ├── social/                   # iii Function for social posting with backpressure
 │   │   ├── broadcast/                # iii Function for transactional + marketing
-│   │   └── network/                  # syndication via local materialized inbox
-│   │       └── (depends on packages/replicas/ from 0005)
+│   │   └── network/                  # syndication via local materialized inbox (depends on packages/replicas/ from 0005)
 │   │
-│   ├── mechanics/                    # NEW — primitives that mutate the audience graph
+│   ├── mechanics/                    # NEW package — primitives that mutate the audience graph (v4 vision shape; no prior code existed)
 │   │   ├── referral/
 │   │   ├── capture/
 │   │   └── gating/
 │   │
-│   ├── projections/
-│   │   └── content/                  # NEW — contracts + events → channel content drafts
-│   │       └── materialize.ts
+│   ├── projections/                  # EXTEND (created in 0006) — package gains a content/ subdirectory
+│   │   └── content/                  # NEW subdir (PR 8) — contracts + events → channel content drafts; materialize.ts implements the 0005 handler contract
 │   │
-│   └── adapters/
-│       ├── social/                   # NEW — X, LinkedIn, Bluesky, Threads
-│       └── broadcast/                # NEW — Resend Audiences, Mailchimp, ConvertKit
+│   ├── adapters/                     # EXTEND (existing flat-file package) — add subdirs alongside existing payments.ts, email.ts, analytics.ts, storage.ts, markdown.ts, llm/
+│   │   ├── social/                   # NEW subdir — X, LinkedIn, Bluesky, Threads. Each provider is a sibling file (per packages/adapters/CLAUDE.md: "ONE file per capability, named by WHAT not WHO")
+│   │   └── broadcast/                # NEW subdir — Resend Audiences, Mailchimp, ConvertKit. Note: existing packages/adapters/email.ts is the SINGLE-EMAIL provider (welcome, transactional one-shots); broadcast/ is the LIST-EMAIL provider; do not collapse the two
+│   │
+│   └── db/                           # EDIT — extend existing packages/db/schema/ per 0004 §7.15 R-3
+│       └── schema/
+│           ├── audience.ts           # NEW — referral graph, capture submissions, gating rules state
+│           ├── channel-deliveries.ts # NEW — per-attempt delivery audit (channel, vendor, success, error, retry_count, occurred_at, tenant_id)
+│           ├── content-drafts.ts     # NEW — content projection state
+│           ├── subscriptions.ts      # EDIT-EXISTING — note: a `subscriptions` table already exists for Polar billing; 0008 needs a different table for newsletter subscribers — name the new one `newsletter_subscribers.ts` to avoid the collision
+│           └── newsletter-subscribers.ts # NEW — list-membership records
 │
-├── content/
-│   ├── social/                       # NEW — scheduled and published social posts
-│   ├── newsletters/                  # NEW — newsletter issues and templates
-│   └── magnets/                      # NEW — lead magnet content
+├── content/                          # NEW top-level content tree (markdown + frontmatter under git)
+│   ├── social/                       # scheduled and published social posts
+│   ├── newsletters/                  # newsletter issues and templates
+│   └── magnets/                      # lead magnet content
 │
 └── .claude/skills/
-    └── d-distribute/                 # NEW — composer flow, scheduling, tracking, syndication
+    └── w-distribute/                 # NEW — composer flow, scheduling, tracking, syndication
 ```
+
+**App-routing extensions** (added per the 0004 §7.15 reconciliation pattern):
+
+- `apps/api/server/app.ts` — EDIT (PR 6, 7): mount channel-status routes (`/channels/:name/status`) and webhook receivers from social platforms (`/webhooks/{x,linkedin,bluesky,threads,resend-audiences,mailchimp,convertkit}`). Reuse existing Polar-webhook signature verification pattern from `apps/api/server/billing.ts`.
+- `apps/api/server/billing.ts` — REFERENCE only; the existing Polar webhook flow is the template for new vendor webhook handlers above.
+- `apps/web/src/routes/composer.tsx` — NEW (PR 9): composer route as described above.
+- `apps/marketing/` — NEW SolidStart app (PR 10) with its own deploy unit.
 
 ## 4. Implementation
 
@@ -103,7 +120,7 @@ santiago/
 8. `apps/composer/` — specialized lens on `packages/conversation/stream/`. Streaming progress visible as posts go out.
 9. `apps/marketing/` — triple-rendered marketing site. Renders against materialized projections.
 10. `content/{social,newsletters,magnets}/` — content surfaces.
-11. `.claude/skills/d-distribute/` — composer orchestration skill.
+11. `.claude/skills/w-distribute/` — composer orchestration skill.
 12. End-of-wave audit: p99 publish-request latency <500ms; 0 synchronous cross-instance polls; <1% vendor rate-limit violations under load.
 
 **Risks**:
@@ -137,7 +154,7 @@ santiago/
 | 9   | `apps/composer/` — specialized lens on chat                    | composer UI, scheduling controls, status panel                    | pending |
 | 10  | `apps/marketing/` — triple-rendered                            | marketing site, MCP descriptors, pricing                          | pending |
 | 11  | `content/{social,newsletters,magnets}/`                        | content surfaces                                                  | pending |
-| 12  | `.claude/skills/d-distribute/`                                 | composer skill                                                    | pending |
+| 12  | `.claude/skills/w-distribute/`                                 | composer skill                                                    | pending |
 | 13  | Wave 3 audit                                                   | publish p99 + 0 sync polls + <1% rate-limit violations under load | pending |
 
 ## 6. Decision Audit Trail
@@ -151,3 +168,30 @@ santiago/
 | F-5 | Composer is a specialized lens on `packages/conversation/stream/`, not a separate UI.                             | Founder 2026-04-29 (v5 vision §Wave 3) |
 | F-6 | Channels never import vendor SDKs directly. Adapters mediate every external call.                                 | Founder 2026-04-29 (v5 vision §Wave 3) |
 | F-7 | Inbound network/ inbox retention: 90 days default, founder-mutable per-subscription from chat.                    | Founder 2026-04-29                     |
+
+## 7. Existing-scaffold reconciliation (added 2026-04-29)
+
+Mirrors 0004 §7.15. Names the points where 0008 intersects the existing scaffold + prior-wave substrate.
+
+| #    | Decision                                                                                                                                                                                                                                                                                                                                                                                                      | PR(s)      |
+| ---- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ---------- |
+| R-1  | Composer is a route in `apps/web/`, not a new SolidStart app. Consistent with 0004 §7.15 R-4 (chat/timeline). Reuses existing layout, auth, design tokens.                                                                                                                                                                                                                                                    | 9          |
+| R-2  | `apps/marketing/` IS a separate SolidStart app — public marketing site has different perf/SEO requirements + own deploy unit. Justified deviation from R-1.                                                                                                                                                                                                                                                   | 10         |
+| R-3  | `packages/mechanics/` is NEW code; the v4 vision named the shape but no v4 implementation existed. §2 wording corrected.                                                                                                                                                                                                                                                                                      | 7          |
+| R-4  | All new tables go to `packages/db/schema/<entity>.ts` per 0004 §7.15 R-3. The existing `subscriptions` table (Polar billing) is renamed-in-prose to avoid collision; new newsletter membership table is `newsletter_subscribers.ts`.                                                                                                                                                                          | 3, 7, 8    |
+| R-5  | Channel webhooks (X, LinkedIn, Bluesky, Threads, Resend Audiences, Mailchimp, ConvertKit) reuse the Polar-webhook pattern in `apps/api/server/billing.ts` — signature verification at the route, idempotency via the existing `webhook_events` table (provider field expanded with new enum values in PR 1/2 migration). Do NOT add a per-vendor dedup table.                                                 | 1, 2       |
+| R-6  | `packages/adapters/{social,broadcast}/` are SUBDIRS of the existing flat-file adapters package. Each vendor file lives directly under the subdir (`packages/adapters/social/x.ts`, etc.), per the existing "ONE file per capability, named by WHAT not WHO" rule. Where ambiguity arises (`x.ts` could be a brand or a math var), the file is named by capability function (`x-post.ts`, `linkedin-post.ts`). | 1, 2       |
+| R-7  | The existing `packages/adapters/email.ts` (single transactional sends, used today by `packages/workflows/sendWelcome` → migrated to `packages/runtime/functions/send-welcome.ts` in 0004 PR 2) STAYS. `packages/adapters/broadcast/` handles list-email; the two adapters do not overlap.                                                                                                                     | 2          |
+| R-8  | `packages/projections/content/` is a SUBDIR of the existing `packages/projections/` (created in 0006). Its `materialize.ts` implements the per-projection handler contract from 0005 PR 5.                                                                                                                                                                                                                    | 8          |
+| R-9  | iii Functions in this initiative MUST declare `budget` per 0005 R-8 (validate-artifacts.ts rule). Each channel Function has a documented p99 + concurrency budget appropriate to vendor rate limits.                                                                                                                                                                                                          | 3, 4, 5, 6 |
+| R-10 | The `network/` channel (PR 6) consumes `packages/replicas/subscription/` from 0005 PR 6. Inbound inbox is a materialized view from `packages/materialization/` (0005 PR 4). Both must be in place before this PR lands.                                                                                                                                                                                       | 6          |
+
+**Existing-files-touched trace:**
+
+- `apps/api/server/app.ts` — PRs 1, 2, 6 (mount vendor webhook routes + channel-status routes inside existing Elysia app)
+- `packages/db/schema/webhook-events.ts` — PR 1, 2 (expand provider enum to include x|linkedin|bluesky|threads|resend-audiences|mailchimp|convertkit)
+- `packages/db/schema/index.ts` — PRs 3, 7, 8 (add re-exports for new entities)
+- `packages/adapters/CLAUDE.md` — PRs 1, 2 (update Files table with new subdirs)
+- `apps/web/src/routes/composer.tsx` — PR 9 (new route)
+- `apps/web/src/lib/api.ts` — PR 9 (extend Eden Treaty client with composer endpoints)
+- `.gaia/rules/checks/validate-artifacts.ts` — PR 13 (audit invokes the budget-required rule from 0005 against all channel Functions)
