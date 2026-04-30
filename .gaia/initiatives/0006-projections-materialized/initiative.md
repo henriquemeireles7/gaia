@@ -143,16 +143,16 @@ The minimal addition reflects how much Wave 0 already shipped. The MCP server wi
 
 ## 7. Existing-scaffold reconciliation (added 2026-04-29)
 
-| #   | Decision                                                                                                                                                   | PR(s)         |
-| --- | ---------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------- |
-| R-1 | Admin is a route in `apps/web/`, not a new SolidStart app. Pattern match with chat/timeline/composer/labor across 0004, 0008, 0009. Single auth context, shared design tokens, one deploy unit. | 1 |
-| R-2 | New tables (`projection-versions`, `saved-views`) go to `packages/db/schema/` per 0004 §7.15 R-3. | 6, 7 |
-| R-3 | Each projection's `materialize.ts` implements the 0005 PR 5 handler contract; do not invent a new contract here. | 2, 3, 5 |
+| #   | Decision                                                                                                                                                                                                                | PR(s)      |
+| --- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ---------- |
+| R-1 | Admin is a route in `apps/web/`, not a new SolidStart app. Pattern match with chat/timeline/composer/labor across 0004, 0008, 0009. Single auth context, shared design tokens, one deploy unit.                         | 1          |
+| R-2 | New tables (`projection-versions`, `saved-views`) go to `packages/db/schema/` per 0004 §7.15 R-3.                                                                                                                       | 6, 7       |
+| R-3 | Each projection's `materialize.ts` implements the 0005 PR 5 handler contract; do not invent a new contract here.                                                                                                        | 2, 3, 5    |
 | R-4 | Each projection's MCP descriptor registers in `packages/mcp/registry/` (created in 0004 PR 5). Push notifications fire on registry change via 0005 PR 8's `packages/mcp/push/`. No new MCP plumbing in this initiative. | 2, 3, 4, 5 |
-| R-5 | Per-projection pricing descriptors emit `capability.invoked` events via `packages/events/emit/` (0004 PR 3). The meter Function (0004 PR 8) aggregates them; no new metering plumbing. | 2, 3, 5 |
-| R-6 | Conversational command palette in admin uses `packages/conversation/stream/` from 0005 PR 9 — the same streaming primitives the chat surface uses. Specialized lens, not new surface. | 1 |
-| R-7 | Schema migrations (PR 6) emit `migration.*` events to the existing event stream; the materialization replay reads from `packages/events/snapshot/` (0005 PR 3) to bootstrap new projection versions. | 6 |
-| R-8 | iii Functions (each materialize.ts becomes one) MUST declare `budget` per 0005 R-8 (validate-artifacts.ts). | 2, 3, 5 |
+| R-5 | Per-projection pricing descriptors emit `capability.invoked` events via `packages/events/emit/` (0004 PR 3). The meter Function (0004 PR 8) aggregates them; no new metering plumbing.                                  | 2, 3, 5    |
+| R-6 | Conversational command palette in admin uses `packages/conversation/stream/` from 0005 PR 9 — the same streaming primitives the chat surface uses. Specialized lens, not new surface.                                   | 1          |
+| R-7 | Schema migrations (PR 6) emit `migration.*` events to the existing event stream; the materialization replay reads from `packages/events/snapshot/` (0005 PR 3) to bootstrap new projection versions.                    | 6          |
+| R-8 | iii Functions (each materialize.ts becomes one) MUST declare `budget` per 0005 R-8 (validate-artifacts.ts).                                                                                                             | 2, 3, 5    |
 
 **Existing-files-touched trace:**
 

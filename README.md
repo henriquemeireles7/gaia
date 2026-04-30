@@ -30,7 +30,7 @@ The one-person unicorn — a solo founder who wants to build and scale a softwar
 | Auth            | [better-auth](https://www.better-auth.com)                                                |
 | Payments        | [Polar](https://polar.sh) (merchant-of-record, solo-friendly)                             |
 | Email           | [Resend](https://resend.com)                                                              |
-| Background jobs | [Inngest](https://www.inngest.com)                                                        |
+| Background jobs | [iii](https://iii.dev)                                                                    |
 | Analytics       | [PostHog](https://posthog.com)                                                            |
 | Errors          | [Sentry](https://sentry.io)                                                               |
 | Logs/traces     | [Axiom](https://axiom.co) + [OpenTelemetry](https://opentelemetry.io)                     |

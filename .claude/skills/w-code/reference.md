@@ -215,7 +215,7 @@ Every recurring concern has exactly one canonical location. If an agent has to g
 | DB schema             | `packages/db/src/schema.ts`                            |
 | DB migrations         | `packages/db/migrations/`                              |
 | External adapters     | `packages/adapters/src/*.ts` (one file per capability) |
-| Inngest workflows     | `packages/workflows/src/*.ts`                          |
+| iii workflows         | `packages/workflows/*.ts`                              |
 | API response helpers  | `packages/api/src/responses.ts`                        |
 | Shared middleware     | `packages/api/src/middleware/`                         |
 | Design tokens         | `packages/ui/src/tokens.ts`                            |
@@ -286,7 +286,7 @@ Every boundary that data crosses emits exactly one observability signal. No boun
 | Error thrown                    | Error event with context | Sentry                    |
 | User action completed           | Product event            | PostHog                   |
 | Adapter call (external service) | Structured log           | Axiom                     |
-| Inngest workflow step           | Step event               | Inngest built-in + Axiom  |
+| iii workflow step               | Step event               | iii engine + Axiom        |
 | Auth state change               | Audit log                | `packages/security/audit` |
 
 When you ask "why did X happen," the answer exists in exactly one place. Logs are structured JSON, not formatted strings. `console.log` is forbidden in shipped code.
@@ -1020,7 +1020,7 @@ TypeScript offers two styles: throw exceptions, or return `Result<T, E>`. Mixing
 - **Throw** for domain errors in services, routes, adapters — the common case
 - **Result<T, E>** reserved for specific seams where partial success matters:
   - LLM response parsing (the response may be valid or malformed — not exceptional)
-  - Inngest workflow steps (retry decision depends on error type)
+  - iii workflow steps (retry decision depends on error type)
   - External API clients where the caller must inspect error shape
 
 **Pattern (throw — default):**
@@ -1313,41 +1313,41 @@ Same client response. Different log entries. Attackers see one error; security t
 
 ---
 
-### 7. Retryable flag drives Inngest and client behavior
+### 7. Retryable flag drives iii and client behavior
 
 Infrastructure errors (timeout, service down) are retryable. Business errors (conflict, validation, not found) are not. The catalog's `retryable` field drives:
 
-- **Inngest workflow steps**: automatically retry on `retryable: true`, fail fast on `false`
+- **iii workflow steps**: throw on infrastructure failure (iii retries per queue config); return a failure-shape payload for business errors (no retry)
 - **Client (Solid)**: retry network error on `retryable: true`; show immediate error for `false`
 - **Rate limiter**: `RATE_LIMITED` is retryable after `Retry-After`
 
-**Pattern (Inngest step):**
+**Pattern (iii step):**
 
 ```ts
-// packages/workflows/src/billing.ts
-import { inngest } from './client'
+// packages/workflows/billing.ts
+import { iii, logger } from './index'
 import { GaiaError } from '@gaia/errors'
 
-export const syncSubscription = inngest.createFunction(
-  { id: 'sync-subscription' },
-  { event: 'billing/subscription.updated' },
-  async ({ event, step }) => {
-    await step.run('update-db', async () => {
-      try {
-        return await db
-          .update(subscriptions)
-          .set({ status: event.data.status })
-          .where(eq(subscriptions.id, event.data.subscriptionId))
-      } catch (e) {
-        if (e instanceof GaiaError && !e.retryable) {
-          throw new inngest.NonRetriableError(e.message, { cause: e })
-        }
-        throw e // Inngest retries automatically
+export const syncSubscriptionRef = iii.registerFunction(
+  'billing::sync-subscription',
+  async ({ payload }) => {
+    const { subscriptionId, status } = payload as { subscriptionId: string; status: string }
+    try {
+      await db.update(subscriptions).set({ status }).where(eq(subscriptions.id, subscriptionId))
+      return { synced: subscriptionId }
+    } catch (e) {
+      if (e instanceof GaiaError && !e.retryable) {
+        // Business error — return failure shape; iii will not retry.
+        logger.warn('billing.sync.fatal', { code: e.code })
+        return { failed: true, code: e.code }
       }
-    })
+      throw e // iii retries per queue config
+    }
   },
 )
 ```
+
+iii has no `NonRetriableError` class today — encode "fatal" via the return value (see `packages/workflows/CLAUDE.md` #6).
 
 ---
 
@@ -1378,8 +1378,12 @@ try {
   await sendEmail(user.email, template)
 } catch (e) {
   if (e instanceof GaiaError && e.code === 'EXTERNAL_SERVICE_DOWN') {
-    // Queue for retry via Inngest
-    await inngest.send({ name: 'email/retry', data: { userId: user.id, template } })
+    // Queue for retry via iii
+    await iii.trigger({
+      function_id: 'email::retry',
+      payload: { userId: user.id, template, idempotencyKey: `email-retry-${user.id}-${template}` },
+      action: TriggerAction.Enqueue({ queue: 'email-dlq' }),
+    })
     return
   }
   throw e // unknown — propagate
@@ -1532,17 +1536,17 @@ Adding new codes: PR modifies `codes.ts` and `messages.ts`. Build fails if they'
 
 ## Quick reference
 
-| Need                     | Pattern                                            |
-| ------------------------ | -------------------------------------------------- |
-| Throw a domain error     | `throwError('CODE', { context: {...} })`           |
-| Wrap an external error   | `throwError('CODE', { cause: e, context: {...} })` |
-| Catch specific error     | `if (e instanceof GaiaError && e.code === 'X')`    |
-| Get HTTP status          | Automatic via `onError` middleware                 |
-| Client-facing message    | Automatic via `userFacingMessage()`                |
-| Retry decision (Inngest) | `e.retryable` (automatic)                          |
-| Parse LLM response       | `parseLLMResponse()` returns `Result<T, E>`        |
-| Catch boundary in UI     | `<ErrorBoundary fallback={...}>`                   |
-| Redaction in logs        | Automatic via logger                               |
+| Need                   | Pattern                                                         |
+| ---------------------- | --------------------------------------------------------------- |
+| Throw a domain error   | `throwError('CODE', { context: {...} })`                        |
+| Wrap an external error | `throwError('CODE', { cause: e, context: {...} })`              |
+| Catch specific error   | `if (e instanceof GaiaError && e.code === 'X')`                 |
+| Get HTTP status        | Automatic via `onError` middleware                              |
+| Client-facing message  | Automatic via `userFacingMessage()`                             |
+| Retry decision (iii)   | Throw → retry per queue config; return failure shape → no retry |
+| Parse LLM response     | `parseLLMResponse()` returns `Result<T, E>`                     |
+| Catch boundary in UI   | `<ErrorBoundary fallback={...}>`                                |
+| Redaction in logs      | Automatic via logger                                            |
 
 ---
 

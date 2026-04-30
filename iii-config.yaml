@@ -1,0 +1,91 @@
+# iii-config.yaml — engine config for the iii Rust binary.
+#
+# Schema reference: https://iii.dev/docs/how-to/configure-engine
+# Per-worker schemas: https://iii.dev/docs/workers/
+#
+# Run locally:   iii --config iii-config.yaml
+# In Docker:     image iiidev/iii:latest baked with this file at /app/config.yaml
+#
+# Engine ports (defaults):
+#   - 3111  HTTP API
+#   - 3112  Streams API
+#   - 49134 Worker WebSocket  (← gaia-api connects here via III_URL)
+#   - 9464  Prometheus metrics
+
+workers:
+  # Worker manager — accepts SDK worker registrations over WebSocket.
+  - name: iii-worker-manager
+
+  # HTTP worker — required to expose /health and HTTP triggers on port 3111.
+  # Without this, the engine only listens on the worker WebSocket port.
+  - name: iii-http
+    config:
+      host: 0.0.0.0
+      port: 3111
+
+  # Queue worker — durable retry policy. Function handlers in
+  # packages/workflows/ throw on infrastructure failures; the engine
+  # retries per the queue config below. After max_retries, jobs land
+  # in the matching DLQ with the original payload + last error.
+  # See packages/workflows/CLAUDE.md §5 for the contract.
+  - name: iii-queue
+    config:
+      queue_configs:
+        # Default queue for transactional emails (welcome, verification, reset).
+        # Resend is reliable; 3 retries with 1s exponential backoff covers
+        # transient network blips without hammering the provider.
+        email-default:
+          max_retries: 3
+          concurrency: 10
+          type: standard
+          backoff_ms: 1000
+          poll_interval_ms: 100
+
+        # Dead-letter queue for transactional emails. Slower retries, single
+        # worker. Ops monitors via the engine console.
+        email-dlq:
+          max_retries: 5
+          concurrency: 1
+          type: standard
+          backoff_ms: 5000
+          poll_interval_ms: 500
+
+        # Billing and subscription mutations. Lower concurrency to serialize
+        # against Polar's rate limits; longer backoff because we'd rather
+        # delay than fail a charge.
+        billing-critical:
+          max_retries: 5
+          concurrency: 2
+          type: standard
+          backoff_ms: 2000
+          poll_interval_ms: 200
+
+        # Analytics + audit pipeline. Volume-tolerant; loss-tolerant.
+        audit-default:
+          max_retries: 2
+          concurrency: 20
+          type: standard
+          backoff_ms: 500
+          poll_interval_ms: 100
+      adapter:
+        name: builtin
+        config:
+          store_method: file_based
+          file_path: /data/queue_store
+
+  # State worker — distributed key/value with reactive triggers.
+  # Used by features that need durable shared state across functions.
+  - name: iii-state
+    config:
+      adapter:
+        name: kv
+        config:
+          store_method: file_based
+          file_path: /data/state_store
+          save_interval_ms: 5000
+
+  # Cron worker — schedule functions on cron expressions.
+  - name: iii-cron
+
+  # PubSub worker — topic-based fan-out.
+  - name: iii-pubsub

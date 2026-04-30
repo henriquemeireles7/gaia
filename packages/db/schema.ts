@@ -81,11 +81,15 @@ export const subscriptions = pgTable(
 )
 
 // ============================================================
-// Webhook idempotency (Polar + Inngest)
+// Webhook + workflow idempotency (Polar + iii + audit)
 // ============================================================
+// `provider` is a TS-only enum — the column is plain text in Postgres,
+// so renaming a value (e.g. 'inngest' → 'iii') needs no SQL migration,
+// only a one-shot data backfill (see scripts/backfill-iii-provider.ts
+// when the engine ships).
 export const webhookEvents = pgTable('webhook_events', {
   id: uuid('id').defaultRandom().primaryKey(),
-  provider: text('provider', { enum: ['polar', 'inngest', 'audit'] }).notNull(),
+  provider: text('provider', { enum: ['polar', 'iii', 'audit'] }).notNull(),
   externalEventId: text('external_event_id').notNull().unique(),
   eventType: text('event_type').notNull(),
   processedAt: timestamp('processed_at').notNull().defaultNow(),

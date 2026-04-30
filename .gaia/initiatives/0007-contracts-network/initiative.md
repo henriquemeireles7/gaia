@@ -155,17 +155,17 @@ gaia/
 
 ## 7. Existing-scaffold reconciliation (added 2026-04-29)
 
-| #   | Decision                                                                                                                                                       | PR(s)        |
-| --- | -------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------ |
-| R-1 | `apps/docs/` is a separate SolidStart app (NOT a route in apps/web). Justification mirrors `apps/marketing/` from 0008 §7 R-2: SEO/perf characteristics differ from the operating apps/web surface. | 7 |
-| R-2 | `packages/adapters/search.ts` is a SINGLE FILE in the existing flat-file adapters package — per `packages/adapters/CLAUDE.md` "ONE file per capability." If internal modules grow, refactor to a subdir later. The original §3 directory `packages/adapters/search/` is replaced by the file. | 1 |
-| R-3 | New tables (`embeddings`, `contracts-cache`, `network-index`, `docs-projection`) go to `packages/db/schema/` per 0004 §7.15 R-3. PR 3 adds the pgvector extension via a hand-edited migration in `packages/db/migrations/`; that's the only out-of-band SQL move. | 3, 4, 5 |
-| R-4 | `packages/projections/{docs,changelog}/` are SUBDIRS of the existing `packages/projections/` (created in 0006). Each materialize.ts implements the 0005 PR 5 handler contract. | 5, 6 |
-| R-5 | `packages/contracts/network/` (PR 4) consumes `packages/replicas/subscription/` from 0005 PR 6. Push refresh wires through `packages/mcp/push/` (0005 PR 8). | 4 |
-| R-6 | Inline contextual help (PR 8) is a component in `apps/web/src/components/help/`, consumed by routes in admin/billing/labor — not a separate help app. | 8 |
-| R-7 | Decision authoring dialog (PR 9) consumes `packages/conversation/stream/` from 0005 PR 9. | 9 |
-| R-8 | iii Functions (each materialize.ts becomes one) MUST declare `budget` per 0005 R-8 (validate-artifacts.ts). | 5, 6 |
-| R-9 | The contract-query route in `apps/api/server/app.ts` (PR 4) is mounted alongside the existing routes (auth, billing, mcp); no separate Elysia app. | 4 |
+| #   | Decision                                                                                                                                                                                                                                                                                      | PR(s)   |
+| --- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------- |
+| R-1 | `apps/docs/` is a separate SolidStart app (NOT a route in apps/web). Justification mirrors `apps/marketing/` from 0008 §7 R-2: SEO/perf characteristics differ from the operating apps/web surface.                                                                                           | 7       |
+| R-2 | `packages/adapters/search.ts` is a SINGLE FILE in the existing flat-file adapters package — per `packages/adapters/CLAUDE.md` "ONE file per capability." If internal modules grow, refactor to a subdir later. The original §3 directory `packages/adapters/search/` is replaced by the file. | 1       |
+| R-3 | New tables (`embeddings`, `contracts-cache`, `network-index`, `docs-projection`) go to `packages/db/schema/` per 0004 §7.15 R-3. PR 3 adds the pgvector extension via a hand-edited migration in `packages/db/migrations/`; that's the only out-of-band SQL move.                             | 3, 4, 5 |
+| R-4 | `packages/projections/{docs,changelog}/` are SUBDIRS of the existing `packages/projections/` (created in 0006). Each materialize.ts implements the 0005 PR 5 handler contract.                                                                                                                | 5, 6    |
+| R-5 | `packages/contracts/network/` (PR 4) consumes `packages/replicas/subscription/` from 0005 PR 6. Push refresh wires through `packages/mcp/push/` (0005 PR 8).                                                                                                                                  | 4       |
+| R-6 | Inline contextual help (PR 8) is a component in `apps/web/src/components/help/`, consumed by routes in admin/billing/labor — not a separate help app.                                                                                                                                         | 8       |
+| R-7 | Decision authoring dialog (PR 9) consumes `packages/conversation/stream/` from 0005 PR 9.                                                                                                                                                                                                     | 9       |
+| R-8 | iii Functions (each materialize.ts becomes one) MUST declare `budget` per 0005 R-8 (validate-artifacts.ts).                                                                                                                                                                                   | 5, 6    |
+| R-9 | The contract-query route in `apps/api/server/app.ts` (PR 4) is mounted alongside the existing routes (auth, billing, mcp); no separate Elysia app.                                                                                                                                            | 4       |
 
 **Existing-files-touched trace:**
 
