@@ -120,7 +120,7 @@ const session = await db.query.sessions.findFirst({ where: eq(sessions.id, token
 **Enforcement:**
 
 - `protectedRoute` is the only file that calls `auth.api.getSession`.
-- Lint rule — routes that read `request.headers.cookie` directly trigger `/d-review` flag.
+- Lint rule — routes that read `request.headers.cookie` directly trigger `/w-review` flag.
 
 ---
 
@@ -290,7 +290,7 @@ if (!verified) throw new AppError('WRONG_PASSWORD')
 
 **Enforcement:**
 
-- Code review flag — any new auth-adjacent error code that distinguishes "user" vs "credential" failure triggers `/d-review`.
+- Code review flag — any new auth-adjacent error code that distinguishes "user" vs "credential" failure triggers `/w-review`.
 - Integration test — login with non-existent email and login with wrong password return identical body and headers (timing comparison test).
 
 ---
@@ -529,7 +529,7 @@ const internal = (auth as any).$context.adapter.findOne(...) // locks Gaia to Be
 
 ## Cross-references
 
-- Code principles: `.claude/skills/d-code/reference.md`
+- Code principles: `.claude/skills/w-code/reference.md`
 - Backend patterns: `apps/api/CLAUDE.md` (route guards, schema imports)
 - Security: `packages/security/CLAUDE.md` (#1 protected by default, #5 sessions, #6 CSRF)
 - Errors: `packages/errors/CLAUDE.md` (#6 uniform auth errors)

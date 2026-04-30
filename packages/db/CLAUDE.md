@@ -444,9 +444,10 @@ _This file is versioned. Changes that contradict `code.md` require an ADR._
 <!-- AUTO-GENERATED BELOW — do not edit manually -->
 
 ## Files
-| File | Exports |
-|------|---------|
-| client.ts | db |
+
+| File      | Exports                                                                                                     |
+| --------- | ----------------------------------------------------------------------------------------------------------- |
+| client.ts | db                                                                                                          |
 | schema.ts | users, sessions, accounts, verifications, subscriptions, webhookEvents, apiKeys, User, Subscription, ApiKey |
 
 <!-- Generated: 2026-04-30T04:29:01.874Z -->

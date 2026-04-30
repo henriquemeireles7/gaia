@@ -57,9 +57,10 @@ The bulk of the constitution lives in two surfaces (Initiative 0001):
 <!-- AUTO-GENERATED BELOW — do not edit manually -->
 
 ## Files
-| File | Exports |
-|------|---------|
-| rules.ts | SkillDomain, RuleTier, Mechanism, Rule, rules, RuleId, findRule, rulesForSkill, rulesByMechanism, blockedFor, enforcedSkills |
-| vision.md | Gaia |
+
+| File      | Exports                                                                                                                      |
+| --------- | ---------------------------------------------------------------------------------------------------------------------------- |
+| rules.ts  | SkillDomain, RuleTier, Mechanism, Rule, rules, RuleId, findRule, rulesForSkill, rulesByMechanism, blockedFor, enforcedSkills |
+| vision.md | Gaia                                                                                                                         |
 
 <!-- Generated: 2026-04-30T04:29:01.873Z -->

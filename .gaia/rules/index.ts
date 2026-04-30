@@ -29,7 +29,10 @@ import type { Mechanism, Rule, SkillDomain } from './types'
 
 import * as appsApi from './folders/apps/api'
 import * as appsWeb from './folders/apps/web'
+import * as packagesAdapters from './folders/packages/adapters'
+import * as packagesAuth from './folders/packages/auth'
 import * as packagesDb from './folders/packages/db'
+import * as packagesSecurity from './folders/packages/security'
 import * as packagesUi from './folders/packages/ui'
 import * as aAi from './skills/a-ai'
 import * as aDx from './skills/a-dx'
@@ -61,7 +64,10 @@ export const rules = [
   ...hSkill.hSkillRules,
   ...appsApi.appsApiRules,
   ...appsWeb.appsWebRules,
+  ...packagesAdapters.packagesAdaptersRules,
+  ...packagesAuth.packagesAuthRules,
   ...packagesDb.packagesDbRules,
+  ...packagesSecurity.packagesSecurityRules,
   ...packagesUi.packagesUiRules,
 ] as const
 

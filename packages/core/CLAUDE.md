@@ -731,8 +731,8 @@ If the trace ID can't join across Axiom and Sentry, observability is broken — 
 
 ## Cross-references
 
-- Code principles: `.claude/skills/d-code/reference.md` (#8 every boundary emits observability)
+- Code principles: `.claude/skills/w-code/reference.md` (#8 every boundary emits observability)
 - Errors: `packages/errors/CLAUDE.md` (trace ID, observability boundary)
 - Security: `packages/security/CLAUDE.md` (redaction, audit log)
-- Testing: `.claude/skills/d-code/reference.md` (observability testing)
-- Audit skill: `.claude/skills/d-observability/reference.md`
+- Testing: `.claude/skills/w-code/reference.md` (observability testing)
+- Audit skill: `.claude/skills/a-observability/reference.md`

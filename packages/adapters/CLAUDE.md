@@ -453,7 +453,7 @@ async function sendEmail(to, msg) {
 **Enforcement:**
 
 - Lint rule — adapter functions may not contain retry loops or exponential backoff.
-- Code review flag — `setTimeout` / `sleep` inside `packages/adapters/` triggers `/d-review`.
+- Code review flag — `setTimeout` / `sleep` inside `packages/adapters/` triggers `/w-review`.
 
 See `packages/workflows/CLAUDE.md` for queue config and retry behavior.
 
@@ -575,10 +575,10 @@ Adding a new capability: create `packages/adapters/<capability>.ts`, register in
 
 ## Cross-references
 
-- Code principles: `.claude/skills/d-code/reference.md` (#4 capability-named modules)
+- Code principles: `.claude/skills/w-code/reference.md` (#4 capability-named modules)
 - Backend integration: `apps/api/CLAUDE.md`
 - Errors: `packages/errors/CLAUDE.md` (`ProviderError` mapping to `AppError`)
 - Security: `packages/security/CLAUDE.md` (#11 SSRF, #12 LLM untrust)
 - Observability: `packages/core/CLAUDE.md` (spans, dual-write to PostHog)
 - Workflows / retry: `packages/workflows/CLAUDE.md`
-- AI audit: `.claude/skills/d-ai/reference.md`
+- AI audit: `.claude/skills/a-ai/reference.md`

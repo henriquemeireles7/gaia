@@ -370,7 +370,7 @@ try {
 }
 ```
 
-**Enforcement:** Oxlint rule — `catch (e) {}` (empty body) fails lint. Catch blocks that only log without re-throwing, handling, or wrapping trigger `/d-review` flag.
+**Enforcement:** Oxlint rule — `catch (e) {}` (empty body) fails lint. Catch blocks that only log without re-throwing, handling, or wrapping trigger `/w-review` flag.
 
 ---
 
@@ -492,7 +492,7 @@ Adding new codes: PR modifies `index.ts`. Build fails if `ErrorCode` type usage 
 
 ## Cross-references
 
-- Code principles: `.claude/skills/d-code/reference.md`
+- Code principles: `.claude/skills/w-code/reference.md`
 - Backend patterns: `apps/api/CLAUDE.md`
 - Frontend patterns: `apps/web/CLAUDE.md`
 - Observability: `packages/core/CLAUDE.md`

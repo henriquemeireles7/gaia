@@ -14,7 +14,7 @@ The security patterns for Gaia. These implement principle #9 of `code.md` ("secu
 
 `packages/security/` is the runtime home for several of these (route wrappers, audit log, security headers, harden-check). The cross-cutting principles (input validation, secrets, supply chain) live in their owning package; this file is the index.
 
-For audits / scoring / posture review, invoke `/d-security` — that skill walks the live codebase against this reference.
+For audits / scoring / posture review, invoke `/a-security` — that skill walks the live codebase against this reference.
 
 Read `code.md` first.
 
@@ -27,7 +27,7 @@ Gaia aligns to four reference frameworks:
 1. **OWASP API Security Top 10 (2023/2025)** — BOLA, Broken Auth, BOPLA, Resource Consumption, Function Level Auth, Business Flow Abuse, SSRF, Misconfiguration, Inventory, Unsafe Consumption
 2. **OWASP LLM Top 10 (2025, updated 2026)** — Prompt Injection (direct, indirect, multimodal, encoding evasion), Sensitive Info Disclosure, Supply Chain, Data Poisoning, Improper Output Handling, Excessive Agency, System Prompt Leakage, Vector/Embedding Weaknesses, Misinformation, Unbounded Consumption
 3. **OWASP Top 10 (2025 web)** — Broken Access Control, Crypto Failures, Injection (including LLM), Insecure Design, Misconfiguration, Vulnerable Components, Auth Failures, Data Integrity, Logging Failures, SSRF
-4. **OWASP ASVS** — verification standard used in `/d-review` checklists
+4. **OWASP ASVS** — verification standard used in `/w-review` checklists
 
 These are the baseline. Gaia's principles below are the stack-specific implementation.
 
@@ -148,7 +148,7 @@ if (invoice.userId !== user.id) throw new AppError('FORBIDDEN') // leaks existen
 **Enforcement:**
 
 - ID schemas in TypeBox use UUID format only — mass enumeration becomes computationally infeasible.
-- GritQL rule — `db.query.*.findFirst({ where: eq(X.id, ...) })` without a second `eq()` clause (tenant, userId, orgId) triggers `/d-review` flag.
+- GritQL rule — `db.query.*.findFirst({ where: eq(X.id, ...) })` without a second `eq()` clause (tenant, userId, orgId) triggers `/w-review` flag.
 - Security integration test — for every `GET/PUT/DELETE /resource/:id` route, create resource owned by user A, attempt access as user B, assert 404.
 
 ---
@@ -265,7 +265,7 @@ Implemented via Dragonfly (Redis-compatible) keyed by `${flowName}:${ip|userId|e
 
 - Security integration test — hit login endpoint 11 times, assert 11th returns 429.
 - Security integration test — trigger 4 password resets for same email, assert 4th returns 429.
-- Every new route in a known flow (signup, login, password reset, checkout) requires a corresponding flow-limit entry — flagged by `/d-review`.
+- Every new route in a known flow (signup, login, password reset, checkout) requires a corresponding flow-limit entry — flagged by `/w-review`.
 
 ---
 
@@ -855,7 +855,7 @@ const prompt = `You are helpful. User: ${userInput}`
 - Weekly review of LLM call anomalies in PostHog.
 - CSP `img-src` in LLM chat views restricted to `'self' data:` only.
 
-See `.claude/skills/d-ai/reference.md` for the full Anthropic SDK guidance.
+See `.claude/skills/a-ai/reference.md` for the full Anthropic SDK guidance.
 
 ---
 
@@ -943,7 +943,7 @@ Every principle above has an escape hatch. Every escape hatch requires:
 1. **An ADR in `docs/adr/`** explaining why.
 2. **A JSDoc `@adr ADR-XXXX` tag** on the exception.
 3. **A named wrapper** (not a boolean flag) — `publicRoute`, `bypassAuth`, `allowCors`.
-4. **A `/d-review` flag** — surfaces every exception in PR.
+4. **A `/w-review` flag** — surfaces every exception in PR.
 
 Insecurity should feel different from security. The default path (protected, validated, rate-limited, audited) should be the path of least resistance.
 
@@ -981,7 +981,7 @@ Security that isn't tested is assumed-secure, which is the same as insecure. `pa
 | 12. LLM                 | Known prompt injection samples don't leak system prompt or execute tools |
 | 13. Errors/Supply       | Stack traces absent from prod responses; CVE scan blocks merge           |
 
-These tests run on every PR via `/d-review`. Failing security test = blocked merge, no exceptions.
+These tests run on every PR via `/w-review`. Failing security test = blocked merge, no exceptions.
 
 ---
 
@@ -1040,7 +1040,7 @@ These are acknowledged in `docs/adr/0015-security-model.md`. Mitigations at the 
 
 ## Cross-references
 
-- Code principles: `.claude/skills/d-code/reference.md` (#9 security is opinionated)
+- Code principles: `.claude/skills/w-code/reference.md` (#9 security is opinionated)
 - Backend patterns: `apps/api/CLAUDE.md` (route guards)
 - Frontend patterns: `apps/web/CLAUDE.md` (CSP integration, server action auth)
 - Database patterns: `packages/db/CLAUDE.md` (RLS, audit schema)
@@ -1048,5 +1048,5 @@ These are acknowledged in `docs/adr/0015-security-model.md`. Mitigations at the 
 - Errors: `packages/errors/CLAUDE.md` (uniform auth errors, error response shape)
 - Observability: `packages/core/CLAUDE.md` (audit log pipeline, Sentry beforeSend)
 - Adapters: `packages/adapters/CLAUDE.md` (`safeFetch`, LLM untrust)
-- Audit skill: `.claude/skills/d-security/reference.md`
+- Audit skill: `.claude/skills/a-security/reference.md`
 - ADRs: `docs/adr/0015-security-model.md`, `docs/adr/0023-public-routes-justification.md`

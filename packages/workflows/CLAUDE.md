@@ -606,7 +606,7 @@ Adding a new workflow:
 ## Cross-references
 
 - iii docs: `https://iii.dev/docs/`
-- Code principles: `.claude/skills/d-code/reference.md`
+- Code principles: `.claude/skills/w-code/reference.md`
 - Errors / retry classification: `packages/errors/CLAUDE.md` (#7 retryable)
 - Observability: `packages/core/CLAUDE.md` (#5 spans, queue attributes)
 - Adapters: `packages/adapters/CLAUDE.md` (#9 adapters never retry — that's iii's job)
@@ -618,8 +618,9 @@ Adding a new workflow:
 <!-- AUTO-GENERATED BELOW — do not edit manually -->
 
 ## Files
-| File | Exports |
-|------|---------|
+
+| File     | Exports                                |
+| -------- | -------------------------------------- |
 | index.ts | iii, logger, sendWelcomeRef, functions |
 
 <!-- Generated: 2026-04-30T04:29:01.874Z -->
