@@ -37,8 +37,9 @@ Archive: `_archive/` preserves prior initiative documents as research input.
 <!-- AUTO-GENERATED BELOW — do not edit manually -->
 
 ## Files
-| File | Exports |
-|------|---------|
+
+| File       | Exports |
+| ---------- | ------- |
 | context.md | Context |
 
-<!-- Generated: 2026-04-30T04:36:18.609Z -->
+<!-- Generated: 2026-04-29T09:10:35.020Z -->

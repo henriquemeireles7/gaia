@@ -19,9 +19,10 @@ Tool schemas (`tool-schemas/`) are deferred until conductor.build ships a runtim
 <!-- AUTO-GENERATED BELOW — do not edit manually -->
 
 ## Files
-| File | Exports |
-|------|---------|
-| delegation.md | delegation.md |
+
+| File           | Exports        |
+| -------------- | -------------- |
+| delegation.md  | delegation.md  |
 | permissions.md | permissions.md |
 
-<!-- Generated: 2026-04-30T04:36:18.612Z -->
+<!-- Generated: 2026-04-29T09:10:35.022Z -->

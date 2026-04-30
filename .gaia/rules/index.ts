@@ -41,6 +41,7 @@ import * as hRules from './skills/h-rules'
 import * as hSkill from './skills/h-skill'
 import * as wCode from './skills/w-code'
 import * as wDeploy from './skills/w-deploy'
+import * as wInitiative from './skills/w-initiative'
 import * as wWrite from './skills/w-write'
 
 export type { Mechanism, Rule, RuleTier, SkillDomain } from './types'
@@ -49,6 +50,7 @@ export const rules = [
   ...wCode.wCodeRules,
   ...wWrite.wWriteRules,
   ...wDeploy.wDeployRules,
+  ...wInitiative.wInitiativeRules,
   ...aSecurity.aSecurityRules,
   ...aObservability.aObservabilityRules,
   ...aAi.aAiRules,

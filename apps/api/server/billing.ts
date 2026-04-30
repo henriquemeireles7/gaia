@@ -150,8 +150,8 @@ export const billingRoutes = new Elysia({ name: 'billing' })
       try {
         // TODO(@polar-sh/sdk@0.47): Re-attach `user_id` via the new metadata
         // surface. The CheckoutLegacyCreate type in 0.47.1 dropped `metadata`;
-        // pre-merge code (#57 / #58) didn't update the call site. Filed for
-        // follow-up — billing tracks the user via customerEmail until restored.
+        // pre-merge code didn't update the call site. Tracked for follow-up
+        // — billing tracks the user via customerEmail until restored.
         const checkout = await polar.checkouts.create({
           productPriceId: env.POLAR_PRODUCT_ID,
           successUrl: `${env.PUBLIC_APP_URL}/dashboard?upgraded=1`,
