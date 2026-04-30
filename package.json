@@ -1,9 +1,10 @@
 {
   "name": "gaia",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "workspaces": [
     "apps/*",
-    "packages/*"
+    "packages/*",
+    "cli"
   ],
   "type": "module",
   "main": "apps/api/server/app.ts",
@@ -20,7 +21,7 @@
     "check:types": "bunx tsc --noEmit",
     "check:test": "bun test --pass-with-no-tests",
     "check:dead": "bunx knip --reporter compact",
-    "check:scripts": "bun .gaia/rules/checks/check-rules-shards.ts && bun .gaia/rules/checks/check-skills.ts && bun .gaia/rules/checks/check-skill-triggers.ts && bun .gaia/rules/checks/validate-artifacts.ts && bun .gaia/rules/checks/check-tests-exist.ts && bun .gaia/rules/checks/check-tokens-sync.ts && bun .gaia/rules/checks/check-observability-init.ts && bun .gaia/rules/checks/check-marketing-vocab.ts && bun .gaia/rules/checks/check-integration-treaty.ts && bun .gaia/rules/checks/check-cli-stdout.ts && bun .gaia/rules/checks/check-reference-shape.ts && bun .gaia/rules/checks/check-reference-voice.ts && bun .gaia/rules/checks/check-reference-rule-mapping.ts && bun .gaia/rules/checks/check-reference-staleness.ts && bun .gaia/rules/checks/check-hook-determinism.ts && bun .gaia/rules/checks/check-migrations.ts && bun .gaia/rules/checks/check-typebox-derivation.ts",
+    "check:scripts": "bun .gaia/rules/checks/check-rules-shards.ts && bun .gaia/rules/checks/check-skills.ts && bun .gaia/rules/checks/check-skill-triggers.ts && bun .gaia/rules/checks/validate-artifacts.ts && bun .gaia/rules/checks/check-tests-exist.ts && bun .gaia/rules/checks/check-tokens-sync.ts && bun .gaia/rules/checks/check-observability-init.ts && bun .gaia/rules/checks/check-marketing-vocab.ts && bun .gaia/rules/checks/check-integration-treaty.ts && bun .gaia/rules/checks/check-cli-stdout.ts && bun .gaia/rules/checks/check-reference-shape.ts && bun .gaia/rules/checks/check-reference-voice.ts && bun .gaia/rules/checks/check-reference-rule-mapping.ts && bun .gaia/rules/checks/check-reference-staleness.ts && bun .gaia/rules/checks/check-hook-determinism.ts && bun .gaia/rules/checks/check-migrations.ts && bun .gaia/rules/checks/check-typebox-derivation.ts && bun scripts/check-readme.ts && bun scripts/check-state-json-no-secrets.ts && bun scripts/check-env-example-parity.ts",
     "rules:coverage": "bun .gaia/rules/checks/rules-coverage.ts",
     "tokens:generate": "bun scripts/generate-tokens-css.ts",
     "harden": "bun packages/security/harden-check.ts",

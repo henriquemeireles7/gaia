@@ -79,12 +79,16 @@ const tsFiles = walk(ROOT, ['.ts', '.tsx']).filter(
 const codeFiles = tsFiles.filter((f) => !f.endsWith('.test.ts') && !f.endsWith('.test.tsx'))
 const envFile = `${ROOT}/packages/config/env.ts`
 
-// 1. process.env outside packages/config/env.ts. Tooling under scripts/
-//    (build-time / CI-time helpers) may read process.env — they aren't
-//    shipped runtime code.
+// 1. process.env outside packages/config/env.ts. Tooling that runs on the
+//    developer's machine (scripts/, cli/) or inside the agent harness
+//    (.claude/) reads process.env directly — these aren't runtime API code
+//    and the standalone-publishable cli package has no @gaia/* imports by
+//    design (per cli/CLAUDE.md).
 for (const f of codeFiles) {
   if (f === envFile) continue
-  if (f.includes(`${ROOT}/scripts/`) || f.includes('/.claude/')) continue
+  if (f.includes(`${ROOT}/scripts/`) || f.includes(`${ROOT}/cli/`) || f.includes('/.claude/')) {
+    continue
+  }
   scan(f, [
     {
       pattern: /\bprocess\.env\b/,

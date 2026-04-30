@@ -55,6 +55,17 @@
       "name": "@gaia/web",
       "version": "0.0.0",
     },
+    "cli": {
+      "name": "@gaia/cli",
+      "version": "0.2.0",
+      "bin": {
+        "create-gaia": "./src/create.ts",
+        "gaia": "./src/cli.ts",
+      },
+      "dependencies": {
+        "@sinclair/typebox": "^0.32.0",
+      },
+    },
     "packages/adapters": {
       "name": "@gaia/adapters",
       "version": "0.0.0",
@@ -340,6 +351,8 @@
     "@gaia/api-server": ["@gaia/api-server@workspace:apps/api"],
 
     "@gaia/auth": ["@gaia/auth@workspace:packages/auth"],
+
+    "@gaia/cli": ["@gaia/cli@workspace:cli"],
 
     "@gaia/config": ["@gaia/config@workspace:packages/config"],
 
@@ -1888,6 +1901,8 @@
     "@babel/template/@babel/code-frame": ["@babel/code-frame@7.29.0", "", { "dependencies": { "@babel/helper-validator-identifier": "^7.28.5", "js-tokens": "^4.0.0", "picocolors": "^1.1.1" } }, "sha512-9NhCeYjq9+3uxgdtp20LSiJXJvN0FeCtNGpJxuMFZ1Kv3cWUNb6DOhJwUvcVCzKGR66cw4njwM6hrJLqgOwbcw=="],
 
     "@babel/traverse/@babel/code-frame": ["@babel/code-frame@7.29.0", "", { "dependencies": { "@babel/helper-validator-identifier": "^7.28.5", "js-tokens": "^4.0.0", "picocolors": "^1.1.1" } }, "sha512-9NhCeYjq9+3uxgdtp20LSiJXJvN0FeCtNGpJxuMFZ1Kv3cWUNb6DOhJwUvcVCzKGR66cw4njwM6hrJLqgOwbcw=="],
+
+    "@gaia/cli/@sinclair/typebox": ["@sinclair/typebox@0.32.35", "", {}, "sha512-Ul3YyOTU++to8cgNkttakC0dWvpERr6RYoHO2W47DLbFvrwBDJUY31B1sImH6JZSYc4Kt4PyHtoPNu+vL2r2dA=="],
 
     "@isaacs/cliui/string-width": ["string-width@5.1.2", "", { "dependencies": { "eastasianwidth": "^0.2.0", "emoji-regex": "^9.2.2", "strip-ansi": "^7.0.1" } }, "sha512-HnLOCR3vjcY8beoNLtcjZ5/nxn2afmME6lhrDrebokqMap+XbeW8n9TXpPDOqdGK5qcI3oT0GKTW6wC7EMiVqA=="],
 

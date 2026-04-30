@@ -18,6 +18,9 @@
         "src/components/index.ts",
         "app.config.ts"
       ]
+    },
+    "cli": {
+      "entry": ["src/cli.ts", "src/create.ts", "src/preflight.ts", "test/**/*.test.ts"]
     }
   },
   "ignoreDependencies": ["@gaia/web"]

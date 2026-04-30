@@ -114,7 +114,34 @@ Initiative 0011 — Skills Committee. Renames the 17 d-\* skills into three role
 
 ## Unreleased
 
-### Added
+### Added — initiative 0002 (gaia-bootstrap)
+
+- **README rewrite** with locked sections (hero ≤10 lines, demo placeholder, 4-step Quick start, "What you get" matrix, FAQ-of-5). Removed deprecated `decisions/` / "Migration in progress" / `.gaia/MANIFEST.md` references. (PR 1)
+- **GitHub repo metadata** — fixed stale "Douala" name in issue templates; tightened pull_request_template; added `.github/FUNDING.yml`; placeholder `docs/assets/hero.svg` + `docs/assets/README.md`. (PR 1)
+- **`scripts/check-readme.ts`** wired into `bun run check:scripts` — enforces locked-section structure + bans deprecated references. (PR 1)
+- **`cli/` standalone-publishable package** (`@gaia/cli`) with `bin: { gaia, create-gaia }`, Bun ≥1.2 engine constraint. Workspace member. (PR 2)
+- **`bun create gaia@latest <slug>` scaffolder** with banner (TTHW-1 <1000ms benchmark gate), `.gitignore`-first ordering invariant, `.env.local` template (no values), `.gaia/state.json` (env-var names only), boxed "▶ Next: cd <slug> && claude" hand-off. (PR 2)
+- **Preflight checks** — Bun version (E1001), Windows refusal with WSL2 message (E1002), dir-exists semantics (E1003), write-permission probe (E1004). (PR 2)
+- **`.gaia/protocols/cli.ts`** — TYPE-ONLY contract: verb registry, POSIX exit codes, NDJSON event names, TypeBox `StateSchemaV1`. Hooks may import; runtime stays in `cli/src/`. (PR 3)
+- **CLI agent-native primitives** — `cli/src/{events,state,flags,exit-codes,telemetry}.ts` + `cli/src/ui/narrate.ts` (default-on stderr narration with steady-stream timestamps). NDJSON event_v: 1. State.json with TypeBox v1 schema, atomic write (tmp+rename), file lock. POSIX exit codes (0/1/2/64/65/69/70/75/77/78). (PR 3)
+- **Telemetry** — anonymized first-run events with allowlist enforcement, irreversible `machine_id_hash`, 3-tier opt-out (env / flag / config). PostHog wiring deferred to v1.0 publish. (PR 3)
+- **`scripts/check-state-json-no-secrets.ts`** — CI gate scanning state.json for known secret-shape prefixes (case-sensitive, lowercase real prefixes vs uppercase env-var names). (PR 3)
+- **`bun gaia verify-keys`** — sequential provider verification (Polar, Resend, Neon, Railway) with mockable `Fetcher` injection. Soft warnings (Polar pending merchant verify, Resend domain DNS) per F-10. Updates `state.json.verified`. (PR 4)
+- **`bun gaia deploy`** — preflight → Railway deploy → 7-class failure classifier → `d-fail` subprocess → 3-attempt cap with exponential backoff (1s/4s/16s) → optional `--with-ci` for `gh secret set` sync. (PR 5)
+- **`bun gaia smoke`** — 4 assertions (health check, auth round-trip with `Set-Cookie` posture, Polar webhook signature, dashboard load). Celebration banner with TTFD elapsed on success. (PR 6)
+- **`bun gaia explain <code>`** + error catalog — 21 entries across E0xxx-E4xxx namespaces. Each entry has cause/fix/docs/next-command. Falls back to GitHub-issue prompt for unknown codes. (PR 7)
+- **Fresh-clone CI matrix** — `.github/workflows/e2e-fresh-clone.yml` (ubuntu-latest + macos-latest, 12-min budget) + `scripts/e2e-fresh-clone.ts` orchestrator. Live-deploy assertions gated to nightly via `GAIA_E2E_LIVE=1`. (PR 8)
+- **`scripts/check-env-example-parity.ts`** — fails CI when EnvSchema and `.env.example` drift. 11 required + 14 optional keys aligned at v0.1. (PR 8)
+- **Docs surface** — `docs/getting-started.md` (7-section walkthrough), `docs/cli.md` (auto-regenerable verb reference), `docs/architecture.md` (agent-tagged headings), `docs/contributing.md` (skills + upstream sync), `docs/privacy.md` (telemetry posture + 3-tier opt-out), `docs/CLAUDE.md` (folder context), `scripts/gen-cli-docs.ts` stub. (PR 9)
+- **Demo recording tape** + launch checklist — `docs/assets/demo.tape` (vhs.charm.sh script using `--dry-run` mode for deterministic playback), `docs/launch.md` (founder-gate criteria + post-launch task list). (PR 10)
+
+### Changed
+
+- `packages/security/harden-check.ts` — added `cli/` to the `no-raw-env` exemption list (mirrors `scripts/`/`.claude/` — CLI runs on developer's machine, not in deployed app, and the standalone-publishable rule forbids `@gaia/config/env` import).
+- Root `package.json` workspaces — added `cli` so the workspace resolver sees the new package.
+- `.gaia/initiatives/0002-gaia-bootstrap/initiative.md` — full hardening pass via `/autoplan` (CEO + Eng + DX subagent reviews; codex unavailable due to model auth). 28 audit-trail rows added covering cross-phase themes A-G + 17 individual hardening findings.
+
+### Earlier (also Unreleased)
 
 - Vision v5 carved into 7 wave-aligned initiatives in `.gaia/initiatives/`: `0004-foundation-substrate` (Wave 0a — events/hexagonal/tenancy/runtime/MCP/conversation/metering/telemetry), `0005-foundation-runtime` (Wave 0b — materialization/replicas/budgets/streaming/MCP push), `0006-projections-materialized` (Wave 1), `0007-contracts-network` (Wave 2), `0008-distribution-composer` (Wave 3), `0009-capabilities-runtime` (Wave 4), `0010-subscribers-autonomous` (Wave 5). Each follows the canonical 6-section initiative shape with hypothesis, falsifier, measurement, folder structure, PR breakdown, and decision audit trail. v5 source archived at `.gaia/initiatives/_archive/2026-04-29-vision-v5-source.md`.
 - `## 3. Folder Structure` is now a required section in every initiative — ASCII tree marking `# NEW` and `# EXTENDS` paths so `d-code` can scaffold without ambiguity. `d-initiative/reference.md` documents the 6-section shape; `d-initiative/SKILL.md` template updated to match.
