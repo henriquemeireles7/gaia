@@ -15,11 +15,24 @@ function makeFakeGaiaRoot(): string {
   // Sample files we expect to copy.
   writeFileSync(join(root, 'package.json'), '{"name":"gaia"}\n')
   writeFileSync(join(root, 'apps', 'README.md'), '# apps\n')
-  // Files the exclusion list should drop.
+  // Files the exclusion list should drop — runtime + per-machine.
   writeFileSync(join(root, '.env'), 'SECRET=should-not-copy\n')
   writeFileSync(join(root, '.env.local'), 'POLAR=should-not-copy\n')
   mkdirSync(join(root, 'node_modules', 'foo'), { recursive: true })
   writeFileSync(join(root, 'node_modules', 'foo', 'index.js'), '/* */\n')
+  // Files the exclusion list should drop — template tooling.
+  writeFileSync(join(root, 'cli', 'package.json'), '{"name":"create-gaia-app"}\n')
+  mkdirSync(join(root, 'docs'), { recursive: true })
+  writeFileSync(join(root, 'docs', 'cli.md'), '# CLI\n')
+  writeFileSync(join(root, 'CHANGELOG.md'), '# v0.2.1\n')
+  writeFileSync(join(root, 'conductor.json'), '{}\n')
+  mkdirSync(join(root, '.gstack', 'security-reports'), { recursive: true })
+  writeFileSync(join(root, '.gstack', 'security-reports', 'r.json'), '{}\n')
+  mkdirSync(join(root, '.gaia', 'audits', 'a-health'), { recursive: true })
+  writeFileSync(join(root, '.gaia', 'audits', 'a-health', '2026-04-30.md'), '# audit\n')
+  mkdirSync(join(root, 'scripts'), { recursive: true })
+  writeFileSync(join(root, 'scripts', 'e2e-fresh-clone.ts'), '/* test */\n')
+  writeFileSync(join(root, 'scripts', 'check-readme.ts'), '/* keep */\n') // NOT excluded
   return root
 }
 
@@ -89,6 +102,35 @@ describe('layDownTemplate (in-source mode)', () => {
       // returns the *real* gaia repo we're running tests inside. Both are valid.
       expect(['in-source', 'git-clone']).toContain(result.mode)
     } finally {
+      rmSync(target, { recursive: true, force: true })
+    }
+  })
+
+  it('excludes template tooling — cli/, docs/, CHANGELOG.md, conductor.json, .gstack, .gaia/audits, scripts/e2e-fresh-clone.ts', async () => {
+    const root = makeFakeGaiaRoot()
+    const target = mkdtempSync(join(tmpdir(), 'gaia-tgt-'))
+    try {
+      await layDownTemplate({
+        targetDir: join(target, 'app'),
+        sourceRoot: root,
+      })
+      const fs = await import('node:fs')
+      const app = join(target, 'app')
+      // Tooling that should NOT ship to the user's project.
+      expect(fs.existsSync(join(app, 'cli'))).toBe(false)
+      expect(fs.existsSync(join(app, 'docs'))).toBe(false)
+      expect(fs.existsSync(join(app, 'CHANGELOG.md'))).toBe(false)
+      expect(fs.existsSync(join(app, 'conductor.json'))).toBe(false)
+      expect(fs.existsSync(join(app, '.gstack'))).toBe(false)
+      expect(fs.existsSync(join(app, '.gaia', 'audits'))).toBe(false)
+      expect(fs.existsSync(join(app, 'scripts', 'e2e-fresh-clone.ts'))).toBe(false)
+      // Other scripts/ entries should still be there.
+      expect(fs.existsSync(join(app, 'scripts', 'check-readme.ts'))).toBe(true)
+      // The rest of the template made it.
+      expect(fs.existsSync(join(app, 'package.json'))).toBe(true)
+      expect(fs.existsSync(join(app, 'apps', 'README.md'))).toBe(true)
+    } finally {
+      rmSync(root, { recursive: true, force: true })
       rmSync(target, { recursive: true, force: true })
     }
   })

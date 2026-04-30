@@ -37,19 +37,27 @@ export type BannerOptions = {
 /**
  * Render the GAIA banner that opens every `bun create` run.
  * Pure string builder — no I/O — so the same function is testable for shape AND timing.
+ *
+ * Lists what the user is getting in their project. Concrete > marketing copy.
  */
 export function renderBanner({ projectSlug, cliVersion, startedAt }: BannerOptions): string {
   const supportsEmoji = process.env.LANG?.toLowerCase().includes('utf') !== false
   const arrow = supportsEmoji ? '▶' : '>'
-  const clock = supportsEmoji ? '⏱ ' : '[clock]'
-
+  const check = supportsEmoji ? '✓' : '[x]'
   const isoTime = startedAt.toISOString()
 
   return [
     colorize('green', colorize('bold', `${arrow} GAIA`)) +
       colorize('dim', '  clone-to-deploy SaaS template'),
-    colorize('dim', `${clock} 30-min clock started · v${cliVersion} · project: ${projectSlug}`),
-    colorize('dim', `   started_at: ${isoTime}`),
+    colorize('dim', `   project: ${projectSlug} · v${cliVersion} · ${isoTime}`),
+    '',
+    `   ${colorize('green', check)} ${colorize('bold', 'apps/api          ')} ${colorize('dim', 'Elysia + TypeBox + Eden Treaty (backend)')}`,
+    `   ${colorize('green', check)} ${colorize('bold', 'apps/web          ')} ${colorize('dim', 'SolidStart + Solid Router (frontend)')}`,
+    `   ${colorize('green', check)} ${colorize('bold', 'packages/db       ')} ${colorize('dim', 'Drizzle ORM + Neon Postgres')}`,
+    `   ${colorize('green', check)} ${colorize('bold', 'packages/auth     ')} ${colorize('dim', 'Better-Auth (email/password + OAuth)')}`,
+    `   ${colorize('green', check)} ${colorize('bold', 'packages/security ')} ${colorize('dim', 'rate limits, AI budget, audit log, CORS')}`,
+    `   ${colorize('green', check)} ${colorize('bold', 'infra/            ')} ${colorize('dim', 'Railway deploy + Docker + iii workflows')}`,
+    `   ${colorize('green', check)} ${colorize('bold', '.claude + .gaia   ')} ${colorize('dim', 'agent harness — skills, fractal CLAUDE.md, rules.ts policy')}`,
     '',
   ].join('\n')
 }
