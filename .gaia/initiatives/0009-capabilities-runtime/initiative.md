@@ -56,53 +56,85 @@ Cross-instance composition is what makes Gaia a network rather than a template. 
 
 ## 3. Folder Structure
 
+Disposition: **EXTEND** = additive change to an existing module; **NEW** = wholly new; **EDIT** = modify a file in the existing scaffold.
+
+### Main repo (`gaia/`)
+
 ```
-santiago/
+gaia/
 ├── packages/
-│   ├── capabilities/                 # NEW — capability primitives + bundles + composition
-│   │   ├── primitives/               # individual typed capabilities
-│   │   ├── bundles/                  # predefined compositions
-│   │   ├── scoping/                  # per-principal scope resolution + agent credentials
-│   │   └── composition/              # cross-instance bundle sourcing via replicas
-│   │       └── (depends on packages/replicas/ from 0005)
+│   ├── capabilities/                 # NEW package — capability primitives + bundles + composition
+│   │   └── src/
+│   │       ├── primitives/           # individual typed capabilities
+│   │       ├── bundles/              # predefined compositions
+│   │       ├── scoping/              # per-principal scope resolution + agent credentials
+│   │       └── composition/          # cross-instance bundle sourcing via replicas (depends on packages/replicas/ from 0005)
 │   │
-│   ├── personas/                     # NEW — voice and style configuration
+│   ├── personas/                     # NEW package — voice and style configuration
 │   │
-│   ├── runtime/
-│   │   └── sandbox/                  # NEW — iii Function isolation, resource limits, timeout
+│   ├── runtime/                      # EXTEND (created in 0004) — extended in 0005 with budgets/, here with sandbox/
+│   │   └── src/
+│   │       └── sandbox/              # NEW subdir — iii Function isolation per principal, resource limits, timeout, observability trace. Composes with the budget primitive from 0005.
 │   │
-│   ├── billing/                      # NEW — subscription state + payment flows (UI presentation)
-│   ├── support/                      # NEW — help desk, ticket lifecycle, inbox
+│   ├── billing-ui/                   # NEW package — RENAMED from initial draft `packages/billing/` to avoid concept-collision with existing apps/api/server/billing.ts (which is the route-handler half). This package owns subscription-state UI + payment flow components consumed by apps/web. Computation stays in packages/metering/ (0004).
+│   ├── support/                      # NEW package — help desk, ticket lifecycle, inbox
 │   │
-│   ├── projections/
-│   │   └── metrics/                  # NEW — event log → MRR, churn, LTV (triple-rendered)
-│   │       └── materialize.ts
+│   ├── projections/                  # EXTEND (created in 0006)
+│   │   └── metrics/                  # NEW subdir — MRR/churn/LTV projection; materialize.ts implements the 0005 handler contract
 │   │
-│   └── adapters/
-│       ├── payments/                 # NEW — Polar wrapper (with Stripe/Lemon swap path)
-│       └── email/                    # NEW — Resend wrapper for transactional mail
+│   ├── adapters/                     # EDIT existing flat-file package — both payments.ts and email.ts ALREADY EXIST today (Polar + Resend respectively). 0009 does NOT recreate them; PR 6 EDITS them to add Stripe/Lemon swap-path scaffolding in payments.ts and any transactional-template helpers needed by billing-ui in email.ts.
+│   │   ├── payments.ts               # EDIT — existing Polar adapter; add Stripe/Lemon swap-path interface (no new file)
+│   │   └── email.ts                  # EDIT — existing Resend adapter; add transactional-template helpers (no new file)
+│   │
+│   └── db/                           # EDIT — extend packages/db/schema/ per 0004 §7.15 R-3
+│       └── schema/
+│           ├── capability-invocations.ts # NEW — per-invocation audit row (capability, bundle, principal, success, latency, cost, occurred_at, tenant_id)
+│           ├── persona.ts                # NEW — persona configuration per tenant
+│           ├── support-tickets.ts        # NEW
+│           ├── replica-fingerprints.ts   # NEW — behavior fingerprints for replica drift detection (R-3 falsifier)
+│           └── employees.ts              # NEW — labor-app surface state: hired bundles, role, status, queue
 │
 ├── apps/
-│   └── labor/                        # NEW — real-time labor app — presence, queue, escalations, cost
+│   ├── api/                          # EDIT (PRs 4, 7, 8, 11) — Elysia server: capability invocation route, sandbox status route, billing-ui-backing endpoints, support-ticket endpoints, employee/labor endpoints
+│   ├── web/                          # EDIT (PRs 7, 11) — billing-ui surfaces in /billing (existing route), labor surfaces as a new route /labor (rather than separate apps/labor app — see §7 reconciliation)
+│   │   └── src/routes/
+│   │       └── labor.tsx             # NEW — labor surface as a route in apps/web (R-1 from 0008 §7 carries forward)
+│   ├── marketing/                    # KEEP (created in 0008)
+│   └── labor/                        # NOT created — labor is a route in apps/web per §7 R-2 below; "apps/labor/" listed in §2 cap-table is the conceptual surface, the actual deploy is the apps/web route
 │
 └── .claude/skills/
     └── d-capability/                 # NEW — provisions capability bundles, hires/fires conversationally
+```
 
-gaia-cloud/                           # NEW SEPARATE REPO — the managed platform
+### Separate repo (`gaia-cloud/`) — managed platform
+
+```
+gaia-cloud/                           # NEW SEPARATE REPO — created in PR 13
 ├── apps/
-│   ├── control-api/                  # tenant control plane
-│   ├── dashboard/                    # gaia.cloud customer dashboard
-│   ├── billing/                      # bundled bill aggregation
+│   ├── control-api/                  # tenant control plane (its own Elysia server, NOT a clone of gaia/apps/api)
+│   ├── dashboard/                    # gaia.cloud customer dashboard (its own SolidStart app)
+│   ├── billing-agg/                  # RENAMED from `billing/` to disambiguate from gaia/apps/api/server/billing.ts and gaia/packages/billing-ui/. Bundled-bill aggregation across customer instances.
 │   ├── orchestrator/                 # provisioning + deploy automation
 │   └── eject/                        # graceful-exit tooling backend
 │
 └── packages/
-    ├── tenancy/                      # cross-tenant orchestration
+    ├── tenancy/                      # NEW IN gaia-cloud/ — note: the main repo's gaia/packages/tenancy/ (from 0004) is per-instance tenant scoping; gaia-cloud's tenancy/ is CROSS-INSTANCE orchestration. Different concerns; same name acceptable because the repos are separate.
     ├── provisioning/                 # resource provisioning across providers
     ├── routing/                      # tenant request routing at edge
-    ├── migration/                    # ejection logic — produces standalone codebases
+    ├── migration/                    # ejection logic — produces standalone gaia/ codebases for ejecting customers
     └── revenue-share/                # cross-instance bundle revenue distribution
 ```
+
+### Cross-repo dependency map
+
+```
+gaia-cloud/apps/orchestrator/  ─── consumes ──▶  gaia/ (as template; see ejection migration)
+gaia-cloud/apps/billing-agg/   ─── reads ────▶  gaia/packages/metering/  (per-instance windowed Function output, replicated via gaia-cloud/packages/replicas equivalent or a direct sync)
+gaia-cloud/packages/migration/ ─── produces ─▶  standalone gaia/ tarballs for eject
+gaia/apps/api                  ─── reports ──▶  gaia-cloud/apps/control-api  (heartbeat + telemetry; only when running on gaia.cloud, not for self-hosted)
+```
+
+PR 13 ships `gaia-cloud/` skeleton (apps + empty packages); PR 14 fills in the 5 platform packages. No PR in this initiative modifies `gaia/` after PR 12.
 
 ## 4. Implementation
 
@@ -173,3 +205,35 @@ gaia-cloud/                           # NEW SEPARATE REPO — the managed platfo
 | F-7 | Bundle manifests are signed; replicas verify before invocation. Founder sees publisher provenance in the hire dialog.                                 | Founder 2026-04-29 (supply-chain risk) |
 | F-8 | Founder-authored bundles deferred to v1.1. v1.0 ships predefined bundles only.                                                                        | Founder 2026-04-29                     |
 | F-9 | Labor app is presence-first. Cost is a sidebar, not the centerpiece.                                                                                  | Founder 2026-04-29                     |
+
+## 7. Existing-scaffold reconciliation (added 2026-04-29)
+
+Mirrors 0004 §7.15. Names the existing-repo collisions corrected in §3.
+
+| #   | Decision                                                                                                                                                              | PR(s)             |
+| --- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ----------------- |
+| R-1 | `packages/adapters/payments.ts` and `packages/adapters/email.ts` ALREADY EXIST today (Polar + Resend, flat files). PR 6 does NOT create them — it EDITS them to add Stripe/Lemon swap-path scaffolding (payments) and transactional-template helpers (email). The original §3 listed them as new directories; that was wrong. | 6 |
+| R-2 | The original §2 cap table named `apps/labor/` as a separate SolidStart app. Per the 0004 §7.15 R-4 / 0008 §7 R-1 pattern (chat, timeline, composer all became routes in `apps/web/`), labor lands as `apps/web/src/routes/labor.tsx` UNLESS a hard requirement for separate deploy/realtime infrastructure surfaces during PR 11 design. Default: route in apps/web. Justification for separate app would need PR 11 to make the case; otherwise stick with the route. | 11 |
+| R-3 | `packages/billing/` was the original §3 name. RENAMED to `packages/billing-ui/` to avoid concept-collision with the existing `apps/api/server/billing.ts` (which today owns Polar billing routes + processPolarEvent). Computation lives in `packages/metering/` (0004); `apps/api/server/billing.ts` is the API route layer; `packages/billing-ui/` is the UI components consumed by `apps/web/src/routes/billing.tsx`. Three distinct concerns, three distinct paths. | 7 |
+| R-4 | `packages/runtime/sandbox/` is a SUBDIR of the existing `packages/runtime/src/` (created in 0004 PR 2, extended in 0005 PR 1 with `budgets/`). It composes with the budget primitive — a sandboxed iii Function declares both a budget AND a sandbox scope. | 4 |
+| R-5 | `packages/projections/metrics/` is a SUBDIR of `packages/projections/` (created in 0006). Its materialize.ts implements the 0005 handler contract. | 9 |
+| R-6 | `packages/capabilities/composition/` (PR 10) consumes `packages/replicas/subscription/` from 0005 PR 6. The behavior-fingerprint check (R-3 falsifier) reads from `packages/db/schema/replica-fingerprints.ts` — that table is NEW in this PR. | 10 |
+| R-7 | All new tables go to `packages/db/schema/` per 0004 §7.15 R-3. The existing `subscriptions` table (Polar billing) is a peer of, not a replacement for, the new `capability-invocations` and `employees` tables. | 1, 5, 8, 10, 11 |
+| R-8 | `gaia-cloud/` is a SEPARATE REPO. PRs 13 and 14 are the only ones that touch it. PR 13 creates the skeleton; PR 14 fills the 5 platform packages. The cross-repo dependency map in §3 documents how gaia/ and gaia-cloud/ communicate (heartbeat, billing aggregation, migration tarballs). | 13, 14 |
+| R-9 | `gaia-cloud/packages/tenancy/` is named the same as `gaia/packages/tenancy/` (0004) but addresses a different concern (cross-instance vs. per-instance). Acceptable because the repos are separate; do NOT consolidate into a shared package. | 14 |
+| R-10 | `gaia-cloud/apps/billing-agg/` is RENAMED from the original §3 `billing/` to disambiguate from `gaia/apps/api/server/billing.ts` (route handler) and `gaia/packages/billing-ui/` (UI components). Three names, three concerns, no collisions. | 13 |
+| R-11 | iii Functions in this initiative MUST declare `budget` per 0005 R-8 (validate-artifacts.ts rule). The sandbox primitive (PR 4) extends the rule: budgeted + sandboxed Functions emit two kinds of timeline events on violation (budget exceeded, sandbox violation). | 4 |
+
+**Existing-files-touched trace (gaia/ only):**
+
+- `packages/adapters/payments.ts` — PR 6 EDIT (add swap-path scaffolding; do not rewrite Polar code)
+- `packages/adapters/email.ts` — PR 6 EDIT (add transactional-template helpers)
+- `packages/adapters/CLAUDE.md` — PR 6 (no Files-table change; just update the description for payments + email)
+- `packages/runtime/src/define-function.ts` — PR 4 (add `sandbox?: SandboxScope` field to wrapper signature)
+- `apps/api/server/app.ts` — PRs 4, 7, 8, 11 (mount capability-invocation route, billing-ui-backing endpoints, support endpoints, labor endpoints inside the existing Elysia plugin chain)
+- `apps/api/server/billing.ts` — PR 7 (the existing route file is referenced by billing-ui; no rewrite, just additional read-shape endpoints if needed)
+- `apps/web/src/routes/billing.tsx` — PR 7 (existing route consumes billing-ui components)
+- `apps/web/src/routes/labor.tsx` — PR 11 (NEW route)
+- `apps/web/src/lib/api.ts` — PRs 7, 11 (extend Eden Treaty client)
+- `packages/db/schema/index.ts` — PRs 1, 5, 8, 10, 11 (re-export new entities)
+- `scripts/validate-artifacts.ts` — PR 4 (extend with sandbox-required rule for capabilities); PR 15 (audit invokes the full sweep)

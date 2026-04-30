@@ -50,27 +50,39 @@ Wave 5 closes the v5 architecture: the founder operates a self-sustaining, netwo
 
 ## 3. Folder Structure
 
+Disposition: **EXTEND** = additive change to existing module; **NEW** = wholly new; **EDIT** = modify existing scaffold file.
+
 ```
-santiago/
+gaia/
 ├── packages/
-│   ├── subscribers/                  # NEW — event subscribers — autonomous operations
-│   │   ├── time/                     # subscribers to time-based events (rhythms)
-│   │   ├── domain/                   # subscribers to domain events (triggers)
-│   │   ├── cross-instance/           # subscribers consuming from local replicas
-│   │   │   └── (depends on packages/replicas/ from 0005)
-│   │   └── escalations/              # convention for human-handoff emission
+│   ├── subscribers/                  # NEW package — event subscribers as autonomous iii Functions
+│   │   └── src/
+│   │       ├── time/                 # subscribers to time-based events (rhythms); fire on iii.dev cron triggers
+│   │       ├── domain/               # subscribers to domain events (triggers from packages/events/)
+│   │       ├── cross-instance/       # subscribers consuming from local replicas (depends on packages/replicas/ from 0005)
+│   │       └── escalations/          # convention for human-handoff emission via typed `escalation.requested` events
 │   │
-│   └── adapters/
-│       ├── analytics/                # NEW — PostHog (signal source beyond iii's observability)
-│       ├── logging/                  # NEW — external logging not covered by iii
-│       └── tracing/                  # NEW — external tracing not covered by iii
+│   ├── adapters/                     # EDIT existing flat-file package — analytics.ts already exists today (PostHog); the others may already be covered by packages/core
+│   │   ├── analytics.ts              # EDIT-EXISTING — already wraps PostHog (track/identify/shutdown). PR 5 extends with subscriber-relevant signal helpers if needed; do NOT recreate as a directory.
+│   │   ├── logging.ts                # NEW — only if the existing packages/core/logger.ts (which already integrates with Axiom per .gaia/CLAUDE.md) does not cover an external logging requirement. Default disposition: SKIP this file unless PR 5 design surfaces a real gap; the Axiom integration in core/logger.ts is likely sufficient.
+│   │   └── tracing.ts                # NEW — only if the existing packages/core/observability.ts (which already initializes OpenTelemetry) does not cover an external tracing requirement. Default disposition: SKIP unless PR 5 design surfaces a real gap.
+│   │
+│   └── db/                           # EDIT — extend packages/db/schema/ per 0004 §7.15 R-3
+│       └── schema/
+│           ├── subscribers.ts        # NEW — subscriber definitions: id, type (time|domain|cross-instance), expression, budget, owner, tenant_id, status
+│           ├── subscriber-runs.ts    # NEW — per-fire audit row with cost + outcome
+│           └── playbook-versions.ts  # NEW — playbook content version history (per tenant; the markdown lives in content/playbooks/)
 │
-├── content/
-│   └── playbooks/                    # NEW — action sequences, versioned, per-tenant overridable
+├── content/                          # EXTEND existing top-level content tree (created in 0007 + 0008)
+│   └── playbooks/                    # NEW subdir — action sequences, versioned, per-tenant overridable
 │       ├── sales/
 │       ├── support/
 │       ├── growth/
 │       └── product/
+│
+├── apps/api                          # EDIT (PRs 1-4) — Elysia server: subscriber CRUD routes, escalation receiver routes, playbook GET routes; reuse existing Better Auth bearer + tenancy.run wrapping
+│
+├── apps/web                          # EDIT (PR 4) — escalation surface in apps/web/src/routes/timeline.tsx (existing route from 0004 PR 11) gains a "Pending escalations" panel. No separate app.
 │
 └── .claude/skills/
     └── d-autonomous/                 # NEW — authors subscribers conversationally
@@ -146,3 +158,28 @@ santiago/
 | F-6 | Founder describes outcomes; the system never surfaces the words "subscriber," "trigger," "playbook," or "replica."                       | Founder 2026-04-29 (v5 vision §Wave 5) |
 | F-7 | Per-subscription budget cap with founder-visible cost preview at creation.                                                               | Founder 2026-04-29 (cost-runaway risk) |
 | F-8 | Wave 5 audit closes v5: all four calcification moves intact, the seven Wave 0 invariants paid off.                                       | Founder 2026-04-29                     |
+
+## 7. Existing-scaffold reconciliation (added 2026-04-29)
+
+| #   | Decision                                                                                                                                                                | PR(s)        |
+| --- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------ |
+| R-1 | `packages/adapters/analytics.ts` ALREADY EXISTS today (PostHog: track/identify/shutdown). PR 5 EDITS it; do not recreate as a directory `packages/adapters/analytics/`. | 5 |
+| R-2 | `packages/adapters/logging.ts` and `packages/adapters/tracing.ts` are SKIPPED by default. The existing `packages/core/logger.ts` (Axiom-wired per `.gaia/CLAUDE.md`) and `packages/core/observability.ts` (OpenTelemetry init) likely cover all needs. PR 5 only adds these files if a concrete gap surfaces during subscriber implementation. | 5 |
+| R-3 | New tables (`subscribers`, `subscriber-runs`, `playbook-versions`) go to `packages/db/schema/` per 0004 §7.15 R-3. | 1, 6 |
+| R-4 | Subscriber CRUD routes mount inside the existing `apps/api/server/app.ts` Elysia app. Reuse existing Better Auth bearer + `tenancy.run` (0004 PR 4) wrapping. No standalone server. | 1, 2, 3, 4 |
+| R-5 | Escalation surface (`escalation.requested` events) renders in the existing `apps/web/src/routes/timeline.tsx` (0004 PR 11), as a "Pending escalations" panel. NOT a separate page or app. | 4 |
+| R-6 | Cross-instance subscribers (PR 3) consume `packages/replicas/subscription/` from 0005 PR 6. Per-subscription budget cap (F-7) declared via the budget primitive from 0005 PR 1. | 3 |
+| R-7 | Subscribers are iii Functions per F-3; MUST declare `budget` per the 0005 R-8 / validate-artifacts.ts rule. The validate-artifacts extension is already in place from 0005 — no new rule here. | 1, 2, 3 |
+| R-8 | Playbook contribution pipeline (PR 13) reuses the existing `packages/telemetry/contribute/` (0004 PR 9) backpressured iii Function. The contribution payload schema gains a `playbook` event family; that family lands in the existing `packages/telemetry/contribute/schema.ts` snapshot test (0004 PR 9). | 13 |
+| R-9 | `content/playbooks/` is a SUBDIR of the top-level `content/` tree (created in 0007 PR 10 with docs/changelog/decisions-public, extended in 0008 PR 11 with social/newsletters/magnets). | 6 |
+| R-10 | The five sub-skills under `d-autonomous/` (`lifecycle-triggers/`, `content-freshness/`, `deps-update/`, `perf-audit/`, `security-audit/`) follow the per-skill SKILL.md + reference.md pattern from `d-converse/` (0004 PR 13) and existing skills under `.claude/skills/`. | 8-12 |
+
+**Existing-files-touched trace:**
+
+- `packages/adapters/analytics.ts` — PR 5 EDIT
+- `packages/adapters/CLAUDE.md` — PR 5 (no Files-table change unless logging.ts/tracing.ts land)
+- `packages/db/schema/index.ts` — PRs 1, 6 (re-export new entities)
+- `apps/api/server/app.ts` — PRs 1-4 (mount subscriber routes + escalation receiver inside existing Elysia plugin chain)
+- `apps/web/src/routes/timeline.tsx` — PR 4 (add Pending escalations panel)
+- `packages/telemetry/contribute/schema.ts` — PR 13 (extend payload schema; snapshot test must update)
+- `scripts/validate-artifacts.ts` — PR 14 audit invokes the full sweep including the `escalation.requested` typed-event rule
