@@ -1,5 +1,5 @@
 {
-  "name": "create-gaia",
+  "name": "create-gaia-app",
   "version": "0.2.0",
   "description": "Gaia template scaffolder + CLI — clone, install, deploy. Live URL in <30 minutes.",
   "keywords": [
@@ -19,7 +19,7 @@
     "directory": "cli"
   },
   "bin": {
-    "create-gaia": "./src/create.ts",
+    "create-gaia-app": "./src/create.ts",
     "gaia": "./src/cli.ts"
   },
   "files": [

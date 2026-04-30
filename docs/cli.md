@@ -2,7 +2,7 @@
 
 # CLI reference
 
-> The Gaia CLI is published on npm as `create-gaia` (with the `gaia` and `create-gaia` binaries) and is the front door of the template. Every verb shares the same standard flag set; live narration is on by default; stdout is reserved for events when `--json` is set.
+> The Gaia CLI is published on npm as `create-gaia-app` (with the `gaia` and `create-gaia-app` binaries) and is the front door of the template. Every verb shares the same standard flag set; live narration is on by default; stdout is reserved for events when `--json` is set.
 
 ## Standard flags (every verb supports)
 
@@ -22,7 +22,7 @@
 
 ## Verbs
 
-### `bun create gaia@latest <project-slug>`
+### `bun create gaia-app@latest <project-slug>`
 
 Scaffold a new Gaia project. Banner appears in <1000ms (TTHW-1 gate). Writes `.gitignore` first, then `.env.local`, then `.gaia/state.json`. Ends with a boxed "▶ Next: cd <slug> && claude" hint.
 
@@ -78,7 +78,7 @@ Run `bun gaia explain` (no arg) for the full list.
 
 ```bash
 # Bootstrap a new project
-bun create gaia@latest weekend-saas
+bun create gaia-app@latest weekend-saas
 
 # Verify keys with JSON output (for an agent)
 bun gaia verify-keys --json --quiet

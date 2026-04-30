@@ -6,14 +6,14 @@ Gaia's CLI emits anonymized first-run telemetry to help us catch cold-start fail
 
 The CLI may emit these PostHog events:
 
-| Event               | When                                   | Properties                             |
-| ------------------- | -------------------------------------- | -------------------------------------- |
-| `cli.create.start`  | First line of `bun create gaia@latest` | verb, cli_version, os, bun_version     |
-| `cli.verb.start`    | Each verb invocation begins            | verb, cli_version                      |
-| `cli.verb.complete` | Each verb invocation succeeds          | verb, duration_ms, exit_code           |
-| `cli.verb.error`    | Each verb invocation fails             | verb, error_class, error_code, attempt |
-| `cli.first_run`     | Once per machine (anonymized hash)     | os, bun_version, machine_id_hash       |
-| `cli.ttfd`          | After `bun gaia smoke` succeeds        | duration_ms                            |
+| Event               | When                                       | Properties                             |
+| ------------------- | ------------------------------------------ | -------------------------------------- |
+| `cli.create.start`  | First line of `bun create gaia-app@latest` | verb, cli_version, os, bun_version     |
+| `cli.verb.start`    | Each verb invocation begins                | verb, cli_version                      |
+| `cli.verb.complete` | Each verb invocation succeeds              | verb, duration_ms, exit_code           |
+| `cli.verb.error`    | Each verb invocation fails                 | verb, error_class, error_code, attempt |
+| `cli.first_run`     | Once per machine (anonymized hash)         | os, bun_version, machine_id_hash       |
+| `cli.ttfd`          | After `bun gaia smoke` succeeds            | duration_ms                            |
 
 ## What's NOT collected
 

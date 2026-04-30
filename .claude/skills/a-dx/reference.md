@@ -39,7 +39,7 @@ Every DX decision traces to one or more of these. If a new tool or pattern lengt
 Every operation that matters is a CLI command with structured output and audit trail. Dashboards visualize; CLIs do work. `gaia deploy`, `gaia migrate`, `gaia scaffold` — no web UI required to run the product.
 
 **2. Convention over configuration — defaults right 80% of the time.**
-If a user must configure something before `bun create gaia@latest` produces a working app, the default is wrong. Every decision ships with a default; customization is an opt-in, not a prerequisite.
+If a user must configure something before `bun create gaia-app@latest` produces a working app, the default is wrong. Every decision ships with a default; customization is an opt-in, not a prerequisite.
 
 **3. Verb-noun subcommand structure.**
 `gaia scaffold feature billing`, not `gaia --mode=scaffold --type=feature --name=billing`. Scales with additional commands without flag soup. Scriptable. Tab-completable. Readable in a log.
@@ -71,7 +71,7 @@ Never "Something went wrong." Never cryptic codes as the primary message (codes 
 ### Targets
 
 **10. First-success in under 5 minutes.**
-TTHW (time-to-hello-world) is the single most important DX metric. `bun create gaia@latest my-app` → working dev server → first commit that CI accepts → under 5 minutes. Measured and tracked.
+TTHW (time-to-hello-world) is the single most important DX metric. `bun create gaia-app@latest my-app` → working dev server → first commit that CI accepts → under 5 minutes. Measured and tracked.
 
 **11. Docs live where the code lives.**
 Every package has a README. Every CLI command has `--help`. Every ADR in `docs/adr/`. Every runbook in `docs/runbook/`. Nothing lives in Notion, Confluence, or a Slack thread.
@@ -214,7 +214,7 @@ The most important 5 minutes in Gaia.
 ### Target flow (<5 minutes)
 
 ```
-$ bun create gaia@latest my-app
+$ bun create gaia-app@latest my-app
 
 ✓ Detected Bun v2.x
 ✓ Created my-app/
@@ -414,7 +414,7 @@ The complete set Gaia ships. Each traces to a DX need.
 ### Setup & scaffold
 
 ```sh
-bun create gaia@latest <name>      # Create new project
+bun create gaia-app@latest <name>      # Create new project
 gaia init                          # Initialize in existing project
 gaia scaffold feature <name>       # New feature slice
 gaia scaffold package <name>       # New package

@@ -56,7 +56,7 @@ export function status(input: StatusInput): StatusResult {
     } else {
       process.stderr.write(
         `\n${colorize('amber', '!')} No Gaia project here.\n` +
-          `  fix:  Run \`bun create gaia@latest <name>\` from a directory you own.\n\n`,
+          `  fix:  Run \`bun create gaia-app@latest <name>\` from a directory you own.\n\n`,
       )
     }
     return { exitCode: ExitCode.EX_DATAERR }

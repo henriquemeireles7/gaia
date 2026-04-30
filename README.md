@@ -13,7 +13,7 @@ The Rails of TypeScript, redesigned for a world where agents write most of the c
 ## Quick start
 
 ```bash
-bun create gaia@latest myapp
+bun create gaia-app@latest myapp
 cd myapp
 bun gaia setup            # paste your 4 API keys (or `--ci` to skip prompts)
 bun gaia deploy && bun gaia smoke
@@ -91,7 +91,7 @@ No. Gaia is opinionated: Bun + Elysia + SolidStart only. The architecture assume
 ├── .claude/          # Claude Code home — settings.json, hooks/, skills/ (h-* / w-* / a-* + gstack/)
 ├── apps/             # api/ (Elysia), web/ (SolidStart)
 ├── packages/         # core, config, errors, db, adapters, auth, ui, security, workflows
-├── cli/              # create-gaia — bun gaia <verb> (initiative 0002)
+├── cli/              # create-gaia-app — bun gaia <verb> (initiative 0002)
 ├── content/          # Human-authored markdown (blog, legal, emails)
 ├── tools/            # ast-grep config, custom rules
 ├── scripts/          # Cross-file checks (test ratio, manifest, coverage audit)
@@ -121,7 +121,7 @@ The principle: **everything Gaia-methodology lives under `.gaia/`. `.claude/` ho
 
 ## Status
 
-**v1 — pre-launch.** See [`.gaia/initiatives/CLAUDE.md`](./.gaia/initiatives/CLAUDE.md) for the current 5-row index of strategic bets. The CLI (`bun create gaia@latest`) ships in initiative 0002.
+**v1 — pre-launch.** See [`.gaia/initiatives/CLAUDE.md`](./.gaia/initiatives/CLAUDE.md) for the current 5-row index of strategic bets. The CLI (`bun create gaia-app@latest`) ships in initiative 0002.
 
 ## License
 

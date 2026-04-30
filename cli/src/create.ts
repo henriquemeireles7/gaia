@@ -1,5 +1,5 @@
 #!/usr/bin/env bun
-// cli/src/create.ts — `bun create gaia@latest <name>` entry point.
+// cli/src/create.ts — `bun create gaia-app@latest <name>` entry point.
 //
 // Per initiative 0002 AD-AP-2 + AD-AP-13 + AD-AP-17 + AD-AP-18:
 //   1. Banner appears in <1000ms (TTHW-1 gate).
@@ -240,7 +240,7 @@ async function main(): Promise<number> {
 
   if (!args.projectSlug) {
     process.stderr.write(
-      'Usage: bun create gaia@latest <project-slug> [--force] [--dry-run]\n' +
+      'Usage: bun create gaia-app@latest <project-slug> [--force] [--dry-run]\n' +
         'Slugs are lowercase letters/digits/dashes (3-40 chars).\n',
     )
     return 64 // EX_USAGE

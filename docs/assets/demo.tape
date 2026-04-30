@@ -26,7 +26,7 @@ Enter
 Show
 
 Sleep 500ms
-Type "bun create gaia@latest weekend-saas"
+Type "bun create gaia-app@latest weekend-saas"
 Enter
 Sleep 4s
 

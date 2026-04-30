@@ -1,11 +1,11 @@
-# create-gaia
+# create-gaia-app
 
 Scaffolder + CLI for [Gaia](https://github.com/henriquemeireles7/gaia) — the agent-native TypeScript SaaS template.
 
 ## Quick start
 
 ```bash
-bun create gaia@latest myapp
+bun create gaia-app@latest myapp
 cd myapp
 bun gaia setup            # paste your 4 API keys (or `--ci` to skip prompts)
 bun gaia deploy && bun gaia smoke
@@ -15,12 +15,12 @@ That's the full flow: clone → install → wire vendor keys → deploy to Railw
 
 ## What ships
 
-`create-gaia` is one package with two binaries:
+`create-gaia-app` is one package with two binaries:
 
-| Bin           | Used for                                                                                | Invoked by                                                                     |
-| ------------- | --------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------ |
-| `create-gaia` | One-shot scaffolder. Clones the template, installs deps, writes `state.json`.           | `bun create gaia@latest <name>`                                                |
-| `gaia`        | In-project verb runner: `setup`, `verify-keys`, `deploy`, `smoke`, `status`, `explain`. | `bun gaia <verb>` (resolves via the scaffolded project's `node_modules/.bin/`) |
+| Bin               | Used for                                                                                | Invoked by                                                                     |
+| ----------------- | --------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------ |
+| `create-gaia-app` | One-shot scaffolder. Clones the template, installs deps, writes `state.json`.           | `bun create gaia-app@latest <name>`                                            |
+| `gaia`            | In-project verb runner: `setup`, `verify-keys`, `deploy`, `smoke`, `status`, `explain`. | `bun gaia <verb>` (resolves via the scaffolded project's `node_modules/.bin/`) |
 
 ## Verbs
 
@@ -43,7 +43,7 @@ Every verb supports the standard flag set: `--json` (NDJSON to stdout), `--quiet
 
 ## How `bun create gaia` works
 
-`bun create gaia@latest <args>` is equivalent to `bunx create-gaia@latest <args>`. Bun rewrites the `<name>` token by prefixing `create-`, then invokes the package's default bin. This convention is shared by `npm init`, `yarn create`, and `pnpm create` — same package, four invocations.
+`bun create gaia-app@latest <args>` is equivalent to `bunx create-gaia-app@latest <args>`. Bun rewrites the `<name>` token by prefixing `create-`, then invokes the package's default bin. This convention is shared by `npm init`, `yarn create`, and `pnpm create` — same package, four invocations.
 
 ## License
 
