@@ -159,7 +159,7 @@ describe('customizePackageJson', () => {
           2,
         ),
       )
-      const result = customizePackageJson(tmp, 'my-weekend-saas')
+      const result = customizePackageJson(tmp, 'my-weekend-saas', '0.3.3')
       expect(result).toBe(true)
       const updated = JSON.parse(readFileSync(join(tmp, 'package.json'), 'utf-8')) as Record<
         string,
@@ -173,6 +173,7 @@ describe('customizePackageJson', () => {
         'bun --hot apps/api/server/app.ts',
       )
       expect((updated.dependencies as Record<string, string>).elysia).toBe('^1.0.0')
+      expect((updated.devDependencies as Record<string, string>)['create-gaia-app']).toBe('^0.3.3')
     } finally {
       rmSync(tmp, { recursive: true, force: true })
     }
@@ -181,7 +182,7 @@ describe('customizePackageJson', () => {
   it('returns false when package.json is missing (stub-mode template)', () => {
     const tmp = mkdtempSync(join(tmpdir(), 'gaia-pkg-'))
     try {
-      const result = customizePackageJson(tmp, 'app')
+      const result = customizePackageJson(tmp, 'app', '0.3.3')
       expect(result).toBe(false)
     } finally {
       rmSync(tmp, { recursive: true, force: true })
@@ -192,7 +193,7 @@ describe('customizePackageJson', () => {
     const tmp = mkdtempSync(join(tmpdir(), 'gaia-pkg-'))
     try {
       writeFileSync(join(tmp, 'package.json'), '{ not json')
-      const result = customizePackageJson(tmp, 'app')
+      const result = customizePackageJson(tmp, 'app', '0.3.3')
       expect(result).toBe(false)
       expect(readFileSync(join(tmp, 'package.json'), 'utf-8')).toBe('{ not json')
     } finally {
@@ -222,7 +223,7 @@ describe('customizePackageJson', () => {
           2,
         ),
       )
-      customizePackageJson(tmp, 'my-app')
+      customizePackageJson(tmp, 'my-app', '0.3.3')
       const updated = JSON.parse(readFileSync(join(tmp, 'package.json'), 'utf-8')) as {
         workspaces: string[]
       }
@@ -240,11 +241,77 @@ describe('customizePackageJson', () => {
         join(tmp, 'package.json'),
         JSON.stringify({ name: 'x', workspaces: ['apps/*', 'packages/*'] }, null, 2),
       )
-      customizePackageJson(tmp, 'x')
+      customizePackageJson(tmp, 'x', '0.3.3')
       const updated = JSON.parse(readFileSync(join(tmp, 'package.json'), 'utf-8')) as {
         workspaces: string[]
       }
       expect(updated.workspaces).toEqual(['apps/*', 'packages/*'])
+    } finally {
+      rmSync(tmp, { recursive: true, force: true })
+    }
+  })
+
+  it('rewrites create-gaia-app workspace pin to a real npm version range', () => {
+    // Regression: ISSUE-002 — without this rewrite, the `gaia` bin from
+    // create-gaia-app is never linked into node_modules/.bin/, and every
+    // README on-ramp (`bun gaia live`, `bun gaia deploy`, etc.) hits
+    // "Script not found 'gaia'".
+    // Found by /qa on 2026-04-30 against create-gaia-app@0.3.2 (npm).
+    const tmp = mkdtempSync(join(tmpdir(), 'gaia-pkg-'))
+    try {
+      writeFileSync(
+        join(tmp, 'package.json'),
+        JSON.stringify(
+          {
+            name: 'gaia',
+            version: '0.2.0',
+            private: true,
+            workspaces: ['apps/*', 'packages/*', 'cli'],
+            // Source repo lists this as workspace:* for local dev.
+            devDependencies: { 'create-gaia-app': 'workspace:*', typescript: '^5.7.0' },
+          },
+          null,
+          2,
+        ),
+      )
+      customizePackageJson(tmp, 'my-app', '0.3.3')
+      const updated = JSON.parse(readFileSync(join(tmp, 'package.json'), 'utf-8')) as {
+        devDependencies: Record<string, string>
+      }
+      expect(updated.devDependencies['create-gaia-app']).toBe('^0.3.3')
+      expect(updated.devDependencies.typescript).toBe('^5.7.0')
+    } finally {
+      rmSync(tmp, { recursive: true, force: true })
+    }
+  })
+
+  it('moves create-gaia-app to devDependencies if it ever lands in dependencies', () => {
+    // Defensive: the gaia verb runner is dev-only tooling. If a future
+    // change accidentally adds it to `dependencies`, strip it there and
+    // pin under devDependencies so it never ships to user runtime.
+    const tmp = mkdtempSync(join(tmpdir(), 'gaia-pkg-'))
+    try {
+      writeFileSync(
+        join(tmp, 'package.json'),
+        JSON.stringify(
+          {
+            name: 'gaia',
+            version: '0.2.0',
+            private: true,
+            dependencies: { 'create-gaia-app': '^0.3.0', elysia: '^1.0.0' },
+          },
+          null,
+          2,
+        ),
+      )
+      customizePackageJson(tmp, 'my-app', '0.3.3')
+      const updated = JSON.parse(readFileSync(join(tmp, 'package.json'), 'utf-8')) as {
+        dependencies: Record<string, string>
+        devDependencies: Record<string, string>
+      }
+      expect(updated.dependencies['create-gaia-app']).toBeUndefined()
+      expect(updated.dependencies.elysia).toBe('^1.0.0')
+      expect(updated.devDependencies['create-gaia-app']).toBe('^0.3.3')
     } finally {
       rmSync(tmp, { recursive: true, force: true })
     }

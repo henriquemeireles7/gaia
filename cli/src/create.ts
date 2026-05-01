@@ -311,14 +311,19 @@ export function customizeReadme(targetDir: string, projectSlug: string): boolean
 /**
  * Customize the template's package.json for the user's project: rename to
  * the project slug, reset version to 0.1.0 (it's a brand-new app, not the
- * template's version), and keep `private: true` so the user doesn't
- * accidentally publish their app to npm.
+ * template's version), drop the `cli` workspace, and pin
+ * `create-gaia-app` as a real npm version so `node_modules/.bin/gaia`
+ * exists post-install and `bun gaia <verb>` resolves.
  *
  * No-op if package.json is missing (template laid down in stub/unavailable
  * mode) or unparseable. The template repo's package.json shape is the
  * source of truth for everything else (deps, scripts, workspaces).
  */
-export function customizePackageJson(targetDir: string, projectSlug: string): boolean {
+export function customizePackageJson(
+  targetDir: string,
+  projectSlug: string,
+  cliVersion: string,
+): boolean {
   const pkgPath = join(targetDir, 'package.json')
   let raw: string
   try {
@@ -340,6 +345,22 @@ export function customizePackageJson(targetDir: string, projectSlug: string): bo
   if (Array.isArray(pkg.workspaces)) {
     pkg.workspaces = (pkg.workspaces as string[]).filter((w) => w !== 'cli')
   }
+  // Pin create-gaia-app as a real dependency so `node_modules/.bin/gaia`
+  // gets symlinked by `bun install` and the README's `bun gaia <verb>`
+  // path actually resolves. The source repo lists this as
+  // `workspace:*` for local dev — rewrite to a caret range on the
+  // running CLI's version so the scaffolded project pulls from npm.
+  // Drop any stray entry from `dependencies` to keep it dev-only.
+  const deps = (pkg.dependencies as Record<string, string> | undefined) ?? null
+  if (deps && 'create-gaia-app' in deps) {
+    delete deps['create-gaia-app']
+  }
+  const devDeps = ((pkg.devDependencies as Record<string, string> | undefined) ?? {}) as Record<
+    string,
+    string
+  >
+  devDeps['create-gaia-app'] = `^${cliVersion}`
+  pkg.devDependencies = devDeps
   // Pretty-print preserving 2-space indent + trailing newline (npm convention).
   writeFileSync(pkgPath, `${JSON.stringify(pkg, null, 2)}\n`)
   return true
@@ -473,9 +494,9 @@ async function main(): Promise<number> {
     }
     // Rename the template's package.json to the user's project slug + reset
     // version. Done before bun install so node_modules carries the right name.
-    if (customizePackageJson(targetDir, args.projectSlug)) {
+    if (customizePackageJson(targetDir, args.projectSlug, CLI_VERSION)) {
       process.stderr.write(
-        `  ✓ package.json customized (name=${args.projectSlug}, version=0.1.0)\n`,
+        `  ✓ package.json customized (name=${args.projectSlug}, version=0.1.0, gaia verb runner pinned)\n`,
       )
     }
     // Replace the template's README with a project-specific one — the

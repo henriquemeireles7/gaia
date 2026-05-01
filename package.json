@@ -75,6 +75,7 @@
     "@ast-grep/cli": "^0.42.1",
     "@types/bun": "latest",
     "concurrently": "^9.2.1",
+    "create-gaia-app": "workspace:*",
     "drizzle-kit": "^0.31.10",
     "knip": "^5.40.0",
     "oxfmt": "^0.47.0",
