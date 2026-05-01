@@ -1,5 +1,10 @@
+// `env` is a parsed-and-frozen object exported by env.ts. Tests that need
+// to assert live-mode behavior mutate `env.VENDOR_MODE` via cast — safe
+// here because env.ts is module-level-loaded once and the mutation is
+// scoped to the test file. Do NOT replicate this pattern in non-test
+// code; treat `env` as immutable everywhere else.
 import { describe, expect, it } from 'bun:test'
-import { parseEnv } from './env'
+import { assertNoMockPlaceholdersInLiveMode, MOCK_PLACEHOLDERS, parseEnv } from './env'
 
 const valid = {
   DATABASE_URL: 'postgres://u:p@localhost:5432/db',
@@ -55,16 +60,69 @@ describe('parseEnv', () => {
 
   it('refuses to boot in live mode with mock-mode placeholders', () => {
     const { DATABASE_URL: _, ...rest } = valid
-    // Live mode + missing DATABASE_URL → schema applies mock placeholder →
-    // safety check in env.ts module-level rejects.
-    // We can't import env.ts directly here (it parses on import), so we
-    // simulate the same condition by parsing the schema and asserting the
-    // mock placeholder is what would trigger the live-mode rejection.
+    const envWithPlaceholder = parseEnv({ ...rest, VENDOR_MODE: 'live' })
+    expect(() => assertNoMockPlaceholdersInLiveMode(envWithPlaceholder)).toThrow(/DATABASE_URL/)
+  })
+})
+
+describe('assertNoMockPlaceholdersInLiveMode', () => {
+  it('is a no-op in mock mode (default)', () => {
+    const env = parseEnv({})
+    expect(env.VENDOR_MODE).toBe('mock')
+    expect(() => assertNoMockPlaceholdersInLiveMode(env)).not.toThrow()
+  })
+
+  it('passes when all required vars have real values in live mode', () => {
+    const env = parseEnv({ ...valid, VENDOR_MODE: 'live' })
+    expect(() => assertNoMockPlaceholdersInLiveMode(env)).not.toThrow()
+  })
+
+  it('throws when DATABASE_URL is the mock placeholder in live mode', () => {
+    const { DATABASE_URL: _, ...rest } = valid
     const env = parseEnv({ ...rest, VENDOR_MODE: 'live' })
-    expect(env.DATABASE_URL).toContain('mock_dev_only')
-    expect(env.VENDOR_MODE).toBe('live')
-    // The actual throw lives in env.ts's module-level check, exercised on
-    // app boot. parseEnv (this function) doesn't run that check directly.
+    expect(() => assertNoMockPlaceholdersInLiveMode(env)).toThrow(/DATABASE_URL/)
+  })
+
+  it('lists every placeholder in the error message (not just the first)', () => {
+    // All vars defaulted → all placeholders. Error message names each.
+    const env = parseEnv({ VENDOR_MODE: 'live' })
+    try {
+      assertNoMockPlaceholdersInLiveMode(env)
+      expect.unreachable()
+    } catch (err) {
+      const msg = (err as Error).message
+      expect(msg).toContain('DATABASE_URL')
+      expect(msg).toContain('BETTER_AUTH_SECRET')
+      expect(msg).toContain('ANTHROPIC_API_KEY')
+      expect(msg).toContain('POLAR_ACCESS_TOKEN')
+      expect(msg).toContain('RESEND_API_KEY')
+    }
+  })
+
+  it('does NOT false-flag user values that happen to contain "mock_dev_only" substring', () => {
+    // Exact-match comparison protects users with test-account names like
+    // `polar_at_mock_dev_only_test_account_123` from being rejected.
+    const env = parseEnv({
+      ...valid,
+      VENDOR_MODE: 'live',
+      POLAR_ACCESS_TOKEN: 'polar_at_mock_dev_only_test_account_123', // contains substring, not exact
+    })
+    expect(() => assertNoMockPlaceholdersInLiveMode(env)).not.toThrow()
+  })
+})
+
+describe('MOCK_PLACEHOLDERS', () => {
+  it('every placeholder satisfies its schema (used as default + safety-check sentinel)', () => {
+    // Single source of truth — placeholder values must pass the schema's
+    // own validation. If any of these break, parseEnv with empty input fails.
+    const env = parseEnv({})
+    expect(env.DATABASE_URL).toBe(MOCK_PLACEHOLDERS.DATABASE_URL)
+    expect(env.BETTER_AUTH_SECRET).toBe(MOCK_PLACEHOLDERS.BETTER_AUTH_SECRET)
+    expect(env.POLAR_ACCESS_TOKEN).toBe(MOCK_PLACEHOLDERS.POLAR_ACCESS_TOKEN)
+    expect(env.POLAR_WEBHOOK_SECRET).toBe(MOCK_PLACEHOLDERS.POLAR_WEBHOOK_SECRET)
+    expect(env.POLAR_PRODUCT_ID).toBe(MOCK_PLACEHOLDERS.POLAR_PRODUCT_ID)
+    expect(env.RESEND_API_KEY).toBe(MOCK_PLACEHOLDERS.RESEND_API_KEY)
+    expect(env.ANTHROPIC_API_KEY).toBe(MOCK_PLACEHOLDERS.ANTHROPIC_API_KEY)
   })
 
   it('throws when BETTER_AUTH_SECRET is too short', () => {

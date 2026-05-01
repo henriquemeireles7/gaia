@@ -89,6 +89,37 @@ describe('layDownTemplate (in-source mode)', () => {
     }
   })
 
+  it('refuses in-source mode when targetDir is INSIDE sourceRoot (recursion guard)', async () => {
+    // Regression: v0.3.0 shipped without this guard. Running
+    // `bun cli/src/create.ts qa-test` from inside the gaia repo created
+    // qa-test/ as a sibling of cli/, then copyTree walked into qa-test/
+    // and recursed into qa-test/qa-test/qa-test/... eventually crashing
+    // with ENAMETOOLONG. Fix in v0.3.1.
+    const root = makeFakeGaiaRoot()
+    try {
+      const result = await layDownTemplate({
+        targetDir: join(root, 'qa-test'), // INSIDE root — would recurse without guard
+        sourceRoot: root,
+      })
+      expect(result.mode).toBe('unavailable')
+      expect(result.filesCopied).toBe(0)
+      expect(result.warning).toContain('inside the Gaia source repo')
+    } finally {
+      rmSync(root, { recursive: true, force: true })
+    }
+  })
+
+  it('refuses in-source mode when targetDir IS sourceRoot (degenerate case)', async () => {
+    const root = makeFakeGaiaRoot()
+    try {
+      const result = await layDownTemplate({ targetDir: root, sourceRoot: root })
+      expect(result.mode).toBe('unavailable')
+      expect(result.warning).toContain('inside the Gaia source repo')
+    } finally {
+      rmSync(root, { recursive: true, force: true })
+    }
+  })
+
   it('returns mode=git-clone with skipGitClone seam (no I/O)', async () => {
     const target = mkdtempSync(join(tmpdir(), 'gaia-tgt-'))
     try {
