@@ -75,18 +75,22 @@ async function main(): Promise<number> {
   const deadline = Date.now() + BOOT_TIMEOUT_MS
   let lastErr = ''
   while (Date.now() < deadline) {
+    // eslint-disable-next-line no-await-in-loop -- intentional sequential polling: each probe must observe the result of the prior one.
     const result = await probe(URL)
     if ('status' in result) {
       if (result.status === 503) {
         lastErr = `HTTP 503 — vinxi served the SSR error fallback (likely a module-graph or SSR config bug)`
       } else {
-        log(`✓ boot OK — ${URL} returned HTTP ${result.status} in ${BOOT_TIMEOUT_MS - (deadline - Date.now())}ms`)
+        log(
+          `✓ boot OK — ${URL} returned HTTP ${result.status} in ${BOOT_TIMEOUT_MS - (deadline - Date.now())}ms`,
+        )
         cleanup()
         return 0
       }
     } else {
       lastErr = result.error
     }
+    // eslint-disable-next-line no-await-in-loop -- intentional pacing between polls.
     await Bun.sleep(POLL_INTERVAL_MS)
   }
 
