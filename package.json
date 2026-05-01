@@ -10,11 +10,12 @@
   "type": "module",
   "main": "apps/api/server/app.ts",
   "scripts": {
-    "dev": "cd apps/web && bun dev",
+    "dev": "cd apps/web && bun run dev",
     "dev:api": "bun --hot apps/api/server/app.ts",
-    "dev:web": "cd apps/web && bun dev",
+    "dev:web": "cd apps/web && bun run dev",
+    "dev:all": "concurrently --kill-others-on-fail --names api,web --prefix-colors blue,magenta \"bun run dev:api\" \"bun run dev:web\"",
     "build": "bun build apps/api/server/app.ts --outdir dist --target bun --minify",
-    "build:web": "cd apps/web && bun build",
+    "build:web": "cd apps/web && bun run build",
     "start": "bun run dist/app.js",
     "check": "bun run check:lint && bun run check:format && bun run check:ast && bun run check:types && bun run harden && bun run check:scripts && bun run check:test",
     "check:lint": "bunx oxlint .",
@@ -73,6 +74,7 @@
   "devDependencies": {
     "@ast-grep/cli": "^0.42.1",
     "@types/bun": "latest",
+    "concurrently": "^9.2.1",
     "drizzle-kit": "^0.31.10",
     "knip": "^5.40.0",
     "oxfmt": "^0.47.0",

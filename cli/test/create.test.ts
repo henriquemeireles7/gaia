@@ -199,4 +199,54 @@ describe('customizePackageJson', () => {
       rmSync(tmp, { recursive: true, force: true })
     }
   })
+
+  it('strips "cli" from workspaces (template tooling, not user-visible)', () => {
+    // Regression: v0.3.0 shipped without this filter. The cli/ workspace
+    // is excluded from scaffolded projects (template tooling, not user
+    // code) but its entry remained in package.json#workspaces, crashing
+    // every user's first `bun install` with "Workspace not found 'cli'".
+    // Fix in v0.3.1.
+    const tmp = mkdtempSync(join(tmpdir(), 'gaia-pkg-'))
+    try {
+      mkdirSync(tmp, { recursive: true })
+      writeFileSync(
+        join(tmp, 'package.json'),
+        JSON.stringify(
+          {
+            name: 'gaia',
+            version: '0.2.0',
+            private: true,
+            workspaces: ['apps/*', 'packages/*', 'cli'],
+          },
+          null,
+          2,
+        ),
+      )
+      customizePackageJson(tmp, 'my-app')
+      const updated = JSON.parse(readFileSync(join(tmp, 'package.json'), 'utf-8')) as {
+        workspaces: string[]
+      }
+      expect(updated.workspaces).toEqual(['apps/*', 'packages/*'])
+      expect(updated.workspaces).not.toContain('cli')
+    } finally {
+      rmSync(tmp, { recursive: true, force: true })
+    }
+  })
+
+  it('preserves workspaces when "cli" is not present', () => {
+    const tmp = mkdtempSync(join(tmpdir(), 'gaia-pkg-'))
+    try {
+      writeFileSync(
+        join(tmp, 'package.json'),
+        JSON.stringify({ name: 'x', workspaces: ['apps/*', 'packages/*'] }, null, 2),
+      )
+      customizePackageJson(tmp, 'x')
+      const updated = JSON.parse(readFileSync(join(tmp, 'package.json'), 'utf-8')) as {
+        workspaces: string[]
+      }
+      expect(updated.workspaces).toEqual(['apps/*', 'packages/*'])
+    } finally {
+      rmSync(tmp, { recursive: true, force: true })
+    }
+  })
 })
