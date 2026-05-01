@@ -4,6 +4,21 @@ All notable changes to Gaia. Format adapted from [Keep a Changelog](https://keep
 
 The repo is pre-1.0. Breaking changes happen freely until v1.0.0.
 
+## [0.2.4] - 2026-05-01
+
+Ships `create-gaia-app@0.3.3` to fix two P0 bugs that broke first-run on the published 0.3.2 tag: every route returned HTTP 503 from `bun dev`, and `bun gaia <verb>` was unreachable post-scaffold. Both reproduced cleanly from a fresh `bun create gaia-app@latest myapp`. A new `bun run check` stage spawns the dev server and verifies it returns a non-503 status before letting any future regression through. Found by `/qa` against the published npm tag, fixed and re-verified end-to-end via fresh scaffold.
+
+### Fixed
+
+- `apps/web/app.config.ts`: SSR module-graph 503. `@solidjs/router`'s precompiled `dist/index.js` calls `template()` at module top level — on the server that's the `notSup` stub. vite externalized the router for SSR, so Bun resolved `default` not `solid`. Adding `vite.ssr.noExternal: ['@solidjs/router']` routes the import through `vite-plugin-solid`, which honors the `solid` export condition and compiles the JSX source for SSR. Also bumped the router pin to `^0.16.0` (current `latest`).
+- `cli/src/create.ts`: `customizePackageJson` now writes `"create-gaia-app": "^<cliVersion>"` into the scaffolded project's `devDependencies`. Without this pin, the `gaia` bin from `create-gaia-app` was never linked into `node_modules/.bin/`, and every README on-ramp (`bun gaia live`, `bun gaia deploy`, `bun gaia smoke`, `bun gaia verify-keys`) hit "Script not found 'gaia'". Two regression tests cover the rewrite + the dependencies → devDependencies migration.
+- Root `package.json`: declares `"create-gaia-app": "workspace:*"` so the source repo's own `bun install` symlinks `node_modules/.bin/gaia` for in-checkout dev. The scaffolder rewrites this to a real npm range when laying down a user project.
+
+### Added
+
+- `scripts/smoke-dev-boot.ts` + `bun run smoke:dev`: spawns `bun run dev` on a non-default port, polls `/` for a non-503 status, kills the process. Wired into `bun run check` as the final stage. Green path: ~3 seconds. This is the missing layer that let the SSR 503 ship across 0.3.0 → 0.3.2 without anyone noticing.
+- `.gaia/audits/qa/2026-04-30-cli-0.3.2.md`: the full QA report against `npm:create-gaia-app@0.3.2` with repro commands, root-cause analysis, and a resolution log.
+
 ## [0.2.3] - 2026-04-29
 
 Hardens initiative 0005 (Wave 0 runtime). Adds a substrate clarification (Inngest is today's runtime; the wrapper insulates from a future iii.dev migration), expands risks from 5 to 15 (replication slot leakage, replay attacks, push storms, partial-response corruption, thundering herd, snapshot/WAL gap, cross-tenant filtering), and adds §7 Hardening Specification with per-PR file lists — 147 files specified across the 13 PRs (what each does, why it exists). 24 mechanical fix rows (AD-1..AD-24) appended to the audit trail. Source: `/autoplan` Claude subagent dual review (CEO + Eng), Codex unavailable. No scope expansion.
