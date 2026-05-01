@@ -100,7 +100,7 @@ When the user's request matches one of these, invoke the skill BEFORE any other 
 
 ## Always-on rules
 
-- ALWAYS run `bun run check` before committing (lint + typecheck + test).
+- ALWAYS run `bun run check` before committing (lint + typecheck + test + dev-boot smoke).
 - 100% test coverage at boundaries; mutation testing in the middle (vision §11).
 - Tests colocated: `foo.ts` → `foo.test.ts` in the same folder.
 - No abstraction until the third duplication.

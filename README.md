@@ -114,7 +114,7 @@ The principle: **everything Gaia-methodology lives under `.gaia/`. `.claude/` ho
 | Command               | Description                                                            |
 | --------------------- | ---------------------------------------------------------------------- |
 | `bun run dev`         | API dev server with hot reload (run `bun run dev:web` in another tab). |
-| `bun run check`       | Full pipeline (lint + types + harden + scripts + test). Pre-commit.    |
+| `bun run check`       | Full pipeline (lint + types + harden + scripts + test + dev-boot smoke). Pre-commit. |
 | `bun run lint`        | Auto-fix lint issues.                                                  |
 | `bun run db:migrate`  | Run database migrations.                                               |
 | `bun run db:generate` | Generate a new migration from `packages/db/schema.ts`.                 |

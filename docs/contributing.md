@@ -46,7 +46,7 @@ git checkout -b feat/your-feature
 # (your AI agent will likely handle this via /d-code)
 
 # 3. Run the local check before commit
-bun run check       # lint + format + ast + types + harden + scripts + test
+bun run check       # lint + format + ast + types + harden + scripts + test + dev-boot smoke
 
 # 4. Commit + push
 git commit -m "feat: ..."
