@@ -77,7 +77,7 @@
     "concurrently": "^9.2.1",
     "drizzle-kit": "^0.31.10",
     "knip": "^5.40.0",
-    "oxfmt": "^0.47.0",
+    "oxfmt": "^0.48.0",
     "oxlint": "^1.62.0",
     "typescript": "^5.7.0"
   },
