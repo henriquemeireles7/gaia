@@ -66,7 +66,7 @@
     "elysia": "^1.1.27",
     "iii-sdk": "^0.11.3",
     "postgres": "^3.4.0",
-    "posthog-node": "^4.4.0",
+    "posthog-node": "^5.33.2",
     "resend": "^4.1.0",
     "solid-js": "^1.9.0",
     "vinxi": "^0.5.11"
