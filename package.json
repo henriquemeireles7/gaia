@@ -76,7 +76,7 @@
     "@types/bun": "latest",
     "concurrently": "^9.2.1",
     "drizzle-kit": "^0.31.10",
-    "knip": "^5.40.0",
+    "knip": "^6.11.0",
     "oxfmt": "^0.47.0",
     "oxlint": "^1.62.0",
     "typescript": "^5.7.0"
